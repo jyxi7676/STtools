@@ -40,15 +40,15 @@ set -e
 # Fail if any of the commands in a pipeline fails
 set -o pipefail
 
-while getopts ":m:h:l:p:w:" options; do
+while getopts ":m:h:l:" options; do
   #echo $options
   case ${options} in
     m ) miseq=$OPTARG;;
     h ) hiseq=$OPTARG;;
     l ) hdmilength=$OPTARG;;
-    p ) miseq_pos=$OPTARG;;
+    #p ) miseq_pos=$OPTARG;;
    # w ) whitelists=$OPTARG;;
-    #h ) usage
+    h ) usage
           exit 1;;
     \? ) usage
          exit 1;;
