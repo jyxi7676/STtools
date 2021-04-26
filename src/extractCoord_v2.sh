@@ -14,8 +14,8 @@ Firstly, we need to process our data with bash script extractCoord.sh, which can
 -m    <miseq>         : Path of read file from 1st-Seq.  Required.
 -h    <hiseq>         : Path of read1 from 2nd-Seq.  Required.
 -l    <hdmilength>    : An integer indicating the length of the HDMIs; For now, it can only take 20 or 30. In default, we assume if MiSeq is used for 1st-Seq, then hdmilength=20; if HiSeq is used for 1st-Seq, then hdmilength=30.
--p    <miseq_pos>     : Five columns representing 1st-Seq HDMIs, lane, tile, X, Y.  Required.
--w    <whitelists>    : This is the whitelists of HDMIs used for STARsolo alignment. If MiSeq is used for 1st-Seq, then whitelists are the reverse complementary of HDMIs in bottom tiles from 1st-Seq ; if HiSeq is used for 1st-Seq,  whitelists are the reverse complementary of HDMIs in all tiles in lane 2 from 1st-Seq.  Required.
+#-p    <miseq_pos>     : Five columns representing 1st-Seq HDMIs, lane, tile, X, Y.  Required.
+#-w    <whitelists>    : This is the whitelists of HDMIs used for STARsolo alignment. If MiSeq is used for 1st-Seq, then whitelists are the reverse complementary of HDMIs in bottom tiles from 1st-Seq ; if HiSeq is used for 1st-Seq,  whitelists are the reverse complementary of HDMIs in all tiles in lane 2 from 1st-Seq.  Required.
 EOF
 }
 
@@ -47,8 +47,8 @@ while getopts ":m:h:l:p:w:" options; do
     h ) hiseq=$OPTARG;;
     l ) hdmilength=$OPTARG;;
     p ) miseq_pos=$OPTARG;;
-    w ) whitelists=$OPTARG;;
-    h ) usage
+   # w ) whitelists=$OPTARG;;
+    #h ) usage
           exit 1;;
     \? ) usage
          exit 1;;
@@ -63,8 +63,8 @@ shift $(($OPTIND - 1))
 
 check_set "$miseq" "Path of read file from 1st-Seq" "-m"
 check_set "$hiseq" "Path of read1 from 2nd-Seq" "-h"
-check_set "$whitelists" "Whitelists of barcodes from extractCoord.sh"  "-w"
-check_set "$miseq_pos" "Spatialcoordinates representing 1st-Seq HDMIs, lane, tile, X, Y." "-p"
+#check_set "$whitelists" "Whitelists of barcodes from extractCoord.sh"  "-w"
+#check_set "$miseq_pos" "Spatialcoordinates representing 1st-Seq HDMIs, lane, tile, X, Y." "-p"
 
 #####Nueed to double check the checking commands
 if (( $# != 0 ))
@@ -83,10 +83,10 @@ fi
 [ -f "$hiseq" ] && echo "$hiseq exists." || echo "$hiseq does not exist!"
 
 #check if whitelists exsit
-[ -f "$whitelists" ] && echo "$whitelists exists." || echo "$whitelists does not exist!"
+#[ -f "$whitelists" ] && echo "$whitelists exists." || echo "$whitelists does not exist!"
 
 #check if whitelists exsit
-[ -f "$miseq_pos" ] && echo "$miseq_pos exists." || echo "$miseq_pos does not exist!"
+#[ -f "$miseq_pos" ] && echo "$miseq_pos exists." || echo "$miseq_pos does not exist!"
 
 
 
