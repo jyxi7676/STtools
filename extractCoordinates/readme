@@ -1,1 +1,1 @@
-
+sbatch extractCoordinates_v2.sh -m liver-MiSeq-tile2106-sub-R1.fastq.gz -h liver_tile2106_sub_R1.fastq.gz  -l 20
