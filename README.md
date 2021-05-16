@@ -31,7 +31,7 @@ This image below shows the overall workflow for STtools. There are 6 steps, each
 ### Step 6: Subcellular analysis
 ### Step 7: Downstreama analysis (add later)
 <p align="center">
-    <img src="Workflow.png" width="600" height="550" />
+    <img src="Workflow.png" width="700" height="550" />
 </p>
 
 
