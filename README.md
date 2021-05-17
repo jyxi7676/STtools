@@ -12,14 +12,16 @@ You need to install the following software tools before using this package .
 * Python >=3.0 (specify libraries)
 * perl
 * pigz
+
 ## Installation
 
+# Input and Output Data Format
+Please refer to the link xxxx for an illustration of required input data format and output data format for each step.
 
 ## Example Data
+* SeqScope exmaple raw data can be found at xxxx
 
-* SeqScope exmaple data can be found at the input directory under each steps(such as /extractCoordinates/input/)
-
-* VISIUM test data is available at:
+* VISIUM raw data is available atxxxx
 
 ## Overall Workflow
 
@@ -50,6 +52,3 @@ https://github.com/jyxi7676/STtools/blob/main/scipts/readme1.md
 https://github.com/jyxi7676/STtools/blob/main/scipts/readme2.md
 * Running specific step
 https://github.com/jyxi7676/STtools/blob/main/scipts/readme3.md
-```
- python3 sttools_v4.py --run-steps 4 --seq1 '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/extractCoord/input/liver-MiSeq-tile2106-sub-R1.fastq.gz' --fq1 '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/align/input/liver_tile2106_sub_R1.fastq.gz' --fq2 '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/align/input/liver_tile2106_sub_R2.fastq.gz' -g '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/geneIndex/' --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/' --star-path '/net/fantasia/home/jyxi/STAR-2.7.5c/source/' --seqtk-path '/net/fantasia/home/jyxi/seqtk/' --py 'python3' --tiles 2106 --sidesize 300 --window 150 -l 20 -o 'Sample' -c 2
-```
