@@ -16,7 +16,7 @@ You need to install the following software tools before using this package .
 ## Installation
 
 # Input and Output Data Format
-Please refer to the link xxxx for an illustration of required input data format and output data format for each step.
+Please refer to the link https://github.com/jyxi7676/STtools/blob/main/scipts/fileformats.md for an illustration of required input data format and output data format for each step.
 
 ## Example Data
 * SeqScope exmaple raw data can be found at xxxx
