@@ -52,3 +52,9 @@ https://github.com/jyxi7676/STtools/blob/main/scipts/readme1.md
 https://github.com/jyxi7676/STtools/blob/main/scipts/readme2.md
 * Running specific step
 https://github.com/jyxi7676/STtools/blob/main/scipts/readme3.md
+
+## External links
+Here are some useful external links:
+### To generate gene index for STARsolo alignment: https://hbctraining.github.io/Intro-to-rnaseq-hpc-O2/lessons/03_alignment.html
+### Multimodal reference mapping: https://satijalab.org/seurat/articles/multimodal_reference_mapping.html
+### Incoporate transgenes to alignment: xxx 
