@@ -1,8 +1,9 @@
 
 # User Manual
 ## Running all steps in STtools
+The user need to use the option --run-all to run all steps and to provide the following input files. 
 ### Input
-  The user need to provide the following files in order for STtools to run all the steps sequentially. 
+  The user need to provide some of the following files in order for STtools to run all the steps sequentially. 
   *   --seq1: Path to 1st-Seq FASTQ.gz file. STtools takes in fastq.gz files with specific structure(link here). If the barcode/UMI/randomer location is different, please see this link for an example to make it compatible to STtools package. 
   *   --fq1 : Path to 2nd-Seq Read 1 FASTQ.gz file. If the barcode/UMI/randomer location is different, please see this link for an example to make it compatible to STtools package.
   *   --fq2: Path to 2nd-Seq Read 2 FASTQ.gz file. If the barcode/UMI/randomer location is different, please see this link for an example to make it compatible to STtools package.
