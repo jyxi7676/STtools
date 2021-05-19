@@ -28,7 +28,7 @@ Please refer to the link https://github.com/jyxi7676/STtools/blob/main/scipts/fi
 This image below shows the overall workflow for STtools. 
 
 <p align="center">
-    <img src="Workflow.png" width="700" height="550" />
+    <img src="Workflow.png" width="850" height="550" />
 </p>
 
 There are 6 steps, each step takes input from either outputs from previous steps or the raw exapmle data. Please see a brief explanation about each step as follows:
