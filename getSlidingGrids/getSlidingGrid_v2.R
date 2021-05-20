@@ -316,6 +316,7 @@ getSlidingGrid = function(seqscope1st,DGEdir,spatial,nrow,ncol,sidesize,outpath,
 
 
 
-
+print(r1)
+print(r5)
 getSlidingGrid(r1,r2,r3,as.numeric(r4),as.numeric(r5),as.numeric(r6),r7,as.numeric(r8),r9,r10,as.numeric(r11))
 
