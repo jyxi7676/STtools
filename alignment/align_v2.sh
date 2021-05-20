@@ -134,7 +134,8 @@ file1_final_gz="$file1_final.gz"
 #cd $seqtkpath
 echo 'trimming R1'
 $seqtk_executable trimfq -q 0 -l $hdmilength $file1 > ./file1_trim.fastq
-pigz -p 8 ./file1_trim.fastq
+pigz -p 8 -f ./file1_trim.fastq
+#gzip ./file1_trim.fastq
 echo $file1_final
 
 if [  "$hdmilength" -eq 30 ]
@@ -143,8 +144,8 @@ then
 else 
   paste <(zcat ./file1_trim.fastq.gz) <(zcat $file2) | perl -lane 'if ( $. % 4 == 1 ) { print "$F[0] $F[1]"; } elsif ( $. % 4 == 3 ) { print "+"; } else { print substr($F[0],0,20).substr($F[1],0,9).substr($F[0],50); }' > $file1_final
 fi
-
-pigz -p 8 $file1_final
+#gzip $file1_final
+pigz -p 8 -f $file1_final
 rm ./file1_trim.fastq.gz
 echo 'finish trimming'
 #echo $file1_final
