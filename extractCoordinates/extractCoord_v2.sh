@@ -119,7 +119,6 @@ else
   cat $miseq_pos | awk '{ if ($3 > 2100) { print $1 } }' > $whitelists
 
 fi
-
 rm ./pos-MiSeq-temp.txt
 rm ./HDMIs-MiSeq-temp.txt
 rm ./MiSeq-temp-revHDMIs-pos.txt
