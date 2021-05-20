@@ -21,8 +21,49 @@ Step 1 aims to extracts spatial coordinates and whitelist info from the sequence
  * whitelist.txt:
  
 ## Step 2
+Step2 visualize the barcode/HDMI density discovery plot, with which the user are able to compare with HE images to estimate the tissue boundary. The alignment is done manually and automatic alignment is under development. 
+### *Input*
+  * -fq1
+  * -fq2
+### *Code*
+ ```
+ python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v4.py --run-steps 3 --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/'  --py 'python3' --spatial /net/fantasia/home/jyxi/scrna/leejun/ngst/fastqs/HiSeq/19129-15/spatialcoordinates.txt --hdmi2ndSeq /net/fantasia/home/jyxi/scrna/leejun/ngst/fastqs/HiSeq/19129-15/HDMI_SeqScope_2nd.txt
+
+ 
+ python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v4.py --run-steps 2 --fq1 '/net/fantasia/home/jyxi/scrna/leejun/ngst/fastqs/HiSeq/19129-15/19129FL-15-01-02_S87_L008_R1_001.fastq.gz' --fq2 '/net/fantasia/home/jyxi/scrna/leejun/ngst/fastqs/HiSeq/19129-15/19129FL-15-01-02_S87_L008_R2_001.fastq.gz'  -g '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/geneIndex/' --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/' --star-path '/net/fantasia/home/jyxi/STAR-2.7.5c/source/' --seqtk-path '/net/fantasia/home/jyxi/seqtk/' --py 'python3'  --py 'python3' -o 'ColonWTA'
+
+ ```
+### *Output*
+
 ## Step 3
+Step 3 aligns the data the reference genome using STARsolo software and output digital expression matrix under Gene,GeneFull, and Velocyto options (see link xxxxx).
+Before running step3, it is the required the user to generate the genome reference following this link  xxxxx.
+### *Input*
+ * --fq1: Path to 2nd-Seq FASTQ.gz file of read 1. Required.
+ * --fq2: Path to 2nd-Seq FASTQ.gz file of read 2. Required.
+ * -g: genome reference. Required
+ * --STtools: Path to the STtools package. If not given, using currently working directory (add this to pkg)
+ * -o: Output prefix of alignment, if not given, set to 'Sample'
+ * --sesqtk-path: Path to seqtk executable. Required
+ * --star-path: Path to STAR executable. Required
+ * --whitelist: Txt file of the whitelist, if not given, searching whitelist.txt in the current folder.
+
+ 
+### *Code*
+``` 
+python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v4.py --run-steps 2 --fq1 '/net/fantasia/home/jyxi/scrna/leejun/ngst/fastqs/HiSeq/19129-15/19129FL-15-01-02_S87_L008_R1_001.fastq.gz' --fq2 '/net/fantasia/home/jyxi/scrna/leejun/ngst/fastqs/HiSeq/19129-15/19129FL-15-01-02_S87_L008_R2_001.fastq.gz'  -g '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/geneIndex/' --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/' --star-path '/net/fantasia/home/jyxi/STAR-2.7.5c/source/' --seqtk-path '/net/fantasia/home/jyxi/seqtk/' --py 'python3'  --py 'python3' -o 'ColonWTA'
+```
+### *Output*
+This step outputs folders with STARsolo summary statistics, bam file, DGE, etc.
+* SampleSolo.out/
+  
 ## Step 4
+Step 4 bins the DGE into simple square gridded data and collapses the reads counts within each grid. A new DGE is created and spatial information is updated with the center of each bin, and is saved as an RDS file for output.
+### *input*
+### *code*
+### *output*
+* SimpleSquareGrids.RDS
+
 ## Step 5
 ## Step 6
   
