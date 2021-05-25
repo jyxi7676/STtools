@@ -28,7 +28,7 @@ Please refer to the link https://github.com/jyxi7676/STtools/blob/main/scipts/fi
 This image below shows the overall workflow for STtools. 
 
 <p align="center">
-    <img src="Workflow.png" width="1550" height="600" />
+    <img src="STtools_workflow.png" width="1550" height="700" />
 </p>
 
 There are 6 steps, each step takes input from either outputs from previous steps or the raw exapmle data. Please see a brief explanation about each step as follows:
@@ -38,8 +38,9 @@ There are 6 steps, each step takes input from either outputs from previous steps
 * Step 3 takes whitelist.txt, transcriptomic fastq.gz files and reference genome as input and runs STARsolo alignment; this step outputs digital expression matrix
 * Step 4 takes DGE from Step 3 and output Seurat object with collapsed DGE of simple square grids
 * Step 5 takes DGE from Step 3 and output Seurat object with collapsed DGE of square grids from sliding window strategy
-* Step 6 takes DGE(Velocyto) from Step 3 and generate subcellular plots showing pattern of spliced/unspliced reads
-* Step 7 (add)
+* Step 6 takes in RDS file from Step 4 and Step 5 as input and performs dimension reduction, clustering and conducts refernece mapping with simple square grids as query
+* Step 7 takes DGE(Velocyto) from Step 3 and generate subcellular plots showing pattern of spliced/unspliced reads
+
 
 
 
