@@ -17,8 +17,9 @@ Step 1 aims to extracts spatial coordinates and whitelist info from the sequence
  ```
  ### *Output*
  This step output two useful files in the current working directory, and are taken as input the next steps.
- * spatialcoordinates.txt: 
- * whitelist.txt:
+ * spatialcoordinates.txt 
+ * whitelist.txt
+ * summary_step1.txt
  
 ## Step 2
 Step2 visualize the barcode/HDMI density discovery plot, with which the user are able to compare with HE images to estimate the tissue boundary. The alignment is done manually and automatic alignment is under development. 
@@ -56,6 +57,7 @@ python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v4.py --run-st
 ### *Output*
 This step outputs folders with STARsolo summary statistics, bam file, DGE, etc.
 * SampleSolo.out/
+* summary_step3.txt
   
 ## Step 4
 Step 4 bins the DGE into simple square gridded data and collapses the reads counts within each grid. A new DGE is created and spatial information is updated with the center of each bin, and is saved as an RDS file for output.
@@ -63,9 +65,10 @@ Step 4 bins the DGE into simple square gridded data and collapses the reads coun
 ### *code*
 ### *output*
 * SimpleSquareGrids.RDS
-
+* summary_step4.txt
 ## Step 5
 ## Step 6
+## Step7
   
   
  
