@@ -60,13 +60,25 @@ This step outputs folders with STARsolo summary statistics, bam file, DGE, etc.
 * summary_step3.txt
   
 ## Step 4
-Step 4 bins the DGE into simple square gridded data and collapses the reads counts within each grid. A new DGE is created and spatial information is updated with the center of each bin, and is saved as an RDS file for output.
+Step 4 bins the DGE into simple square gridded data and collapses the reads counts within each grid. A new DGE is created and spatial information is updated with the center of each bin, and is saved as an RDS file for output in the current working directory.
 ### *input*
+* --STtools: Path to STtools package. If not given, the current working directory is used.(add this to pkg).
+* --tiles: Tiles that the user is insterested in. Multiple tile numbers need to be separated by comma. For example: --tiles 2106,2107,2108. Required.
+* --sidesize: The size of the square grids side. By default, it is set to 300 units.
+* --DGEdir: Path to the digital expression matrix. If not given, use the path to DGE from previous steps.
+* --spatial: Path to the txt file of spatial coordinates. If not given, use the path to spatialCoordinates.txt from previous steps.
+* --nrow: number of rows when generating the super tile. If not give, we assume there is only one tile, and nrow=1.
+* --ncol: number of cols when generating the super tile. If not give, we assume there is only one tile, and nrow=1.
 ### *code*
+```
+python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 4  --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/'  --tiles 2106 --sidesize 300 
+```
+
 ### *output*
 * SimpleSquareGrids.RDS
 * summary_step4.txt
 ## Step 5
+Steps 5 
 ## Step 6
 ## Step7
   
