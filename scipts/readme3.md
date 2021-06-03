@@ -68,7 +68,7 @@ Step 4 bins the DGE into simple square gridded data and collapses the reads coun
 * --DGEdir: Path to the digital expression matrix. If not given, use the path to DGE from previous steps.
 * --spatial: Path to the txt file of spatial coordinates. If not given, use the path to spatialCoordinates.txt from previous steps.
 * --nrow: number of rows when generating the super tile. If not give, we assume there is only one tile, and nrow=1.
-* --ncol: number of cols when generating the super tile. If not give, we assume there is only one tile, and nrow=1.
+* --ncol: number of cols when generating the super tile. If not give, we assume there is only one tile, and ncol=1.
 ### *code*
 ```
 python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 4  --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/'  --tiles 2106 --sidesize 300 
@@ -78,7 +78,22 @@ python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-st
 * SimpleSquareGrids.RDS
 * summary_step4.txt
 ## Step 5
-Steps 5 
+Step 5 bins the DGE into simple square gridded data using sliding window strategy and outputs RDS file with collapsed barcodes and spatial information. All the results are store in the current working directory.
+### *input*
+* --STtools: Path to STtools package. If not given, the current working directory is used.(add this to pkg).
+* --tiles: Tiles that the user is insterested in. Multiple tile numbers need to be separated by comma. For example: --tiles 2106,2107,2108. Required.
+* --sidesize: The size of the square grids side. By default, it is set to 300 units.
+* --window: The side of sliding window. By default it is set to by 150 units.
+* --DGEdir: Path to the digital expression matrix. If not given, use the path to DGE from previous steps.
+* --spatial: Path to the txt file of spatial coordinates. If not given, use the path to spatialCoordinates.txt from previous steps.
+* --nrow: number of rows when generating the super tile. If not give, we assume there is only one tile, and nrow=1.
+* --ncol: number of cols when generating the super tile. If not give, we assume there is only one tile, and ncol=1.
+### *code*
+```
+python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 5 --seq1 '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/extractCoord/input/liver-MiSeq-tile2106-sub-R1.fastq.gz' --fq1 '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/align/input/liver_tile2106_sub_R1.fastq.gz' --fq2 '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/align/input/liver_tile2106_sub_R2.fastq.gz' -g '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/geneIndex/' --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/' --star-path '/net/fantasia/home/jyxi/STAR-2.7.5c/source/' --seqtk-path '/net/fantasia/home/jyxi/seqtk/' --py 'python3' --tiles 2106 --sidesize 300 --window 150 -l 20 -o 'Sample'
+```
+### *output*
+* SlidingSqureGrids.RDS
 ## Step 6
 ## Step7
   
