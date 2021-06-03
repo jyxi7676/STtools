@@ -49,7 +49,7 @@ def step1():
     if ( args.hdmilength is None ):
         args.hdmilength=20
 
-    args.extract=args.STtools+"/extractCoord/extractCoord_v2.sh"
+    args.extract=args.STtools+"/extractCoordinates/extractCoord_v2.sh"
     cmd1 = "bash {args.extract} -m {args.seq1} -h {args.fq1} -l {args.hdmilength}".format(args=args)
     ret = os.system(cmd1)
     if ( ret != 0 ):
