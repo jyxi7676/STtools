@@ -12,7 +12,7 @@ Step 1 aims to extracts spatial coordinates and whitelist info from the sequence
   *   --STtools: Path to the STtools package. If not given, using currently working directory (add this to pkg)
  ### *Code*
  ```
- python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools//sttools_v4.py --run-steps 1 --seq1 '/net/fantasia/home/jyxi/scrna/leejun/ngst/fastqs/RDuo3/RDuo3_S1_L001_R1_001.fastq.gz' --fq1 '/net/fantasia/home/jyxi/scrna/leejun/ngst/fastqs/HiSeq/19129-15/19129FL-15-01-02_S87_L008_R1_001.fastq.gz'  --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/'  
+ python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools//sttools_v6.py --run-steps 1 --seq1 '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/extractCoord/input/liver-MiSeq-tile2106-sub-R1.fastq.gz' --fq1 '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/align/input/liver_tile2106_sub_R1.fastq.gz'  --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/'  -l 20
 
  ```
  ### *Output*
@@ -28,13 +28,10 @@ Step2 visualize the barcode/HDMI density discovery plot, with which the user are
   * -fq2
 ### *Code*
  ```
- python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v4.py --run-steps 3 --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/'  --py 'python3' --spatial /net/fantasia/home/jyxi/scrna/leejun/ngst/fastqs/HiSeq/19129-15/spatialcoordinates.txt --hdmi2ndSeq /net/fantasia/home/jyxi/scrna/leejun/ngst/fastqs/HiSeq/19129-15/HDMI_SeqScope_2nd.txt
-
- 
- python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v4.py --run-steps 2 --fq1 '/net/fantasia/home/jyxi/scrna/leejun/ngst/fastqs/HiSeq/19129-15/19129FL-15-01-02_S87_L008_R1_001.fastq.gz' --fq2 '/net/fantasia/home/jyxi/scrna/leejun/ngst/fastqs/HiSeq/19129-15/19129FL-15-01-02_S87_L008_R2_001.fastq.gz'  -g '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/geneIndex/' --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/' --star-path '/net/fantasia/home/jyxi/STAR-2.7.5c/source/' --seqtk-path '/net/fantasia/home/jyxi/seqtk/' --py 'python3'  --py 'python3' -o 'ColonWTA'
-
+ python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 2 --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/'  --py 'python3' --spatial /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/spatialcoordinates.txt --hdmi2ndSeq /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/HDMI_SeqScope_2nd.txt --maxScale 200
  ```
 ### *Output*
+tile_lane*.png
 
 ## Step 3
 Step 3 aligns the data the reference genome using STARsolo software and output digital expression matrix under Gene,GeneFull, and Velocyto options (see link xxxxx).
@@ -52,7 +49,7 @@ Before running step3, it is the required the user to generate the genome referen
  
 ### *Code*
 ``` 
-python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v4.py --run-steps 2 --fq1 '/net/fantasia/home/jyxi/scrna/leejun/ngst/fastqs/HiSeq/19129-15/19129FL-15-01-02_S87_L008_R1_001.fastq.gz' --fq2 '/net/fantasia/home/jyxi/scrna/leejun/ngst/fastqs/HiSeq/19129-15/19129FL-15-01-02_S87_L008_R2_001.fastq.gz'  -g '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/geneIndex/' --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/' --star-path '/net/fantasia/home/jyxi/STAR-2.7.5c/source/' --seqtk-path '/net/fantasia/home/jyxi/seqtk/' --py 'python3'  --py 'python3' -o 'ColonWTA'
+python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 3 --fq1 '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/align/input/liver_tile2106_sub_R1.fastq.gz' --fq2 '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/align/input/liver_tile2106_sub_R2.fastq.gz'  -g '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/geneIndex/' --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/' --star-path '/net/fantasia/home/jyxi/STAR-2.7.5c/source/' --seqtk-path '/net/fantasia/home/jyxi/seqtk/' --py 'python3'  --py 'python3' -o 'Example'
 ```
 ### *Output*
 This step outputs folders with STARsolo summary statistics, bam file, DGE, etc.
@@ -71,7 +68,8 @@ Step 4 bins the DGE into simple square gridded data and collapses the reads coun
 * --ncol: number of cols when generating the super tile. If not give, we assume there is only one tile, and ncol=1.
 ### *code*
 ```
-python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 4  --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/'  --tiles 2106 --sidesize 300 
+python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 4  --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/'  --tiles 2106 --sidesize 300 --DGEdir /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/ExampleSolo.out/GeneFull/raw --spatial /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/spatialcoordinates.txt
+
 ```
 
 ### *output*
@@ -90,12 +88,31 @@ Step 5 bins the DGE into simple square gridded data using sliding window strateg
 * --ncol: number of cols when generating the super tile. If not give, we assume there is only one tile, and ncol=1.
 ### *code*
 ```
-python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 5 --seq1 '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/extractCoord/input/liver-MiSeq-tile2106-sub-R1.fastq.gz' --fq1 '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/align/input/liver_tile2106_sub_R1.fastq.gz' --fq2 '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/align/input/liver_tile2106_sub_R2.fastq.gz' -g '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/geneIndex/' --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/' --star-path '/net/fantasia/home/jyxi/STAR-2.7.5c/source/' --seqtk-path '/net/fantasia/home/jyxi/seqtk/' --py 'python3' --tiles 2106 --sidesize 300 --window 150 -l 20 -o 'Sample'
+python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 5  --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/' --star-path '/net/fantasia/home/jyxi/STAR-2.7.5c/source/' --seqtk-path '/net/fantasia/home/jyxi/seqtk/'  --tiles 2106 --sidesize 300 --window 150 --DGEdir /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/ExampleSolo.out/GeneFull/raw --spatial /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/spatialcoordinates.txt
 ```
 ### *output*
 * SlidingSqureGrids.RDS
 ## Step 6
+### *Input*
+### *Code*
+### *Output*
+
 ## Step7
+This step generate the spliced and unspliced plots when the genes are divided into three subsets. The plots are stored in the current working directory. (add spliced and unspliced without subsetting genes)
+### *Input*
+* --STtools: Path to STtools package. If not given, the current working directory is used.(add this to pkg).
+* --spatial: Path to the txt file of spatial coordinates. If not given, use the path to spatialCoordinates.txt from previous steps.
+* --subDGEdir:  Path to the digital expression of spliced and unspliced matrix generated by STARsolo Velocyto .
+* --tiles: Tiles that the user is insterested in. Multiple tile numbers need to be separated by comma. For example: --tiles 2106,2107,2108. Required.
+* --alpha: Transparency. If not given, alpha=0.01.
+* --py: path to python executives
+
+### *Code*
+```
+python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 7 --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/' --py 'python3' --spatial '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/spatialcoordinates.txt' --subDGEdir '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/ExampleSolo.out/Velocyto/raw/' --alpha 0.02 --tiles 2106
+
+```
+### *Output*
   
   
  
