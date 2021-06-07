@@ -120,10 +120,13 @@ This step generate the spliced and unspliced plots when the genes are divided in
 
 ### *Code*
 ```
-python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 7 --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/' --py 'python3' --spatial '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/spatialcoordinates.txt' --subDGEdir '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/ExampleSolo.out/Velocyto/raw/' --alpha 0.02 --tiles 2106
+python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 7 --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/' --py 'python3' --spatial '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/spatialcoordinates.txt' --subDGEdir '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/ExampleSolo.out/Velocyto/raw/' --alpha 0.02 --tiles 2106,2107
 
 ```
 ### *Output*
+* splice_subset*.png
+* unsplice_subset*.png
+
 
   
   
