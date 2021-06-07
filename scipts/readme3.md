@@ -93,9 +93,20 @@ python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-st
 ### *output*
 * SlidingSqureGrids.RDS
 ## Step 6
+This step conducts clustering pipeline based on Seurat tutorial. And mapping the celltype to sliding grids using simple grids as query. For more details about Seurat clustering and maping, please refer to https://satijalab.org/seurat/articles/spatial_vignette.html  and https://satijalab.org/seurat/articles/integration_mapping.html.  Step 6 outputs two RDS files in the current working directory.
 ### *Input*
+* --simpleGridsPath:
+* --slidingGridsPath:
+* --geneCount1:
+* --geneCount2:
+* --nFeaturePlotOnly
 ### *Code*
+```
+python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 6 --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/' --simpleGridsPath '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/SimpleSqureGrids.RDS' --slidingGridsPath '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/SlidingSquareGrids.RDS'
+```
 ### *Output*
+*  slidingGrid_mapping.RDS: Seurat object with cell type/clustering mapping
+*  simpleGrid_clus.RDS: Seurat object with Seurat clusterings
 
 ## Step7
 This step generate the spliced and unspliced plots when the genes are divided into three subsets. The plots are stored in the current working directory. (add spliced and unspliced without subsetting genes)
@@ -113,6 +124,7 @@ python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-st
 
 ```
 ### *Output*
+
   
   
  
