@@ -49,7 +49,7 @@ Before running step3, it is the required the user to generate the genome referen
  
 ### *Code*
 ``` 
-python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 3 --fq1 '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/align/input/liver_tile2106_sub_R1.fastq.gz' --fq2 '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/align/input/liver_tile2106_sub_R2.fastq.gz'  -g '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/geneIndex/' --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/' --star-path '/net/fantasia/home/jyxi/STAR-2.7.5c/source/' --seqtk-path '/net/fantasia/home/jyxi/seqtk/' --py 'python3'  --py 'python3' -o 'Example'
+python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 3 --fq1 '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/align/input/liver_tile2106_sub_R1.fastq.gz' --fq2 '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/align/input/liver_tile2106_sub_R2.fastq.gz'  -g '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/geneIndex/' --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/' --star-path '/net/fantasia/home/jyxi/STAR-2.7.5c/source/' --seqtk-path '/net/fantasia/home/jyxi/seqtk/' --py 'python3'  -o 'Example' --whitelist '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/whitelist.txt'
 ```
 ### *Output*
 This step outputs folders with STARsolo summary statistics, bam file, DGE, etc.
@@ -88,7 +88,7 @@ Step 5 bins the DGE into simple square gridded data using sliding window strateg
 * --ncol: number of cols when generating the super tile. If not give, we assume there is only one tile, and ncol=1.
 ### *code*
 ```
-python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 5  --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/' --star-path '/net/fantasia/home/jyxi/STAR-2.7.5c/source/' --seqtk-path '/net/fantasia/home/jyxi/seqtk/'  --tiles 2106 --sidesize 300 --window 150 --DGEdir /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/ExampleSolo.out/GeneFull/raw --spatial /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/spatialcoordinates.txt
+python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 5  --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/'  --tiles 2106 --sidesize 300 --window 150 --DGEdir /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/ExampleSolo.out/GeneFull/raw --spatial /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/spatialcoordinates.txt
 ```
 ### *output*
 * SlidingSqureGrids.RDS
