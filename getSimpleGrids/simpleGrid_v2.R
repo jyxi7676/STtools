@@ -10,6 +10,26 @@ sidesize=as.numeric(args[7])
 outpath=args[8]
 collapsePath=args[9]
 tiles=as.numeric(unlist(strsplit(tiles,',')))
+
+####################################################################################################3
+#' This function merges a list of Seurat object
+#' @param seurat_object_list a list of Seurat object
+mergeSeuratObj=function(seurat_object_list)
+{
+
+  for (i in names(seurat_object_list))
+  {
+    seurat_object_list[[i]] = RenameCells(seurat_object_list[[i]],
+                                          add.cell.id = i)
+  }
+  merged_combined = suppressWarnings(expr=reduce(seurat_object_list,
+                                                 merge,
+                                                 do.normalize = FALSE))
+  return(merged_combined)
+}
+
+
+
 ####################################################################################################3
 #' This function collapse tiles into small grids and create Seurat objects
 #' @param tile_df Dataframe including coordinates
@@ -21,7 +41,8 @@ tiles=as.numeric(unlist(strsplit(tiles,',')))
 collapseTiles=function(tile_df,i,binx,biny,m_tile)
 {
 
-  
+  #print('start collaping tile')
+  #print(i)
   tile_df_i=tile_df[tile_df$tile_miseq==i,]
   miny = min(tile_df_i$y_miseq)
   maxy = max(tile_df_i$y_miseq)
@@ -32,8 +53,8 @@ collapseTiles=function(tile_df,i,binx,biny,m_tile)
   grd = make.grid(tile_df_i$x_miseq,tile_df_i$y_miseq,tile_df_i$UMI, binx,biny, xlim, ylim)
   grd=t(grd)
   #colom
-  fn1=paste0('Temp_CollapsedHDMIsIndLength','.csv')
-  fn2=paste0('Temp_CollapsedHDMIsInd','.txt')
+  fn1=paste0('Temp_CollapsedHDMIsIndLength',i,'.csv')
+  fn2=paste0('Temp_CollapsedHDMIsInd',i,'.txt')
   if (file.exists(fn1)) {
     #Delete file if it exists
     file.remove(fn1)
@@ -79,19 +100,20 @@ collapseTiles=function(tile_df,i,binx,biny,m_tile)
   obj1@meta.data$X = coord.df$X
   obj1@meta.data$Y = coord.df$Y
   obj1@meta.data$tile = i
+  return(obj1)
 
 
-  if(i==tiles[1])
-  {
-    obj=obj1
-  }
-  else
-  {
-    obj = merge(obj,obj1)
+  #if(i==tiles[1])
+  #{
+  #  obj=obj1
+  #}
+  #else
+  #{
+   # obj = merge(obj,obj1)
 
-  }
-
-  return (obj)
+  #}
+  #print(obj)
+  #return (obj)
 }
 
 
@@ -114,6 +136,13 @@ collapseTiles=function(tile_df,i,binx,biny,m_tile)
 
 getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collapsePath)
 {
+
+                                        #print(tiles)
+#  if(missing(nrow)| missing(ncol))
+ # {
+  #    nrow=2
+   #   ncol=ceiling(length(tiles)/nrow)
+ # }
   if(missing(seqscope1st))
   {
     seqscope1st="MiSeq"
@@ -133,7 +162,7 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
 
 
   #install required packages
-  packages = c("Matrix", "tictoc", "ggplot2", "ggsci","Seurat","mapplots","rlist","cowplot","dplyr","Rcpp")
+  packages = c("tidyverse","Matrix", "tictoc", "ggplot2", "ggsci","Seurat","mapplots","rlist","cowplot","dplyr","Rcpp")
   ## add more packages to load if needed
   ## Now load or install&load all
   package.check <- lapply(
@@ -164,13 +193,15 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
   rownames(m) = features
   colnames(m) = bc
   m = m[,colSums(m)<=100&colSums(m)>0]  #remove outliers
-
+  # print(dim(m))
+    
   #get spatial info
   miseq_pos = read.table(spatial)
+ # print(head(miseq_pos))  
   colnames(miseq_pos) = c('HDMI','lane_miseq','tile_miseq','x_miseq','y_miseq')
   tiles = intersect(tiles,unique(miseq_pos$tile_miseq))
   bottom=miseq_pos[miseq_pos$tile_miseq %in% tiles,]
-
+ 
   if (seqscope1st=='MiSeq')
   {
     #bottom = miseq_pos[miseq_pos$tile>2100,]
@@ -186,8 +217,11 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
   print('merge')
 
   df = data.frame("HDMI" =colnames(m),"HDMIind" = 1:(dim(m)[2]))
+      
   tile_df = merge(bottom,df,by = "HDMI")
- 
+ #  print(dim(tile_df))
+  # print(head(tile_df))
+
   #aggregate all tils by expanding coord
   tile_df$aggrInd =  as.numeric(factor(tile_df$tile_miseq))-1
   #tile_df$aggrInd = tile_df$tile_miseq - min(tile_df$tile_miseq)
@@ -195,12 +229,9 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
   tile_df$UMI = colSums(m_tile)
   tile_df$tileHDMIind= match(tile_df$HDMI,colnames(m_tile))
   setwd(outpath)
-  print('Start collapsing')
-  #change the following to either cpp or apply
-  obj=sapply(as.list(tiles),collapseTiles, tile_df=tile_df,binx=binx,biny=biny,m_tile=m_tile)
-  obj=obj[[1]]
-  
-  #remodifying coordinates and super tile
+  print('Start collapsing')    
+  obj=sapply(tiles,collapseTiles, tile_df=tile_df,binx=binx,biny=biny,m_tile=m_tile)
+  obj=mergeSeuratObj(obj)
   #for super tile
   tile_df = obj@meta.data
   addson_hori = max(tile_df$Y)
@@ -223,6 +254,14 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
     key = "image_",
     coordinates = obj@meta.data[,c('Y_expand','X_expand')]
   )
+
+  m=(obj@assays$Spatial@counts)
+  gene=rownames(obj)
+  bc=colnames(obj)
+
+  writeMM(obj = m, file="collapsedMatrix.mtx")
+  write.csv(gene,'collapsedGenes.csv')
+  write.csv(bc,'collapsedBarcodes.csv')
   saveRDS(obj,'SimpleSqureGrids.RDS')
   print('Done!')
 
