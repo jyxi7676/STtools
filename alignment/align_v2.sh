@@ -7,7 +7,7 @@ outprefix=
 starpath=
 seqtkpath=
 geneIndex=
-
+outdir=
 progname=`basename $0`
 
 function usage () {
@@ -22,6 +22,7 @@ This step is to preprocess the fastq files and to align the data to reference ge
 -t    <starpath>      : Full path for STAR software.  Required.
 -q    <seqtkpath>     : Full path for seqtk tool.  Required.
 -g    <geneIndex>     : Reference genome directory.  Required.
+-d    <outdir>        : Path to output directory. Required.
 EOF
 }
 
@@ -46,7 +47,7 @@ set -e
 # Fail if any of the commands in a pipeline fails
 set -o pipefail
 
-while getopts ":a:b:l:w:o:t:q:g:" options; do
+while getopts ":a:b:l:w:o:t:q:g:d:" options; do
   #echo $options
   case ${options} in
     a ) file1=$OPTARG;;
@@ -57,6 +58,7 @@ while getopts ":a:b:l:w:o:t:q:g:" options; do
     t ) starpath=$OPTARG;;
     q ) seqtkpath=$OPTARG;;
     g ) geneIndex=$OPTARG;;
+    d ) outdir=$OPTARG;;
     h ) usage
           exit 1;;
     \? ) usage
@@ -76,7 +78,7 @@ check_set "$whitelists" "Whitelists of barcodes from extractCoord.sh"  "-w"
 check_set "$starpath" "Path for STAR software" "-t"
 check_set "$seqtkpath" "Path for seqtk tool" "-q"
 check_set "$geneIndex" "Reference genome directory" "-g"
-
+check_set "$outdir" "Output directory" "-d"
 #####Nueed to double check the checking commands
 if (( $# != 0 ))
 then error_exit "Incorrect number of arguments"
@@ -99,6 +101,8 @@ fi
 [ -f "$file1" ] && echo "$file1 exists." || echo "$file1 does not exist!"
 [ -f "$file2" ] && echo "$file2 exists." || echo "$file2 does not exist!"
 
+#check if outdir exist
+[-d "$outdir"] && echo "$outdir exists." || echo "$outdir does not exist!"
 #check if whitelists exsit
 [ -f "$whitelists" ] && echo "$whitelists exists." || echo "$whitelists does not exist!"
 
@@ -130,7 +134,7 @@ file1_final_postfix="_modified.fastq"
 file1_final="$file1_dir/$file1_basename$file1_final_postfix"
 file1_final_gz="$file1_final.gz"
 
-
+cd $outdir
 #cd $seqtkpath
 echo 'trimming R1'
 $seqtk_executable trimfq -q 0 -l $hdmilength $file1 > ./file1_trim.fastq
@@ -172,3 +176,5 @@ $star_executable    --genomeDir  $geneIndex \
                     --soloFeatures Gene GeneFull SJ Velocyto \
                     --limitOutSJcollapsed 1000000 \
                     --soloCellFilter None
+
+ scp ${outprefix}'Solo.out/GeneFull/Summary.csv' 'summary_step3.txt'
