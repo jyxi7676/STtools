@@ -6,30 +6,41 @@ The user need to use the option --run-step if interested in running one step onl
 Step 1 aims to extracts spatial coordinates and whitelist info from the sequenced raw FASTQ.gz file. It assumes the user has the SeqScope data format (see xxxx for stucture, cite seqscope paper), where spatial  realated information such as HDMI/Barcode, lane, tile, X and Y coordinates can be retrieved from 1st-Seq and transcriptomic information can be retrieved from 2nd-Seq. 
 ### *Input*
   The user need to provide some of the following files in order for STtools to run Step 1. 
-  *   --seq1: Path to 1st-Seq FASTQ.gz file. STtools takes in fastq.gz files with SeqScope sequence design structure. If the barcode/UMI/randomer location is different, please see this link xxxxx for an example to make the inputs compatible to STtools package. **Required**. 
-  *   --fq1 : Path to 2nd-Seq Read 1 FASTQ.gz file. If the barcode/UMI/randomer location is different, please see this link for an example to make it compatible to STtools package.**Required**. 
+  *   --first--fq: Path to 1st-Seq FASTQ.gz file. STtools takes in fastq.gz files with SeqScope sequence design structure. If the barcode/UMI/randomer location is different, please see this link xxxxx for an example to make the inputs compatible to STtools package. **Required**. 
+  *   --second-fq1 : Path to 2nd-Seq Read 1 FASTQ.gz file. If the barcode/UMI/randomer location is different, please see this link for an example to make it compatible to STtools package.**Required**. 
   *   --hdmilength: An integer of the length of HDMI/Barcode.(modify to take any number below 32?). By default hdmilength=20.
-  *   --STtools: Path to the STtools package. If not given, using currently working directory (add this to pkg)
+  *   --STtools: Path to the STtools package. If not given, using current working directory (add this to pkg)
+  *   --outdir: Path to output files. If not given, using current working directory
  ### *Code*
  ```
- python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools//sttools_v6.py --run-steps 1 --seq1 '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/extractCoord/input/liver-MiSeq-tile2106-sub-R1.fastq.gz' --fq1 '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/align/input/liver_tile2106_sub_R1.fastq.gz'  --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/'  -l 20
-
+ export STHOME=/path/to/STtools
+ export STDATA=/path/to/data
+ export STOUT=/path/to/outdir
+ python3 $STHOME/sttools_v6.py --run-steps 1 --first-fq $STDATA/liver-MiSeq-tile2106-sub-R1.fastq.gz --second-fq1 $STDATA/liver-HiSeq-tile2106-sub-R1.fastq.gz --STtools $STHOME  -l 20 --outdir $STOUT
  ```
  ### *Output*
  This step output two useful files in the current working directory, and are taken as input the next steps.
  * spatialcoordinates.txt 
  * whitelist.txt
+ * HDMI_SeqScope_2nd.txt
  * summary_step1.txt
  
 ## Step 2
 Step2 visualize the barcode/HDMI density discovery plot, with which the user are able to compare with HE images to estimate the tissue boundary. The alignment is done manually and automatic alignment is under development. 
 ### *Input*
-  * -fq1
-  * -fq2
+  * --STtools: Path to the STtools package. If not given, using current working directory (add this to pkg)
+  * --hdmi2ndSeq: : txt file with the HDMIs from the --second-fq1.
+  * --spatial: txt file with HDMI and spatial information from --first-fq: HDMI, lane, tile, X and Y.
+  * --maxScale: max scale value for color bar, if not specified, using default value in matplotlib.
+  * --outdir: Path to output files. If not given, using current working directory
+
 ### *Code*
  ```
- python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 2 --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/'  --py 'python3' --spatial /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/spatialcoordinates.txt --hdmi2ndSeq /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/HDMI_SeqScope_2nd.txt --maxScale 200
- ```
+ export STHOME=/path/to/STtools
+ export STDATA=/path/to/data
+ export STOUT=/path/to/outdir
+ python3 $STHOME/sttools_v6.py --run-steps 2 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt --hdmi2ndSeq $STDATA/HDMI_SeqScope_2nd.txt --outdir $STOUT
+  ```
 ### *Output*
 tile_lane*.png
 
@@ -37,19 +48,28 @@ tile_lane*.png
 Step 3 aligns the data the reference genome using STARsolo software and output digital expression matrix under Gene,GeneFull, and Velocyto options (see link xxxxx).
 Before running step3, it is the required the user to generate the genome reference following this link  xxxxx.
 ### *Input*
- * --fq1: Path to 2nd-Seq FASTQ.gz file of read 1. Required.
- * --fq2: Path to 2nd-Seq FASTQ.gz file of read 2. Required.
+ * --second-fq1: Path to 2nd-Seq FASTQ.gz file of read 1. Required.
+ * --second-fq2: Path to 2nd-Seq FASTQ.gz file of read 2. Required.
+ * --whitelist: Txt file of the whitelist, if not given, searching whitelist.txt in the current folder.
  * -g: genome reference. Required
  * --STtools: Path to the STtools package. If not given, using currently working directory (add this to pkg)
  * -o: Output prefix of alignment, if not given, set to 'Sample'
  * --sesqtk-path: Path to seqtk executable. Required
  * --star-path: Path to STAR executable. Required
- * --whitelist: Txt file of the whitelist, if not given, searching whitelist.txt in the current folder.
+ * --outdir: Path to output files. If not given, using current working directory
 
  
 ### *Code*
 ``` 
-python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 3 --fq1 '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/align/input/liver_tile2106_sub_R1.fastq.gz' --fq2 '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/align/input/liver_tile2106_sub_R2.fastq.gz'  -g '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/geneIndex/' --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/' --star-path '/net/fantasia/home/jyxi/STAR-2.7.5c/source/' --seqtk-path '/net/fantasia/home/jyxi/seqtk/' --py 'python3'  -o 'Example' --whitelist '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/whitelist.txt'
+ export STHOME=/path/to/STtools
+ export STDATA=/path/to/data
+ export STOUT=/path/to/outdir
+ export GENEINDEX=/path/to/geneIndex
+ export SEQTKPATH=/path/to/seqtk/executive
+ export STARPATH=/path/to/star/executive
+ 
+python3 $STHOME/sttools_v6.py --run-steps 3 --STtools $STHOME --whitelist $STDATA/whitelist.txt --second-fq1 $STDATA/liver_tile2106_sub_R1.fastq.gz --second-fq2 $STDATA/liver_tile2106_sub_R2.fastq.gz --outdir $STOUT --genome $GENEINDEX --star-path $STARPATH --seqtk-path $SEQTKPATH
+
 ```
 ### *Output*
 This step outputs folders with STARsolo summary statistics, bam file, DGE, etc.
