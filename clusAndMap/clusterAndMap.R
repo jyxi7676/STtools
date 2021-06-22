@@ -17,7 +17,7 @@ exit <- function() { invokeRestart("abort") }
 #' @param geneCount2 cutoff of nFeature in sliding square grids
 #' @nFeaturePlotOnly TRUE or FALSE. If TRUE, the program end after violin plot. Otherwise, run the whole program
 #' @export
-runClustering=function(workingdir,obj1_path,obj2_path,geneCount1=0,geneCount2=0,nFeaturePlotOnly="FALSE")
+runClustering=function(workingdir,obj1_path,obj2_path,geneCount1=0,geneCount2=0,nFeaturePlotOnly="FALSE",outpath)
 {
   setwd(workingdir)
   #libraries
