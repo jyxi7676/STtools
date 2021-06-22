@@ -2,20 +2,21 @@
 import argparse
 import os, sys
 import subprocess as sp
+import math
 
 parser = argparse.ArgumentParser(description="STtools Main Launcher")
 parser.add_argument("--run-all", default=False, action='store_true', help="Run all steps sequentially")
 parser.add_argument("--run-steps", type=str, help="Comma-separated string containing the steps to run")
-parser.add_argument("--seq1",type=str, help="Path to 1nd-Seq FASTQ.gz file")
+parser.add_argument("--first-fq",type=str, help="Path to 1nd-Seq FASTQ.gz file")
 parser.add_argument("-l","--hdmilength",type=int,default=20, help="An integer indicating the length of the HDMIs") #if not specify -l erro None occurs
 parser.add_argument("-s", "--star-path", type=str, default="STAR", help="Binary folder path to STAR executable") #if not given use current directory
 parser.add_argument("-q", "--seqtk-path", type=str, default="seqtk", help="Binary folder path to seqtk executable")
 parser.add_argument("-g", "--genome", type=str, help="Path to the reference files")
-parser.add_argument("--fq1", type=str, help="Path to 2nd-Seq Read 1 FASTQ.gz file")
-parser.add_argument("--fq2", type=str, help="Path to 2nd-Seq Read 2 FASTQ.gz file")
+parser.add_argument("--second-fq1", type=str, help="Path to 2nd-Seq Read 1 FASTQ.gz file")
+parser.add_argument("--second-fq2", type=str, help="Path to 2nd-Seq Read 2 FASTQ.gz file")
 parser.add_argument("-o","--outprefix" ,type=str, help="Prefix for STARsolo output",default='Sample')
 parser.add_argument("--STtools",type=str,help='Path to the scripts of STtools scripts',default='STtools')
-parser.add_argument("--py",type=str,help='Binary path to python executable')
+parser.add_argument("--py",type=str,default=sys.executable,help='Binary path to python executable')
 parser.add_argument("--tiles",type=str,help='tiles')
 parser.add_argument("--sidesize",type=int,help='side size of square gridssidesize',default=300)
 parser.add_argument("--window",type=int,help='sliding size of sliding window',default=150)
@@ -33,6 +34,8 @@ parser.add_argument("--geneCount1",type=float,help='cutoff of nFeature_Spatial o
 parser.add_argument("--geneCount2",type=float,help='cutoff of nFeature_Spatial of Seurat spatial object of sliding square grids for clustering',default=0)
 parser.add_argument("--simpleGridsPath",type=str,help='path to rds file of simple squrae grids')
 parser.add_argument("--slidingGridsPath",type=str,help='path to rds file of sliding squrae grids')
+parser.add_argument("--outdir",type=str,help='path to the output directory, if not specified, output in the current working directory')
+#parser.add_argument("--nrow",type=int,help='number of rows when stacking the tiles')
 
 
 #Functions
@@ -40,17 +43,19 @@ def step1():
 
     print('Start running Step 1: extract coordinates')
     #check files
-    if(os.path.isfile(args.seq1)==False):
-        raise ValueError("File --seq1 does not exist")
-    if(os.path.isfile(args.fq1)==False):
-        raise ValueError("File --fq1 does not exist")
+    if(os.path.isfile(args.first_fq)==False):
+        raise ValueError("File --first-fq does not exist")
+    if(os.path.isfile(args.second_fq1)==False):
+        raise ValueError("File --second-fq1 does not exist")
     if(os.path.isdir(args.STtools)==False):
         raise ValueError("Directory --STtools does not exist")
     if ( args.hdmilength is None ):
         args.hdmilength=20
+    if(args.outdir is None):
+        args.outdir=os.getcwd()
 
-    args.extract=args.STtools+"/extractCoordinates/extractCoord_v2.sh"
-    cmd1 = "bash {args.extract} -m {args.seq1} -h {args.fq1} -l {args.hdmilength}".format(args=args)
+    args.extract=args.STtools+"/extractCoord/extractCoord_v2.sh"
+    cmd1 = "bash {args.extract} -m {args.first_fq} -h {args.second_fq1} -l {args.hdmilength} -o {args.outdir}".format(args=args)
     ret = os.system(cmd1)
     if ( ret != 0 ):
         raise ValueError(f"ERROR in running {cmd1}, returning exit code {ret}")
@@ -64,13 +69,42 @@ def step1():
     f.write('Unique MiSeq:' +str(no_miseq_uniq) +' \n')
     f.close()    
 
+
+
+def step2():
+    print("Tissue boundary estimation")
+    if(args.hdmi2ndSeq is None):
+        args.hdmi2ndSeq=os.getcwd()+"/HDMI_SeqScope_2nd.txt"
+    if(args.spatial is None):
+        args.spatial=os.getcwd()+"/spatialcoordinates.txt"
+    if(args.maxScale is None):
+        args.maxScale='0'
+    if(os.path.isfile(args.spatial)==False):
+        raise ValueError("Spatial coordinates from STEP 1 output does not exist")
+    if(os.path.isfile(args.hdmi2ndSeq)==False):
+        raise ValueError("HDMIs from 2nd-Seq from STEP 2 output does not exist")
+    #args.maxScale=2
+    if(args.outdir is None):
+        args.outdir=os.getcwd()
+    args.estTB=args.STtools+"/estimateTissueBoundary/estimateTissueBoundary.py"
+    cmd3="{args.py} {args.estTB} {args.spatial} {args.hdmi2ndSeq} {args.maxScale} {args.outdir} ".format(args=args)
+    ret = os.system(cmd3)
+    if ( ret != 0 ):
+        raise ValueError(f"ERROR in running {cmd3}, returning exit code {ret}")
+
+
+
+
+
+
+    
 def step3():
 
     print('Start running Step 2: STARsolo alignment')
-    if ( args.fq1 is None ):
-        raise ValueError("Cannot find --fq1 argument. Need to specify for running all")
-    if ( args.fq2 is None ):
-        raise ValueError("Cannot find --fq2 argument. Need to specify for running all")
+    if ( args.second_fq1 is None ):
+        raise ValueError("Cannot find --second-fq1 argument. Need to specify for running all")
+    if ( args.second_fq2 is None ):
+        raise ValueError("Cannot find --second-fq2 argument. Need to specify for running all")
     if ( args.genome is None ):
         raise ValueError("Cannot find --genome argument. Need to specify for running all")
 
@@ -89,18 +123,21 @@ def step3():
         raise ValueError("Directory --seqtk-path does not exist")
     if(os.path.isdir(args.STtools)==False):
         raise ValueError("Directory --STtools does not exist")
+    if(args.outdir is None):
+        args.outdir=os.getcwd()
+
     args.align=args.STtools+"/align/align_v2.sh"
-    cmd2 = "bash {args.align} -a {args.fq1} -b {args.fq2} -l {args.hdmilength} -w {args.whitelist} -o {args.outprefix} -t {args.star_path} -q {args.seqtk_path} -g {args.genome}".format(args=args) 
+    cmd2 = "bash {args.align} -a {args.second_fq1} -b {args.second_fq2} -l {args.hdmilength} -w {args.whitelist} -o {args.outprefix} -t {args.star_path} -q {args.seqtk_path} -g {args.genome} -d {args.outdir}".format(args=args) 
     ret = os.system(cmd2)
     if ( ret != 0 ):
         raise ValueError(f"ERROR in running {cmd2}, returning exit code {ret}")
 
 
-    with open(args.outprefix+'Solo.out/GeneFull/Summary.csv','r') as firstfile, open('summary_step3.txt','a') as secondfile:
-        for line in firstfile:
+    #with open(args.outprefix+'Solo.out/GeneFull/Summary.csv','r') as firstfile, open('summary_step3.txt','a') as secondfile:
+        #for line in firstfile:
                
              # append content to second file
-             secondfile.write(line)
+            # secondfile.write(line)
 
    # no_hiseq=sp.getoutput("wc -l ./HDMI_SeqScope_2nd.txt")
     #print(no_miseq)
@@ -131,47 +168,22 @@ def step3():
    # f.write((starsolo))
     #f.close()
 
-def step2():
-    print("Tissue boundary estimation")
-    if(args.hdmi2ndSeq is None):
-        args.hdmi2ndSeq=os.getcwd()+"/HDMI_SeqScope_2nd.txt"
-    
-    if(args.spatial is None):
-        args.spatial=os.getcwd()+"/spatialcoordinates.txt"
-    if(args.maxScale is None):
-        args.maxScale='0'
 
-    if(os.path.isfile(args.spatial)==False):
-        raise ValueError("Spatial coordinates from STEP 1 output does not exist")
-    if(os.path.isfile(args.hdmi2ndSeq)==False):
-        raise ValueError("HDMIs from 2nd-Seq from STEP 2 output does not exist")
-    #args.maxScale=2
-    args.outpath=os.getcwd()
-    args.estTB=args.STtools+"/estimateTissueBoundary/estimateTissueBoundary.py"
-    cmd3="{args.py} {args.estTB} {args.spatial} {args.hdmi2ndSeq} {args.maxScale} {args.outpath} ".format(args=args)
-    ret = os.system(cmd3)
-    if ( ret != 0 ):
-        raise ValueError(f"ERROR in running {cmd3}, returning exit code {ret}")
-
-   # no_hiseq=sp.getoutput("wc -l ./HDMI_SeqScope_2nd.txt")
-    #print(no_miseq)
-    #out={args.outpath}+"/"+"args.o"+"Solo/GeneFull/Summary.csv"
-    #print(out)
-    #args.out=out
-    #starsolo=sp.getoutput('less {args.out}')
-    #f=open("summary_step2.txt","w")
-    #f.write('HiSeq reads:'+str(no_hiseq)+" \n")
-    #f.write('StarSolo summmaries:' +' \n')
-    #f.write((starsolo))
-    #f.close()
 
 
 def step4():
     print('Start Simple Gridding')
+    #if(args.nrow is None):
+     #   args.nrow=2
+      #  tiles_vec=args.tiles.split(',')
+      #  args.ncol=math.ceil(len(tiles_vec)/args.nrow)
+
+
+
     args.nrow=1
     args.ncol=1
     args.collapsePath=args.STtools+"/getSimpleGrid/collapse.cpp"
-    args.outpath=os.getcwd()
+#    args.outpath=os.getcwd()
     if(args.DGEdir is None):
         args.DGEdir=os.getcwd()+'/'+args.outprefix+"Solo.out/GeneFull/raw/"
     if(os.path.isdir(args.DGEdir)==False):
@@ -182,9 +194,13 @@ def step4():
         raise ValueError("File --collapsePath does not exist")
     if(args.spatial is None):
         args.spatial=os.getcwd()+"/spatialcoordinates.txt"
+    if(args.outdir is None):
+        args.outdir=os.getcwd()
+    if(os.path.isdir(args.outdir)==False):
+        raise ValueError("Directory --outdir does not exist")
+
     args.simple=args.STtools+"/getSimpleGrid/simpleGrid_v2.R"
-    cmd4="Rscript {args.simple} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.tiles} {args.nrow} {args.ncol} {args.sidesize} {args.outpath} {args.collapseP\
-ath}".format(args=args)
+    cmd4="Rscript {args.simple} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.tiles} {args.nrow} {args.ncol} {args.sidesize} {args.outdir} {args.collapsePath}".format(args=args)
     ret = os.system(cmd4)
     if ( ret != 0 ):
         raise ValueError(f"ERROR in running {cmd4}, returning exit code {ret}")
@@ -205,7 +221,11 @@ def step5():
     args.ncol=1
     args.collapsePath=args.STtools+"/getSimpleGrid/collapse.cpp"
     #args.slidingPath=args.STtools+"/getSlidingGrid/slidingWindow.cpp"
-    args.outpath=os.getcwd()
+ #   args.outpath=os.getcwd()
+    if(args.outdir is None):
+        args.outdir=os.getcwd()
+    if(os.path.isdir(args.outdir)==False):
+        raise ValueError("Directory --outdir does not exist")
     if(args.DGEdir is None):
         args.DGEdir=os.getcwd()+'/'+args.outprefix+"Solo.out/GeneFull/raw/"
     if(os.path.isdir(args.DGEdir)==False):
@@ -249,18 +269,18 @@ def step5():
     if(os.path.isfile(args.sliding_P3)==False):
         raise ValueError("File --sliding_P3 does not exist")
     
-    cmd5_1="Rscript {args.sliding_P1} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.outpath} {args.tiles}".format(args=args)
+    cmd5_1="Rscript {args.sliding_P1} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.outdir} {args.tiles}".format(args=args)
     ret = os.system(cmd5_1)
     if ( ret != 0 ):
         raise ValueError(f"ERROR in running {cmd5_1}, returning exit code {ret}")
 
     args.input=os.getcwd()+'/groupgrids_tile.txt'
-    cmd5_2='cat {args.input} | xargs -I [] -P {args.cores} bash -c "Rscript {args.sliding_P2} {args.collapsePath} {args.DGEdir} {args.outpath} {args.window} {args.sidesize} []"'.format(args=args)
+    cmd5_2='cat {args.input} | xargs -I [] -P {args.cores} bash -c "Rscript {args.sliding_P2} {args.collapsePath} {args.DGEdir} {args.outdir} {args.window} {args.sidesize} []"'.format(args=args)
     ret = os.system(cmd5_2)
     if ( ret != 0 ):
         raise ValueError(f"ERROR in running {cmd5_2}, returning exit code {ret}")
 
-    cmd5_3 = "Rscript {args.sliding_P3} {args.outpath} {args.ncol} {args.nrow}".format(args=args)
+    cmd5_3 = "Rscript {args.sliding_P3} {args.outdir} {args.ncol} {args.nrow}".format(args=args)
     ret = os.system(cmd5_3)
     if ( ret != 0 ):
         raise ValueError(f"ERROR in running {cmd5_3}, returning exit code {ret}\
@@ -270,7 +290,7 @@ def step5():
 
 def step6():
     print('Start clustering and mapping')
-    args.workingdir = os.getcwd()
+   # args.workingdir = os.getcwd()
     if(args.simpleGridsPath is None):
         args.simpleGridsPath = args.workingdir+'SimpleSquareGrids.RDS'
     
@@ -286,10 +306,15 @@ def step6():
         raise ValueError("Path --slidingGridsPath does not exist")
     if(os.path.isfile(args.simpleGridsPath)==False):
         raise ValueError("Path --simpleGridsPath does not exist")
+    if(args.outdir is None):
+        args.outdir=os.getcwd()
+    if(os.path.isdir(args.outdir)==False):
+        raise ValueError("Directory --outdir does not exist")
+
     #print(args.slidingGridsPath)
     args.clus=args.STtools+'clusterAndMap/clusterAndMap.R'
     
-    cmd = "Rscript {args.clus} {args.workingdir} {args.simpleGridsPath} {args.slidingGridsPath} {args.geneCount1} {args.geneCount2} {args.nFeaturePlotOnly}".format(args=args)
+    cmd = "Rscript {args.clus} {args.outdir} {args.simpleGridsPath} {args.slidingGridsPath} {args.geneCount1} {args.geneCount2} {args.nFeaturePlotOnly}".format(args=args)
     ret = os.system(cmd)
     if(ret!=0):
         raise ValueError (f"ERROR in running {cmd}, returning exit code {ret}")
@@ -308,19 +333,26 @@ def step7():
         args.spatial=os.getcwd()+"/spatialcoordinates.txt"
     if(os.path.isfile(args.spatial)==False):
         raise ValueError("File --spatial does not exist")
-    args.subana=args.STtools+"/subCellularAna/subCellularAna.py"
-    args.workingdir=os.getcwd()
+    args.subana=args.STtools+"/subCellularAna/subCellularAna_v2.py"
+    #args.workingdir=os.getcwd()
     if(('seqscope1st' in vars(args))==False):
         args.seqscope1st='MiSeq'  
     if(args.tiles is None):
         raise ValueError("Tiles are required")
-    args.tiles_vec =args.tiles.split(',')
+    if(args.alpha is None):
+        args.alpha=0.01
+   # args.tiles_vec =args.tiles.split(',')
+    if(args.outdir is None):
+        args.outdir=os.getcwd()
+    if(os.path.isdir(args.outdir)==False):
+        raise ValueError("Directory --outdir does not exist")
 
 
-    cmd6="Rscript {args.py} {args.subana} {args.subDGEdir} {args.workingdir} {args.spatial} {args.seqscope1st} {args.tiles_vec} {args.alpha}".format(args=args)
-    ret = os.system(cmd6)
+    print(args.py)
+    cmd7="{args.py} {args.subana} {args.subDGEdir} {args.outdir} {args.spatial} {args.seqscope1st} {args.tiles} {args.alpha}".format(args=args)
+    ret = os.system(cmd7)
     if ( ret != 0 ):
-        raise ValueError(f"ERROR in running {cmd6}, returning exit code {ret}")
+        raise ValueError(f"ERROR in running {cmd7}, returning exit code {ret}")
 
 
 
@@ -353,22 +385,22 @@ if ( args.run_all ):
     print("Running the following steps: ", steps)
 
     ## check whether parameter is given
-    if ( args.seq1 is None ):
-        raise ValueError("Cannot find --seq1 argument. Need to specify for running all")
-    if ( args.fq1 is None ):
-        raise ValueError("Cannot find --fq1 argument. Need to specify for running all")
-    if ( args.fq2 is None ):
-        raise ValueError("Cannot find --fq2 argument. Need to specify for running all")
+    if ( args.first-fq is None ):
+        raise ValueError("Cannot find --first-fq argument. Need to specify for running all")
+    if ( args.second-fq1 is None ):
+        raise ValueError("Cannot find --second-fq1 argument. Need to specify for running all")
+    if ( args.second-fq2 is None ):
+        raise ValueError("Cannot find --second-fq2 argument. Need to specify for running all")
     if ( args.genome is None ):
         raise ValueError("Cannot find --genome argument. Need to specify for running all")
 
     #check file/directory path exist:
-    if(os.path.isfile(args.seq1)==False):
-        raise ValueError("File --seq1 does not exist")
-    if(os.path.isfile(args.fq1)==False):
-        raise ValueError("File --fq1 does not exist")
-    if(os.path.isfile(args.fq2)==False):
-        raise ValueError("File --fq2 does not exist")
+    if(os.path.isfile(args.first-fq)==False):
+        raise ValueError("File --first-fq does not exist")
+    if(os.path.isfile(args.second-fq1)==False):
+        raise ValueError("File --second-fq1 does not exist")
+    if(os.path.isfile(args.second-fq2)==False):
+        raise ValueError("File --second-fq2 does not exist")
     if(os.path.isdir(args.star_path)==False):
         raise ValueError("Directory --star-path does not exist")
     if(os.path.isdir(args.seqtk_path)==False):
