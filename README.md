@@ -1,5 +1,5 @@
 
-# Getting Started
+# SeqScope Tools Introduction
 STtools is an package that processing spatial transciriptomics data from various platform such as Seq-Scope and VISIUM. This pipleine includes data preprocessing, alignment, collapsing barcodes into 
 gridded datasets and clustering based on classic Seurat methods. 
 
@@ -44,7 +44,7 @@ There are 6 steps, each step takes input from either outputs from previous steps
 
 
 
-## User Manual 
+## Getting Started
 STtools commands are ran in the working directory and output files/plot will be stored in the working directory. The package have flexible options for the user to run either **from the step 1** or run for **consecutive steps** or for **one specific step**. Several examples from various scerios will be given for illustratrion. 
 * Automatic running all steps
 https://github.com/jyxi7676/STtools/blob/main/scipts/readme1.md
