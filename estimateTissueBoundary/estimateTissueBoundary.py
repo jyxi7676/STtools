@@ -60,7 +60,7 @@ def estimateTissueBoundary(pos1stSeq,hdmi2ndSeq,maxScale,outpath):
     for i in tiles_uniq:
         x = merge_df[merge_df.lane_tile.eq(i)]
         fig = plt.figure()
-        if maxScale == 0:
+        if maxScale == '0':
             maxScale=None
             using_mpl_scatter_density(fig, x['y'], x['x'],maxScale)
             plt.gca().set_aspect('equal', adjustable='box')
