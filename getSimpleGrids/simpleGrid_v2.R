@@ -262,7 +262,7 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
   writeMM(obj = m, file="collapsedMatrix.mtx")
   write.csv(gene,'collapsedGenes.csv')
   write.csv(bc,'collapsedBarcodes.csv')
-  saveRDS(obj,'SimpleSqureGrids.RDS')
+  saveRDS(obj,'SimpleSquareGrids.RDS')
   junk = dir(path=outpath,  pattern="Temp")
   file.remove(junk)
   print('Done!')
