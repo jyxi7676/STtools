@@ -86,15 +86,20 @@ Step 4 bins the DGE into simple square gridded data and collapses the reads coun
 * --spatial: Path to the txt file of spatial coordinates. If not given, use the path to spatialCoordinates.txt from previous steps.
 * --nrow: number of rows when generating the super tile. If not give, we assume there is only one tile, and nrow=1.
 * --ncol: number of cols when generating the super tile. If not give, we assume there is only one tile, and ncol=1.
+* --outdir: Path to output files. If not given, using current working directory
 ### *code*
 ```
-python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 4  --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/'  --tiles 2106 --sidesize 300 --DGEdir /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/ExampleSolo.out/GeneFull/raw --spatial /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/spatialcoordinates.txt
+export STHOME=/path/to/STtools
+export STDATA=/path/to/data
+export STOUT=/path/to/outdir
+export STDGE=/path/to/DGE/
+python3  $STHOME/sttools_v6.py --run-steps 4 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --tiles 2106 --sidesize 300  -l 20 --DGEdir $STDGE
 
 ```
-
 ### *output*
 * SimpleSquareGrids.RDS
 * summary_step4.txt
+* 
 ## Step 5
 Step 5 bins the DGE into simple square gridded data using sliding window strategy and outputs RDS file with collapsed barcodes and spatial information. All the results are store in the current working directory.
 ### *input*
@@ -106,23 +111,41 @@ Step 5 bins the DGE into simple square gridded data using sliding window strateg
 * --spatial: Path to the txt file of spatial coordinates. If not given, use the path to spatialCoordinates.txt from previous steps.
 * --nrow: number of rows when generating the super tile. If not give, we assume there is only one tile, and nrow=1.
 * --ncol: number of cols when generating the super tile. If not give, we assume there is only one tile, and ncol=1.
+* --outdir: Path to output files. If not given, using current working directory
 ### *code*
 ```
-python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 5  --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/'  --tiles 2106 --sidesize 300 --window 150 --DGEdir /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/ExampleSolo.out/GeneFull/raw --spatial /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/spatialcoordinates.txt
+export STHOME=/path/to/STtools
+export STDATA=/path/to/data
+export STOUT=/path/to/outdir
+export STDGE=/path/to/DGE/
+
+python3 $STHOME/sttools_v6.py --run-steps 5 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --tiles 2106 --sidesize 300  -l 20 --window 150 --DGEdir $STDGE
+
 ```
 ### *output*
 * SlidingSqureGrids.RDS
+
+
+
 ## Step 6
 This step conducts clustering pipeline based on Seurat tutorial. And mapping the celltype to sliding grids using simple grids as query. For more details about Seurat clustering and maping, please refer to https://satijalab.org/seurat/articles/spatial_vignette.html  and https://satijalab.org/seurat/articles/integration_mapping.html.  Step 6 outputs two RDS files in the current working directory.
 ### *Input*
-* --simpleGridsPath:
-* --slidingGridsPath:
-* --geneCount1:
-* --geneCount2:
-* --nFeaturePlotOnly
+* --STtools: Path to STtools package. If not given, the current working directory is used.(add this to pkg).
+* --simpleGridsPath: Path to SimpleSquareGrids.RDS from step 4.
+* --slidingGridsPath: Path to SlidingSquareGrids.RDS from step 5,
+* --geneCount1: Cutoff of nFeatures for SimpleSquareGrids.RDS .
+* --geneCount2: Cutoff of nFeatures for SlidingSquareGrids.RDS.
+* --nFeaturePlotOnly: If TRUE, output violin plot of nFeatures only. If FALSE, generate mapped RDS as well. 
 ### *Code*
 ```
-python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 6 --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/' --simpleGridsPath '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/SimpleSqureGrids.RDS' --slidingGridsPath '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/SlidingSquareGrids.RDS'
+export STHOME=/path/to/STtools
+export STDATA=/path/to/spatial/data
+export STSIMPLE=/path/to/SimpleSquareGrids
+export STSLIDING=/path/to/SlidingSquareGrids
+export STOUT=/path/to/outdir
+python3 $STHOME/sttools_v6.py --run-steps 6 --STtools $STHOME   --outdir $STOUT --simpleGridsPath $STSIMPLE/SimpleSquareGrids.RDS --slidingGridsPath $STSLIDING/SlidingSquareGrids.RDS
+
+
 ```
 ### *Output*
 *  slidingGrid_mapping.RDS: Seurat object with cell type/clustering mapping
