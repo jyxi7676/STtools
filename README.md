@@ -21,7 +21,7 @@ Please refer to the link https://github.com/jyxi7676/STtools/blob/main/scipts/fi
 ## Example Data
 * SeqScope exmaple data for each step can be found at https://drive.google.com/file/d/1e0u57Yu_fVKFvs-UA7WYfj-vgm8Nd2y4/view?usp=sharing, please download the zip files. For each step, the example input data is stored in the corresponding subdirectories. 
 
-* VISIUM digital expresstion data is available at xxx
+* VISIUM digital expresstion data and spatial coordinates are available at https://drive.google.com/drive/folders/130ENNRBEi7kCOXDnGZlHUnuf4CD3_JEI?usp=sharing
 
 ## Overall Workflow
 
