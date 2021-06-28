@@ -1,6 +1,6 @@
 
 # SeqScope Tools Introduction
-STtools is an package that processing spatial transciriptomics data from various platform such as Seq-Scope and VISIUM. This pipleine includes data preprocessing, alignment, collapsing barcodes into 
+STtools is an package that processing spatial transciriptomics data from various ST platform such as Seq-Scope and VISIUM. This pipleine includes data preprocessing, alignment, collapsing barcodes into 
 gridded datasets and clustering based on classic Seurat methods. 
 
 ## Required operation system and sofware tools
@@ -19,9 +19,9 @@ You need to install the following software tools before using this package .
 Please refer to the link https://github.com/jyxi7676/STtools/blob/main/scipts/fileformats.md for an illustration of required input data format and output data format for each step.
 
 ## Example Data
-* SeqScope exmaple raw data can be found at xxxx
+* SeqScope exmaple data for each step can be found at https://drive.google.com/file/d/1e0u57Yu_fVKFvs-UA7WYfj-vgm8Nd2y4/view?usp=sharing, please download the zip files. For each step, the example input data is stored in the corresponding subdirectories. 
 
-* VISIUM raw data is available atxxxx
+* VISIUM digital expresstion data is available at xxx
 
 ## Overall Workflow
 
@@ -60,4 +60,4 @@ Here are some useful external links:
 * To install STAR: https://github.com/alexdobin/STAR
 * To generate gene index for STARsolo alignment: https://hbctraining.github.io/Intro-to-rnaseq-hpc-O2/lessons/03_alignment.html
 * Multimodal reference mapping: https://satijalab.org/seurat/articles/multimodal_reference_mapping.html
-* Incoporate transgenes to alignment: xxx 
+* Incoporate transgenes to alignment: add script for this?
