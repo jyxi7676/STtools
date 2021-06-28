@@ -99,7 +99,7 @@ python3  $STHOME/sttools_v6.py --run-steps 4 --STtools $STHOME --spatial $STDATA
 ### *output*
 * SimpleSquareGrids.RDS
 * summary_step4.txt
-* 
+
 ## Step 5
 Step 5 bins the DGE into simple square gridded data using sliding window strategy and outputs RDS file with collapsed barcodes and spatial information. All the results are store in the current working directory.
 ### *input*
@@ -163,7 +163,12 @@ This step generate the spliced and unspliced plots when the genes are divided in
 
 ### *Code*
 ```
-python3 /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/sttools_v6.py --run-steps 7 --STtools '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/' --py 'python3' --spatial '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/spatialcoordinates.txt' --subDGEdir '/net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/ExampleSolo.out/Velocyto/raw/' --alpha 0.02 --tiles 2106,2107
+export STHOME=/path/to/STtools
+export STDATA=/path/to/spatial/data
+export STSUBDGE=/path/to/unspliced/DGE
+export STOUT=/path/to/outdir
+python3 $STHOME/sttools_v6.py --run-steps 7 --STtools $STHOME   --outdir $STOUT --spatial $STDATA/spatialcoordinates.txt --subDGEdir $STSUBDGE -alpha 0.02 --tiles 2106,2107
+
 
 ```
 ### *Output*
