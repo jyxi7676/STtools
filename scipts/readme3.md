@@ -16,7 +16,7 @@ Step 1 aims to extracts spatial coordinates and whitelist info from the sequence
  export STHOME=/path/to/STtools
  export STDATA=/path/to/data
  export STOUT=/path/to/outdir
- python3 $STHOME/sttools_v6.py --run-steps 1 --first-fq $STDATA/liver-MiSeq-tile2106-sub-R1.fastq.gz --second-fq1 $STDATA/liver-HiSeq-tile2106-sub-R1.fastq.gz --STtools $STHOME  -l 20 --outdir $STOUT
+ python3 $STHOME/sttools.py --run-steps 1 --first-fq $STDATA/liver-MiSeq-tile2106-sub-R1.fastq.gz --second-fq1 $STDATA/liver-HiSeq-tile2106-sub-R1.fastq.gz --STtools $STHOME  -l 20 --outdir $STOUT
  ```
  ### *Output*
  This step output two useful files in the current working directory, and are taken as input the next steps.
@@ -39,7 +39,7 @@ Step2 visualize the barcode/HDMI density discovery plot, with which the user are
  export STHOME=/path/to/STtools
  export STDATA=/path/to/data
  export STOUT=/path/to/outdir
- python3 $STHOME/sttools_v6.py --run-steps 2 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt --hdmi2ndSeq $STDATA/HDMI_SeqScope_2nd.txt --outdir $STOUT
+ python3 $STHOME/sttools.py --run-steps 2 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt --hdmi2ndSeq $STDATA/HDMI_SeqScope_2nd.txt --outdir $STOUT
   ```
 ### *Output*
 tile_lane*.png
@@ -68,7 +68,7 @@ Before running step3, it is the required the user to generate the genome referen
  export SEQTKPATH=/path/to/seqtk/executive
  export STARPATH=/path/to/star/executive
  
-python3 $STHOME/sttools_v6.py --run-steps 3 --STtools $STHOME --whitelist $STDATA/whitelist.txt --second-fq1 $STDATA/liver_tile2106_sub_R1.fastq.gz --second-fq2 $STDATA/liver_tile2106_sub_R2.fastq.gz --outdir $STOUT --genome $GENEINDEX --star-path $STARPATH --seqtk-path $SEQTKPATH
+python3 $STHOME/sttools.py --run-steps 3 --STtools $STHOME --whitelist $STDATA/whitelist.txt --second-fq1 $STDATA/liver_tile2106_sub_R1.fastq.gz --second-fq2 $STDATA/liver_tile2106_sub_R2.fastq.gz --outdir $STOUT --genome $GENEINDEX --star-path $STARPATH --seqtk-path $SEQTKPATH
 
 ```
 ### *Output*
@@ -93,7 +93,7 @@ export STHOME=/path/to/STtools
 export STDATA=/path/to/data
 export STOUT=/path/to/outdir
 export STDGE=/path/to/DGE/
-python3  $STHOME/sttools_v6.py --run-steps 4 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --tiles 2106 --binsize 300  -l 20 --DGEdir $STDGE
+python3  $STHOME/sttools.py --run-steps 4 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --tiles 2106 --binsize 300  -l 20 --DGEdir $STDGE
 
 ```
 ### *output*
@@ -119,7 +119,7 @@ export STDATA=/path/to/data
 export STOUT=/path/to/outdir
 export STDGE=/path/to/DGE/
 
-python3 $STHOME/sttools_v6.py --run-steps 5 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --tiles 2106 --binsize 300  -l 20 --window 150 --DGEdir $STDGE
+python3 $STHOME/sttools.py --run-steps 5 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --tiles 2106 --binsize 300  -l 20 --window 150 --DGEdir $STDGE
 
 ```
 ### *output*
@@ -143,7 +143,7 @@ export STDATA=/path/to/spatial/data
 export STSIMPLE=/path/to/SimpleSquareGrids
 export STSLIDING=/path/to/SlidingSquareGrids
 export STOUT=/path/to/outdir
-python3 $STHOME/sttools_v6.py --run-steps 6 --STtools $STHOME   --outdir $STOUT --simpleGridsPath $STSIMPLE/SimpleSquareGrids.RDS --slidingGridsPath $STSLIDING/SlidingSquareGrids.RDS
+python3 $STHOME/sttools.py --run-steps 6 --STtools $STHOME   --outdir $STOUT --simpleGridsPath $STSIMPLE/SimpleSquareGrids.RDS --slidingGridsPath $STSLIDING/SlidingSquareGrids.RDS
 
 
 ```
@@ -167,7 +167,7 @@ export STHOME=/path/to/STtools
 export STDATA=/path/to/spatial/data
 export STSUBDGE=/path/to/unspliced/DGE
 export STOUT=/path/to/outdir
-python3 $STHOME/sttools_v6.py --run-steps 7 --STtools $STHOME   --outdir $STOUT --spatial $STDATA/spatialcoordinates.txt --subDGEdir $STSUBDGE -alpha 0.02 --tiles 2106,2107
+python3 $STHOME/sttools.py --run-steps 7 --STtools $STHOME   --outdir $STOUT --spatial $STDATA/spatialcoordinates.txt --subDGEdir $STSUBDGE -alpha 0.02 --tiles 2106,2107
 
 
 ```
