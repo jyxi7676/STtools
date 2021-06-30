@@ -51,7 +51,7 @@ Before running step3, it is the required the user to generate the genome referen
  * --second-fq1: Path to 2nd-Seq FASTQ.gz file of read 1. Required.
  * --second-fq2: Path to 2nd-Seq FASTQ.gz file of read 2. Required.
  * --whitelist: Txt file of the whitelist, if not given, searching whitelist.txt in the current folder.
- * -g: genome reference. Required
+ * --genome or -g: STAR geneome index. Required
  * --STtools: Path to the STtools package. If not given, using currently working directory (add this to pkg)
  * -o: Output prefix of alignment, if not given, set to 'Sample'
  * --sesqtk-path: Path to seqtk executable. Required
@@ -81,7 +81,7 @@ Step 4 bins the DGE into simple square gridded data and collapses the reads coun
 ### *input*
 * --STtools: Path to STtools package. If not given, the current working directory is used.(add this to pkg).
 * --tiles: Tiles that the user is insterested in. Multiple tile numbers need to be separated by comma. For example: --tiles 2106,2107,2108. Required.
-* --sidesize: The size of the square grids side. By default, it is set to 300 units.
+* --binsize: The size of the square grids side. By default, it is set to 300 units.
 * --DGEdir: Path to the digital expression matrix. If not given, use the path to DGE from previous steps.
 * --spatial: Path to the txt file of spatial coordinates. If not given, use the path to spatialCoordinates.txt from previous steps.
 * --nrow: number of rows when generating the super tile. If not give, we assume there is only one tile, and nrow=1.
@@ -93,7 +93,7 @@ export STHOME=/path/to/STtools
 export STDATA=/path/to/data
 export STOUT=/path/to/outdir
 export STDGE=/path/to/DGE/
-python3  $STHOME/sttools_v6.py --run-steps 4 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --tiles 2106 --sidesize 300  -l 20 --DGEdir $STDGE
+python3  $STHOME/sttools_v6.py --run-steps 4 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --tiles 2106 --binsize 300  -l 20 --DGEdir $STDGE
 
 ```
 ### *output*
@@ -105,7 +105,7 @@ Step 5 bins the DGE into simple square gridded data using sliding window strateg
 ### *input*
 * --STtools: Path to STtools package. If not given, the current working directory is used.(add this to pkg).
 * --tiles: Tiles that the user is insterested in. Multiple tile numbers need to be separated by comma. For example: --tiles 2106,2107,2108. Required.
-* --sidesize: The size of the square grids side. By default, it is set to 300 units.
+* --binsize: The size of the square grids side. By default, it is set to 300 units.
 * --window: The side of sliding window. By default it is set to by 150 units.
 * --DGEdir: Path to the digital expression matrix. If not given, use the path to DGE from previous steps.
 * --spatial: Path to the txt file of spatial coordinates. If not given, use the path to spatialCoordinates.txt from previous steps.
@@ -119,7 +119,7 @@ export STDATA=/path/to/data
 export STOUT=/path/to/outdir
 export STDGE=/path/to/DGE/
 
-python3 $STHOME/sttools_v6.py --run-steps 5 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --tiles 2106 --sidesize 300  -l 20 --window 150 --DGEdir $STDGE
+python3 $STHOME/sttools_v6.py --run-steps 5 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --tiles 2106 --binsize 300  -l 20 --window 150 --DGEdir $STDGE
 
 ```
 ### *output*
