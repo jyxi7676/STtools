@@ -17,7 +17,7 @@ export STOUT=/path/to/outdir
 export GENEINDEX=/path/to/geneIndex
 export SEQTKPATH=/path/to/seqtk/executive
 export STARPATH=/path/to/star/executive
-python3 $STHOME/sttools_v6.py --run-steps 1,2,3 --first-fq $STDATA/liver-MiSeq-tile2106-sub-R1.fastq.gz --second-fq1 $STDATA/liver_tile2106_sub_R1.fastq.gz --second-fq2 $STDATA/liver_tile2106_sub_R2.fastq.gz  --STtools $STHOME  -l 20  --genome $GENEINDEX --star-path $STARPATH --seqtk-path $SEQTKPATH  --whitelist /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/whitelist.txt --outdir $STOUT
+python3 $STHOME/sttools.py --run-steps 1,2,3 --first-fq $STDATA/liver-MiSeq-tile2106-sub-R1.fastq.gz --second-fq1 $STDATA/liver_tile2106_sub_R1.fastq.gz --second-fq2 $STDATA/liver_tile2106_sub_R2.fastq.gz  --STtools $STHOME  -l 20  --genome $GENEINDEX --star-path $STARPATH --seqtk-path $SEQTKPATH  --whitelist /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/temp/whitelist.txt --outdir $STOUT
 ```
 ### Example 2
 If the user wants to start from DGE and spatial coordinates and generate simple square grids, sliding square grids and reference mapping. Then the user can specify --run-steps 4,5,6 as follows:
@@ -27,7 +27,7 @@ export STHOME=/path/to/STtools
 export STDATA=/path/to/spatial/data
 export STDGE=/path/to/DGE
 export STOUT=/path/to/outdir
-python3 $STHOME/sttools_v6.py --run-steps 4,5,6  --STtools $STHOME   --spatial $STDATA/spatialcoordinates.txt --tiles 2106 -l 20 --window 150 --sidesize 300  -l 20 --DGEdir $STDGE --outdir $STOUT
+python3 $STHOME/sttools.py --run-steps 4,5,6  --STtools $STHOME   --spatial $STDATA/spatialcoordinates.txt --tiles 2106 -l 20 --window 150 --binsize 300  -l 20 --DGEdir $STDGE --outdir $STOUT
 ```
 
 
