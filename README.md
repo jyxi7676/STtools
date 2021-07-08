@@ -16,7 +16,7 @@ You need to install the following software tools before using this package .
 ## Installation
 
 ## Input and Output Data Format
-Please refer to the link https://github.com/jyxi7676/STtools/blob/main/scipts/fileformats.md for an illustration of required input data format and output data format for each step.
+Please refer to [the link](./doc/fileformats.md) for an illustration of required input data format and output data format for each step.
 
 ## Example Data
 * SeqScope exmaple data for each step can be found at https://drive.google.com/file/d/1e0u57Yu_fVKFvs-UA7WYfj-vgm8Nd2y4/view?usp=sharing, please download the zip files. For each step, the example input data is stored in the corresponding subdirectories. 
@@ -46,13 +46,9 @@ There are 6 steps, each step takes input from either outputs from previous steps
 
 ## Getting Started
 STtools commands are ran in the working directory and output files/plot will be stored in the working directory. The package have flexible options for the user to run either **from the step 1** or run for **consecutive steps** or for **one specific step**. Several examples from various scerios will be given for illustratrion. 
-* Automatic running all steps
-https://github.com/jyxi7676/STtools/blob/main/scipts/readme1.md
- 
-* Running consecutive steps
-https://github.com/jyxi7676/STtools/blob/main/scipts/readme2.md
-* Running specific step
-https://github.com/jyxi7676/STtools/blob/main/scipts/readme3.md
+* [Automatic running all steps](./doc/readme1.md)
+* [Running consecutive steps](./doc/readme2.md)
+* [Running specific step](./doc/readme3.md)
 
 ## External links
 Here are some useful external links:
