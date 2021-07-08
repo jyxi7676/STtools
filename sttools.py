@@ -36,7 +36,15 @@ parser.add_argument("--simpleGridsPath",type=str,help='path to rds file of simpl
 parser.add_argument("--slidingGridsPath",type=str,help='path to rds file of sliding squrae grids')
 parser.add_argument("--outdir",type=str,help='path to the output directory, if not specified, output in the current working directory')
 #parser.add_argument("--nrow",type=int,help='number of rows when stacking the tiles')
-
+parser.add_argument("--VISIUMpath",type=str,help='path to VISIUM data folder with ontaining the spatial/ and filtered_feature_bc_matrix/ subdirectories')
+parser.add_argument("--seed",type=float, help="seed for running bayespace on visium data")
+parser.add_argument("--nPCs",type=float, help='number of PCs used for running bayespace on visium data')
+parser.add_argument("--nHVGs",type=float, help='number of highly variable genes for running bayespace on visium data')
+parser.add_argument('--logNormalize',type=str2bool,default=True,help='boolean value indicating wheather to log normalize data or not before running bayespace on visium data')
+parser.add_argument('--enhancedRes',type=str2bool,default=False, help='boolean valud indicating to use enhance clusterin or not for running bayespace on visium data')
+parser.add_argument('--nCluster',type=float,help='number of expected clusters for visium data')
+parser.add_argument('--nrep',type=float, help='number of repetion for running bayespace, it is suggested that at least 10000 is needed for a full data')
+parser.add_argument('--datasource',type=str,help='string of the data source, for example: SeqScope, VISIUM, etc.')
 
 #Functions
 def step1():
