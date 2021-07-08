@@ -16,7 +16,7 @@ You need to install the following software tools before using this package .
 ## Installation
 
 ## Input and Output Data Format
-Please refer to [the link](https://github.com/jyxi7676/STtools/blob/main/doc/fileformats.md) for an illustration of required input data format and output data format for each step.
+Please refer to [the link](./doc/fileformats.md) for an illustration of required input data format and output data format for each step.
 
 ## Example Data
 * SeqScope exmaple data for each step can be found at https://drive.google.com/file/d/1e0u57Yu_fVKFvs-UA7WYfj-vgm8Nd2y4/view?usp=sharing, please download the zip files. For each step, the example input data is stored in the corresponding subdirectories. 
