@@ -1,7 +1,7 @@
 
 # SeqScope Tools Introduction
-STtools is an package that processing spatial transciriptomics data from various ST platform such as Seq-Scope and VISIUM. This pipleine includes data preprocessing, alignment, collapsing barcodes into 
-gridded datasets and clustering based on classic Seurat methods. 
+STtools is an package that processing spatial transciriptomics data from various ST platform such as [Seq-Scope](https://www.cell.com/cell/fulltext/S0092-8674(21)00627-9?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS0092867421006279%3Fshowall%3Dtrue), [SlideSeq](https://www.cell.com/cell/fulltext/S0092-8674(21)00627-9?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS0092867421006279%3Fshowall%3Dtrue) and [VISIUM](https://www.nature.com/articles/s42003-020-01247-y). This pipleine includes data preprocessing, alignment, collapsing barcodes into 
+gridded datasets and clustering based on classic [Seurat](https://satijalab.org/seurat/articles/spatial_vignette.html) using sliding window strategy and [BayesSpace](https://www.nature.com/articles/s41587-021-00935-2)
 
 ## Required operation system and sofware tools
 Linux operatin system is necessary.
@@ -14,15 +14,15 @@ You need to install the following software tools before using this package .
 * pigz
 
 ## Installation
-
+git clone https://github.com/jyxi7676/STtools.git
 ## Input and Output Data Format
-Please refer to [the link](./doc/fileformats.md) for an illustration of required input data format and output data format for each step.
+Please refer to [data formats](./doc/fileformats.md) for an illustration of required input data format and output data format for each step.
 
 ## Example Data
-* SeqScope exmaple data for each step can be found at https://drive.google.com/file/d/1e0u57Yu_fVKFvs-UA7WYfj-vgm8Nd2y4/view?usp=sharing, please download the zip files. For each step, the example input data is stored in the corresponding subdirectories. 
+* SeqScope exmaple data for each step can be found at [example data 1](https://drive.google.com/file/d/1e0u57Yu_fVKFvs-UA7WYfj-vgm8Nd2y4/view?usp=sharing), please download the zip files. For each step, the example input data is stored in the corresponding subdirectories. 
 
-* VISIUM digital expresstion data and spatial coordinates are available at https://drive.google.com/drive/folders/130ENNRBEi7kCOXDnGZlHUnuf4CD3_JEI?usp=sharing
-
+* VISIUM digital expresstion data and spatial coordinates are available at [example data 2](https://drive.google.com/drive/folders/130ENNRBEi7kCOXDnGZlHUnuf4CD3_JEI?usp=sharing)
+* SeqScope digital expression data and spatial coordinates are avaialbel at [example data 3](not ready yet)
 ## Overall Workflow
 
 This image below shows the overall workflow for STtools. 
@@ -32,6 +32,7 @@ This image below shows the overall workflow for STtools.
 </p>
 
 There are 6 steps, each step takes input from either outputs from previous steps or the raw exapmle data. Please see a brief explanation about each step as follows:
+```
 
 * Step 1 takes fastq.gz files as input and output spatial coordinates .txt files and whitelist used for STARsolo alignemnt in the current working directory.
 * Step 2 takes in fastq.gz file with barcode info and spatial coordinates file to generate a barcode/HDMI density plot which can be compared with HE images for an estimation of tissue boundary
@@ -40,7 +41,7 @@ There are 6 steps, each step takes input from either outputs from previous steps
 * Step 5 takes DGE from Step 3 and output Seurat object with collapsed DGE of square grids from sliding window strategy
 * Step 6 takes in RDS file from Step 4 and Step 5 as input and performs dimension reduction, clustering and conducts refernece mapping with simple square grids as query
 * Step 7 takes DGE(Velocyto) from Step 3 and generate subcellular plots showing pattern of spliced/unspliced reads
-
+```
 
 
 

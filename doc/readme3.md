@@ -1,7 +1,7 @@
 
 # User Manual
 ## Running specific step in STtools
-The user need to use the option --run-step if interested in running one step only per command . The required input/output data format for each step can be found at https://github.com/jyxi7676/STtools/blob/main/scipts/fileformats.md.  We will give a detailed illustration about how to run STtools per step with several examples. 
+The user need to use the option --run-step if interested in running one step only per command .   We will give a detailed illustration about how to run STtools per step with several examples. Please modify your input files according to  [the link](./doc/fileformats.md) 
 ## Step 1
 Step 1 aims to extracts spatial coordinates and whitelist info from the sequenced raw FASTQ.gz file. It assumes the user has the SeqScope data format (see xxxx for stucture, cite seqscope paper), where spatial  realated information such as HDMI/Barcode, lane, tile, X and Y coordinates can be retrieved from 1st-Seq and transcriptomic information can be retrieved from 2nd-Seq. 
 ### *Input*
@@ -12,10 +12,14 @@ Step 1 aims to extracts spatial coordinates and whitelist info from the sequence
   *   --STtools: Path to the STtools package. If not given, using current working directory (add this to pkg)
   *   --outdir: Path to output files. If not given, using current working directory
  ### *Code*
- ```
- export STHOME=/path/to/STtools
+ ```sh
+ ## $STHOME indicates the path to the directory of STtools repository
+ export STHOME=/path/to/STtools 
+ ## $STDATA indicates the directory containing the example input files
  export STDATA=/path/to/data
+ ## $STOUT indicates the directory containing the example output files.
  export STOUT=/path/to/outdir
+ 
  python3 $STHOME/sttools.py --run-steps 1 --first-fq $STDATA/liver-MiSeq-tile2106-sub-R1.fastq.gz --second-fq1 $STDATA/liver-HiSeq-tile2106-sub-R1.fastq.gz --STtools $STHOME  -l 20 --outdir $STOUT
  ```
  ### *Output*
@@ -35,11 +39,14 @@ Step2 visualize the barcode/HDMI density discovery plot, with which the user are
   * --outdir: Path to output files. If not given, using current working directory
 
 ### *Code*
- ```
- export STHOME=/path/to/STtools
- export STDATA=/path/to/data
- export STOUT=/path/to/outdir
- python3 $STHOME/sttools.py --run-steps 2 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt --hdmi2ndSeq $STDATA/HDMI_SeqScope_2nd.txt --outdir $STOUT
+ ```sh
+  ## $STHOME indicates the path to the directory of STtools repository
+  export STHOME=/path/to/STtools
+  ## $STDATA indicates the directory containing the example input files
+  export STDATA=/path/to/data
+  ## $STOUT indicates the directory containing the example output files.
+  export STOUT=/path/to/outdir
+  python3 $STHOME/sttools.py --run-steps 2 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt --hdmi2ndSeq $STDATA/HDMI_SeqScope_2nd.txt --outdir $STOUT
   ```
 ### *Output*
 tile_lane*.png
@@ -60,15 +67,21 @@ Before running step3, it is the required the user to generate the genome referen
 
  
 ### *Code*
-``` 
+``` sh
+ ## $STHOME indicates the path to the directory of STtools repository
  export STHOME=/path/to/STtools
+ ## $STDATA indicates the directory containing the example input files
  export STDATA=/path/to/data
+ ## $STOUT indicates the directory containing the example output files.
  export STOUT=/path/to/outdir
- export GENEINDEX=/path/to/geneIndex
+ ## $GENEINDEX indicates the path to genome index for STARsolo alignment
+ export GENOMEINDEX=/path/to/genomeIndex
+ ## $SEQTKPATH indicates the path to the seqtk executive
  export SEQTKPATH=/path/to/seqtk/executive
+ ## $STARPATH indicates the path to the STAR executive
  export STARPATH=/path/to/star/executive
  
-python3 $STHOME/sttools.py --run-steps 3 --STtools $STHOME --whitelist $STDATA/whitelist.txt --second-fq1 $STDATA/liver_tile2106_sub_R1.fastq.gz --second-fq2 $STDATA/liver_tile2106_sub_R2.fastq.gz --outdir $STOUT --genome $GENEINDEX --star-path $STARPATH --seqtk-path $SEQTKPATH
+python3 $STHOME/sttools.py --run-steps 3 --STtools $STHOME --whitelist $STDATA/whitelist.txt --second-fq1 $STDATA/liver_tile2106_sub_R1.fastq.gz --second-fq2 $STDATA/liver_tile2106_sub_R2.fastq.gz --outdir $STOUT --genome $GENOMEINDEX --star-path $STARPATH --seqtk-path $SEQTKPATH
 
 ```
 ### *Output*
@@ -88,10 +101,14 @@ Step 4 bins the DGE into simple square gridded data and collapses the reads coun
 * --ncol: number of cols when generating the super tile. If not give, we assume there is only one tile, and ncol=1.
 * --outdir: Path to output files. If not given, using current working directory
 ### *code*
-```
+```sh
+## $STHOME indicates the path to the directory of STtools repository
 export STHOME=/path/to/STtools
+## $STDATA indicates the directory containing the example input files
 export STDATA=/path/to/data
+## $STOUT indicates the directory containing the example output files
 export STOUT=/path/to/outdir
+## $STOUT indicates the path to digital expression matrix(DGE)
 export STDGE=/path/to/DGE/
 python3  $STHOME/sttools.py --run-steps 4 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --tiles 2106 --binsize 300  -l 20 --DGEdir $STDGE
 
@@ -113,12 +130,15 @@ Step 5 bins the DGE into simple square gridded data using sliding window strateg
 * --ncol: number of cols when generating the super tile. If not give, we assume there is only one tile, and ncol=1.
 * --outdir: Path to output files. If not given, using current working directory
 ### *code*
-```
+```sh
+## $STHOME indicates the path to the directory of STtools repository
 export STHOME=/path/to/STtools
+## $STDATA indicates the directory containing the example input files
 export STDATA=/path/to/data
+## $STOUT indicates the path to digital expression matrix(DGE)
 export STOUT=/path/to/outdir
+## $STOUT indicates the path to digital expression matrix(DGE)
 export STDGE=/path/to/DGE/
-
 python3 $STHOME/sttools.py --run-steps 5 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --tiles 2106 --binsize 300  -l 20 --window 150 --DGEdir $STDGE
 
 ```
@@ -137,11 +157,16 @@ This step conducts clustering pipeline based on Seurat tutorial. And mapping the
 * --geneCount2: Cutoff of nFeatures for SlidingSquareGrids.RDS.
 * --nFeaturePlotOnly: If TRUE, output violin plot of nFeatures only. If FALSE, generate mapped RDS as well. 
 ### *Code*
-```
+```sh
+## $STHOME indicates the path to the directory of STtools repository
 export STHOME=/path/to/STtools
+## $STDATA indicates the directory containing the example input files
 export STDATA=/path/to/spatial/data
+## $STSIMPLE indicates the path to SimpleSquareGrids.RDS
 export STSIMPLE=/path/to/SimpleSquareGrids
+## $STSIMPLE indicates the path to SlidingSquareGrids.RDS
 export STSLIDING=/path/to/SlidingSquareGrids
+## $STOUT indicates the path to digital expression matrix(DGE)
 export STOUT=/path/to/outdir
 python3 $STHOME/sttools.py --run-steps 6 --STtools $STHOME   --outdir $STOUT --simpleGridsPath $STSIMPLE/SimpleSquareGrids.RDS --slidingGridsPath $STSLIDING/SlidingSquareGrids.RDS
 
@@ -162,10 +187,14 @@ This step generate the spliced and unspliced plots when the genes are divided in
 * --py: path to python executives
 
 ### *Code*
-```
+```sh
+## $STHOME indicates the path to the directory of STtools repository
 export STHOME=/path/to/STtools
+## $STDATA indicates the directory containing the example input files
 export STDATA=/path/to/spatial/data
+## $STDATA indicates the path to unspliced digital expression matrix
 export STSUBDGE=/path/to/unspliced/DGE
+## $STOUT indicates the path to digital expression matrix(DGE)
 export STOUT=/path/to/outdir
 python3 $STHOME/sttools.py --run-steps 7 --STtools $STHOME   --outdir $STOUT --spatial $STDATA/spatialcoordinates.txt --subDGEdir $STSUBDGE -alpha 0.02 --tiles 2106,2107
 
