@@ -1,0 +1,284 @@
+STAR version=2.7.5c
+STAR compilation time,server,dir=Tue Aug 18 13:14:18 EDT 2020 :/net/fantasia/home/jyxi/STAR-2.7.5c/source
+##### Command Line:
+/net/fantasia/home/jyxi/STAR-2.7.5c/source//STAR --genomeDir /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/geneIndex/ --readFilesIn ./input/liver_tile2106_sub_R2.fastq.gz ./input/liver_tile2106_sub_R1_modified.fastq.gz --outSAMtype BAM SortedByCoordinate --readFilesCommand zcat --runDirPerm All_RWX --outFileNamePrefix ./output/Sample --soloType CB_UMI_Simple --soloCBstart 1 --soloCBlen 20 --soloUMIstart 21 --soloUMIlen 9 --soloCBwhitelist ./input/whitelist.txt --runThreadN 6 --soloBarcodeReadLength 0 --outSAMattributes NH HI nM AS CR UR CB UB GX GN sS sQ sM --outFilterScoreMinOverLread 0 --outFilterMatchNminOverLread 0 --clip3pAdapterSeq AAAAAAAAAA --clip3pAdapterMMp 0.1 --soloFeatures Gene GeneFull SJ Velocyto --limitOutSJcollapsed 1000000 --soloCellFilter None
+##### Initial USER parameters from Command Line:
+outFileNamePrefix                 ./output/Sample
+###### All USER parameters from Command Line:
+genomeDir                     /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/geneIndex/     ~RE-DEFINED
+readFilesIn                   ./input/liver_tile2106_sub_R2.fastq.gz   ./input/liver_tile2106_sub_R1_modified.fastq.gz        ~RE-DEFINED
+outSAMtype                    BAM   SortedByCoordinate        ~RE-DEFINED
+readFilesCommand              zcat        ~RE-DEFINED
+runDirPerm                    All_RWX     ~RE-DEFINED
+outFileNamePrefix             ./output/Sample     ~RE-DEFINED
+soloType                      CB_UMI_Simple     ~RE-DEFINED
+soloCBstart                   1     ~RE-DEFINED
+soloCBlen                     20     ~RE-DEFINED
+soloUMIstart                  21     ~RE-DEFINED
+soloUMIlen                    9     ~RE-DEFINED
+soloCBwhitelist               ./input/whitelist.txt        ~RE-DEFINED
+runThreadN                    6     ~RE-DEFINED
+soloBarcodeReadLength         0     ~RE-DEFINED
+outSAMattributes              NH   HI   nM   AS   CR   UR   CB   UB   GX   GN   sS   sQ   sM        ~RE-DEFINED
+outFilterScoreMinOverLread    0     ~RE-DEFINED
+outFilterMatchNminOverLread   0     ~RE-DEFINED
+clip3pAdapterSeq              AAAAAAAAAA        ~RE-DEFINED
+clip3pAdapterMMp              0.1        ~RE-DEFINED
+soloFeatures                  Gene   GeneFull   SJ   Velocyto        ~RE-DEFINED
+limitOutSJcollapsed           1000000     ~RE-DEFINED
+soloCellFilter                None        ~RE-DEFINED
+##### Finished reading parameters from all sources
+
+##### Final user re-defined parameters-----------------:
+runThreadN                        6
+runDirPerm                        All_RWX
+genomeDir                         /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/geneIndex/
+readFilesIn                       ./input/liver_tile2106_sub_R2.fastq.gz   ./input/liver_tile2106_sub_R1_modified.fastq.gz   
+readFilesCommand                  zcat   
+limitOutSJcollapsed               1000000
+outFileNamePrefix                 ./output/Sample
+outSAMtype                        BAM   SortedByCoordinate   
+outSAMattributes                  NH   HI   nM   AS   CR   UR   CB   UB   GX   GN   sS   sQ   sM   
+outFilterScoreMinOverLread        0
+outFilterMatchNminOverLread       0
+clip3pAdapterSeq                  AAAAAAAAAA   
+clip3pAdapterMMp                  0.1   
+soloType                          CB_UMI_Simple
+soloCBstart                       1
+soloUMIstart                      21
+soloCBlen                         20
+soloUMIlen                        9
+soloBarcodeReadLength             0
+soloCBwhitelist                   ./input/whitelist.txt   
+soloFeatures                      Gene   GeneFull   SJ   Velocyto   
+soloCellFilter                    None   
+
+-------------------------------
+##### Final effective command line:
+/net/fantasia/home/jyxi/STAR-2.7.5c/source//STAR   --runThreadN 6   --runDirPerm All_RWX   --genomeDir /net/fantasia/home/jyxi/scrna/leejun/ngst/STtools/geneIndex/   --readFilesIn ./input/liver_tile2106_sub_R2.fastq.gz   ./input/liver_tile2106_sub_R1_modified.fastq.gz      --readFilesCommand zcat      --limitOutSJcollapsed 1000000   --outFileNamePrefix ./output/Sample   --outSAMtype BAM   SortedByCoordinate      --outSAMattributes NH   HI   nM   AS   CR   UR   CB   UB   GX   GN   sS   sQ   sM      --outFilterScoreMinOverLread 0   --outFilterMatchNminOverLread 0   --clip3pAdapterSeq AAAAAAAAAA      --clip3pAdapterMMp 0.1      --soloType CB_UMI_Simple   --soloCBstart 1   --soloUMIstart 21   --soloCBlen 20   --soloUMIlen 9   --soloBarcodeReadLength 0   --soloCBwhitelist ./input/whitelist.txt      --soloFeatures Gene   GeneFull   SJ   Velocyto      --soloCellFilter None   
+----------------------------------------
+
+Number of fastq files for each mate = 1
+
+   Input read files for mate 1 :
+-rw-r--r-- 1 jyxi statgen-users 47521880 Apr 26 10:02 ./input/liver_tile2106_sub_R2.fastq.gz
+
+   readsCommandsFile:
+exec > "./output/Sample_STARtmp/tmp.fifo.read1"
+echo FILE 0
+zcat      "./input/liver_tile2106_sub_R2.fastq.gz"
+
+
+   Input read files for mate 2 :
+-rw-r--r-- 1 jyxi statgen-users 14627313 Apr 26 11:08 ./input/liver_tile2106_sub_R1_modified.fastq.gz
+
+   readsCommandsFile:
+exec > "./output/Sample_STARtmp/tmp.fifo.read2"
+echo FILE 0
+zcat      "./input/liver_tile2106_sub_R1_modified.fastq.gz"
+
+Number of CBs in the whitelist = 331394
+Apr 26 11:08:38Finished reading, sorting and deduplicating CB whitelist sequences.
+WARNING: --limitBAMsortRAM=0, will use genome size as RAM limit for BAM sorting
+Finished loading and checking parameters
+Reading genome generation parameters:
+### ./STAR   --runMode genomeGenerate   --runThreadN 6   --genomeDir /net/fantasia/home/jyxi/scrna/dropseq/mouse/mm10/geneIndex   --genomeFastaFiles /net/fantasia/home/jyxi/scrna/dropseq/mouse/mm10/mm10.fasta      --limitOutSJcollapsed 5000000   --sjdbGTFfile /net/fantasia/home/jyxi/scrna/dropseq/mouse/mm10/mm10.gtf   --sjdbOverhang 99
+### GstrandBit=32
+versionGenome                 2.7.4a     ~RE-DEFINED
+genomeType                    Full     ~RE-DEFINED
+genomeFastaFiles              /net/fantasia/home/jyxi/scrna/dropseq/mouse/mm10/mm10.fasta        ~RE-DEFINED
+genomeSAindexNbases           14     ~RE-DEFINED
+genomeChrBinNbits             18     ~RE-DEFINED
+genomeSAsparseD               1     ~RE-DEFINED
+genomeTransformType           None     ~RE-DEFINED
+genomeTransformVCF            -     ~RE-DEFINED
+sjdbOverhang                  99     ~RE-DEFINED
+sjdbFileChrStartEnd           -        ~RE-DEFINED
+sjdbGTFfile                   /net/fantasia/home/jyxi/scrna/dropseq/mouse/mm10/mm10.gtf     ~RE-DEFINED
+sjdbGTFchrPrefix              -     ~RE-DEFINED
+sjdbGTFfeatureExon            exon     ~RE-DEFINED
+sjdbGTFtagExonParentTranscripttranscript_id     ~RE-DEFINED
+sjdbGTFtagExonParentGene      gene_id     ~RE-DEFINED
+sjdbInsertSave                Basic     ~RE-DEFINED
+genomeFileSizes               2788338133   22272070610        ~RE-DEFINED
+Genome version is compatible with current STAR
+Number of real (reference) chromosomes= 66
+1	10	130694993	0
+2	11	122082543	130809856
+3	12	120129022	252968960
+4	13	120421639	373293056
+5	14	124902244	493879296
+6	15	104043685	618921984
+7	16	98207768	722993152
+8	17	94987271	821297152
+9	18	90702639	916455424
+10	19	61431566	1007419392
+11	1	195471971	1069023232
+12	1_GL456210_random	169725	1264582656
+13	1_GL456211_random	241735	1264844800
+14	1_GL456212_random	153618	1265106944
+15	1_GL456213_random	39340	1265369088
+16	1_GL456221_random	206961	1265631232
+17	2	182113224	1265893376
+18	3	160039680	1448083456
+19	4	156508116	1608253440
+20	4_GL456216_random	66673	1765015552
+21	4_GL456350_random	227966	1765277696
+22	4_JH584292_random	14945	1765539840
+23	4_JH584293_random	207968	1765801984
+24	4_JH584294_random	191905	1766064128
+25	4_JH584295_random	1976	1766326272
+26	5	151834684	1766588416
+27	5_GL456354_random	195993	1918631936
+28	5_JH584296_random	199368	1918894080
+29	5_JH584297_random	205776	1919156224
+30	5_JH584298_random	184189	1919418368
+31	5_JH584299_random	953012	1919680512
+32	6	149736546	1920729088
+33	7	145441459	2070675456
+34	7_GL456219_random	175968	2216165376
+35	8	129401213	2216427520
+36	9	124595110	2345926656
+37	MT	16299	2470707200
+38	Un_GL456239	40056	2470969344
+39	Un_GL456359	22974	2471231488
+40	Un_GL456360	31704	2471493632
+41	Un_GL456366	47073	2471755776
+42	Un_GL456367	42057	2472017920
+43	Un_GL456368	20208	2472280064
+44	Un_GL456370	26764	2472542208
+45	Un_GL456372	28664	2472804352
+46	Un_GL456378	31602	2473066496
+47	Un_GL456379	72385	2473328640
+48	Un_GL456381	25871	2473590784
+49	Un_GL456382	23158	2473852928
+50	Un_GL456383	38659	2474115072
+51	Un_GL456385	35240	2474377216
+52	Un_GL456387	24685	2474639360
+53	Un_GL456389	28772	2474901504
+54	Un_GL456390	24668	2475163648
+55	Un_GL456392	23629	2475425792
+56	Un_GL456393	55711	2475687936
+57	Un_GL456394	24323	2475950080
+58	Un_GL456396	21240	2476212224
+59	Un_JH584304	114452	2476474368
+60	X	171031299	2476736512
+61	X_GL456233_random	336933	2647916544
+62	Y	91744698	2648440832
+63	Y_JH584300_random	182347	2740191232
+64	Y_JH584301_random	259875	2740453376
+65	Y_JH584302_random	155838	2740715520
+66	Y_JH584303_random	158099	2740977664
+--sjdbOverhang = 99 taken from the generated genome
+Started loading the genome: Mon Apr 26 11:08:38 2021
+
+Genome: size given as a parameter = 2788338133
+SA: size given as a parameter = 22272070610
+SAindex: size given as a parameter = 1
+Read from SAindex: pGe.gSAindexNbases=14  nSAi=357913940
+nGenome=2788338133;  nSAbyte=22272070610
+GstrandBit=32   SA number of indices=5399289844
+Shared memory is not used for genomes. Allocated a private copy of the genome.
+Genome file size: 2788338133 bytes; state: good=1 eof=0 fail=0 bad=0
+Loading Genome ... done! state: good=1 eof=0 fail=0 bad=0; loaded 2788338133 bytes
+SA file size: 22272070610 bytes; state: good=1 eof=0 fail=0 bad=0
+Loading SA ... done! state: good=1 eof=0 fail=0 bad=0; loaded 22272070610 bytes
+Loading SAindex ... done: 1565873619 bytes
+Finished loading the genome: Mon Apr 26 11:08:57 2021
+
+Processing splice junctions database sjdbN=236675,   pGe.sjdbOverhang=99 
+alignIntronMax=alignMatesGapMax=0, the max intron size will be approximately determined by (2^winBinNbits)*winAnchorDistNbins=589824
+Loaded transcript database, nTr=87857
+Loaded exon database, nEx=615275
+Created thread # 1
+Created thread # 2
+Created thread # 3
+Starting to map file # 0
+mate 1:   ./input/liver_tile2106_sub_R2.fastq.gz
+mate 2:   ./input/liver_tile2106_sub_R1_modified.fastq.gz
+Created thread # 4
+Created thread # 5
+Thread #1 end of input stream, nextChar=-1
+BAM sorting: 78264 mapped reads
+BAM sorting bins genomic start loci:
+1	0	99661994
+2	1	53428949
+3	1	108722136
+4	2	92194818
+5	2	103894969
+6	3	46023652
+7	4	37993005
+8	5	3280270
+9	5	97048912
+10	6	63213339
+11	7	39846846
+12	7	84351660
+13	8	66651877
+14	9	38116673
+15	10	24613286
+16	10	24615724
+17	10	93430956
+18	10	171226330
+19	16	30281904
+20	16	112567438
+21	17	19992800
+22	17	98309332
+23	18	50492667
+24	18	60135940
+25	18	60578262
+26	18	60817588
+27	18	61224320
+28	18	61300104
+29	18	61948992
+30	18	62083478
+31	18	107515369
+32	25	22385079
+33	25	90475304
+34	25	90476497
+35	25	90476567
+36	25	134987272
+37	31	60673788
+38	31	138156428
+39	32	26182414
+40	32	105591612
+41	34	35828308
+42	34	122842184
+43	35	17655791
+44	35	79977311
+45	36	1684
+46	36	6885
+47	36	9757
+48	59	47897904
+Completed: thread #3
+Completed: thread #5
+Completed: thread #4
+Completed: thread #0
+Completed: thread #1
+Joined thread # 1
+Completed: thread #2
+Joined thread # 2
+Joined thread # 3
+Joined thread # 4
+Joined thread # 5
+Apr 26 11:09:17 ..... started Solo counting
+Apr 26 11:09:17 ... Starting Solo post-map for Gene
+Apr 26 11:09:17 ... Allocated and initialized readInfo array, nReadsInput = 563733
+Apr 26 11:09:17 ... Finished allocating arrays for Solo 0.00247217 GB
+Apr 26 11:09:17 ... Finished reading reads from Solo files nCB=33603, nReadPerCBmax=78, nMatch=221206
+Apr 26 11:09:17 ... Finished collapsing UMIs
+Apr 26 11:09:17 ... Starting Solo post-map for GeneFull
+Apr 26 11:09:17 ... Finished allocating arrays for Solo 0.00190822 GB
+Apr 26 11:09:17 ... Finished reading reads from Solo files nCB=36362, nReadPerCBmax=82, nMatch=256117
+Apr 26 11:09:17 ... Finished collapsing UMIs
+Apr 26 11:09:17 ... Starting Solo post-map for SJ
+Apr 26 11:09:17 ... Finished allocating arrays for Solo 0.000255205 GB
+Apr 26 11:09:17 ... Finished reading reads from Solo files nCB=8050, nReadPerCBmax=45, nMatch=33098
+Apr 26 11:09:17 ... Finished collapsing UMIs
+Apr 26 11:09:17 ... Starting Solo post-map for Velocyto
+Apr 26 11:09:17 ... Velocyto counting: allocated arrays
+Apr 26 11:09:17 ... Velocyto counting: finished input
+Apr 26 11:09:17 ... Velocyto counting: finished collapsing UMIs
+Apr 26 11:09:18 ..... finished Solo counting
+Apr 26 11:09:18 ..... started sorting BAM
+Max memory needed for sorting = 8213113
+ALL DONE!

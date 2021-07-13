@@ -29,10 +29,10 @@ def subPlot(df_pos,tiles,alpha,title):
              fig, ax = plt.subplots()
              fig.gca().set_aspect('equal', adjustable='box')
 
-             points = ax.scatter(z['y_miseq'],z['x_miseq'], c=z['umi'], s=1 ,alpha=0.01,vmin=0,vmax=2,cmap = cmap,norm=norm)  #tune alpha and size parameter here
+             #points = ax.scatter(z['y_miseq'],z['x_miseq'], c=z['umi'], s=1 ,alpha=0.01,vmin=0,vmax=2,cmap = cmap,norm=norm)  #tune alpha and size parameter here
              points = ax.scatter(z['y_miseq'],z['x_miseq'],c = "black",alpha=0.05,s=1)  #tune alpha and size parameter here
 
-            # cbar = fig.colorbar(points, ax=ax,extend = 'max')
+            #cbar = fig.colorbar(points, ax=ax,extend = 'max')
              
              plt.title('tile' + str(i))
              plt.savefig(title+"_tile"+str(i)+".png", dpi=500)
@@ -59,6 +59,7 @@ def getSubset(unspliced,spliced,geneInd,barcode_df,bottom):
 
 def subCellularAna(DGEdir,workingdir,spatial,seqscope1st,tiles,alpha):
     """Function to plot unspliced or spliced genes on subcelullar resolution"""
+    print(tiles)
     if os.path.isdir(DGEdir)==True:
         os.chdir(DGEdir)
     else:
@@ -70,10 +71,10 @@ def subCellularAna(DGEdir,workingdir,spatial,seqscope1st,tiles,alpha):
 
     if alpha=='0':
         alpha=0.01
-    if vmin == '0':
-        vmin=0
-    if vmax == '0':
-        vmax=2
+    #if vmin == '0':
+     #   vmin=0
+    #if vmax == '0':
+     #   vmax=2
 
     miseq_pos = pd.read_csv(spatial,delim_whitespace=True, header=None)
     miseq_pos.columns = ['HDMI','lane_miseq','tile_miseq','x_miseq','y_miseq']
@@ -128,8 +129,8 @@ def subCellularAna(DGEdir,workingdir,spatial,seqscope1st,tiles,alpha):
         plot2_name = 'splice_subset_'+str(i)
         eval( file1_name).to_csv(out1_name)
         eval(file2_name).to_csv(out2_name)
-        subPlot(eval(file1_name),tiles,alpha,vmin,vmax,plot1_name)
-        subPlot(eval(file2_name),tiles,alpha,vmin,vmax,plot2_name)
+        subPlot(eval(file1_name),tiles,alpha,plot1_name)
+        subPlot(eval(file2_name),tiles,alpha,plot2_name)
 
 
 
@@ -137,11 +138,10 @@ def subCellularAna(DGEdir,workingdir,spatial,seqscope1st,tiles,alpha):
 DGEdir=sys.argv[1] 
 workingdir=sys.argv[2] 
 spatial=sys.argv[3] 
-seqscope1st=sys.argv[4] 
-tiles = sys.argv[5].split(',')
+seqscope1st=sys.argv[4]
+#tilesarg=sys.argv[5]
+tiles =sys.argv[5].split(',')
 alpha=sys.argv[6]
-#vmin=sys.argv[7]
-#vmax=sys.argv[8]
 
 subCellularAna(DGEdir,workingdir,spatial,seqscope1st,tiles,alpha)
 

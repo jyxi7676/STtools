@@ -104,11 +104,11 @@ Step 4 bins the DGE into simple square gridded data and collapses the reads coun
 ```sh
 ## $STHOME indicates the path to the directory of STtools repository
 export STHOME=/path/to/STtools
-## $STDATA indicates the directory containing the example input files
+## $STDATA indicates the directory containing the example input files:spatialcoordinates.txt
 export STDATA=/path/to/data
 ## $STOUT indicates the directory containing the example output files
 export STOUT=/path/to/outdir
-## $STOUT indicates the path to digital expression matrix(DGE)
+## $STDGE indicates the path to digital expression matrix(DGE)
 export STDGE=/path/to/DGE/
 python3  $STHOME/sttools.py --run-steps 4 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --tiles 2106 --binsize 300  -l 20 --DGEdir $STDGE
 

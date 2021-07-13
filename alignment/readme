@@ -1,2 +1,0 @@
-
-sbatch align_v2.sh -a liver-MiSeq-tile2106-sub-R1.fastq.gz  -b liver-MiSeq-tile2106-sub-R2.fastq.gz -o Sample -t [starpath] -q [seqtkpath] -g [reference]-l 20 -w whitelists.txt

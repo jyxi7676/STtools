@@ -32,6 +32,7 @@ def using_mpl_scatter_density(fig, x, y,maxScale):
         ax = fig.add_subplot(1, 1, 1, projection='scatter_density')
         density = ax.scatter_density(x, y, cmap=white_viridis)
     else:
+        maxScale=float(maxScale)
         ax = fig.add_subplot(1, 1, 1, projection='scatter_density')
         density = ax.scatter_density(x, y, cmap=white_viridis,vmax =maxScale)
     fig.colorbar(density, label='Number of points per pixel')
@@ -57,24 +58,38 @@ def estimateTissueBoundary(pos1stSeq,hdmi2ndSeq,maxScale,outpath):
     tiles_uniq = merge_df['lane_tile'].unique()
     
     tiles_uniq = list(tiles_uniq)
+    print('maxscale')
+    print(maxScale)
+    if maxScale == '0':
+        print('TRUE 0')
+        maxScale=None
+          
     for i in tiles_uniq:
         x = merge_df[merge_df.lane_tile.eq(i)]
         fig = plt.figure()
-        if maxScale == '0':
-            maxScale=None
-            using_mpl_scatter_density(fig, x['y'], x['x'],maxScale)
-            plt.gca().set_aspect('equal', adjustable='box')
+        using_mpl_scatter_density(fig, x['y'], x['x'],maxScale)
+        plt.gca().set_aspect('equal', adjustable='box')
+        plt.savefig('lane_tile'+str(i)+'.png',dpi=1000)
+        plt.show()
+
+        # if maxScale == '0':
+        #    print('TRUE 0')
+         #   maxScale=None
+          #  print('use none')
+           # using_mpl_scatter_density(fig, x['y'], x['x'],maxScale)
+           # print('ok')
+#            plt.gca().set_aspect('equal', adjustable='box')
         #plt.savefig('tile'+str(i)+'.png',dpi=1000)
-            plt.savefig('lane_tile'+str(i)+'.png',dpi=1000)
-            plt.show()
-        else:
-            print('hi')
-            using_mpl_scatter_density(fig, x['y'], x['x'],float(maxScale))
+ #           plt.savefig('lane_tile'+str(i)+'.png',dpi=1000)
+  #          plt.show()
+   #     else:
+    #        print('FALSE 0')
+     #       using_mpl_scatter_density(fig, x['y'], x['x'],float(maxScale))
             
-            plt.gca().set_aspect('equal', adjustable='box')
+      #      plt.gca().set_aspect('equal', adjustable='box')
         #plt.savefig('tile'+str(i)+'.png',dpi=1000)
-            plt.savefig('lane_tile'+str(i)+'.png',dpi=1000)
-            plt.show()
+       #     plt.savefig('lane_tile'+str(i)+'.png',dpi=1000)
+        #    plt.show()
 
 
 #takes user-input arguments

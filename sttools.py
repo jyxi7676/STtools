@@ -109,6 +109,7 @@ def step2():
     #args.maxScale=2
     #if(args.outdir is None):
      #   args.outdir=os.getcwd()
+    print(args.maxScale)
     args.estTB=args.STtools+"/estimateTissueBoundary/estimateTissueBoundary.py"
     cmd3="{args.py} {args.estTB} {args.spatial} {args.hdmi2ndSeq} {args.maxScale} {args.outdir} ".format(args=args)
     ret = os.system(cmd3)
@@ -161,6 +162,7 @@ def step3():
 
 
     args.align=args.STtools+"/align/align_v2.sh"
+    print(args.outdir)
     cmd2 = "bash {args.align} -a {args.second_fq1} -b {args.second_fq2} -l {args.hdmilength} -w {args.whitelist} -o {args.outprefix} -t {args.star_path} -q {args.seqtk_path} -g {args.genome} -d {args.outdir}".format(args=args) 
     ret = os.system(cmd2)
     if ( ret != 0 ):
