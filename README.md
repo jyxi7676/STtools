@@ -1,7 +1,17 @@
 
-# SeqScope Tools Introduction
+# SeqScope Tools 
 STtools is an package that processing spatial transciriptomics data from various ST platform such as [Seq-Scope](https://www.cell.com/cell/fulltext/S0092-8674(21)00627-9?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS0092867421006279%3Fshowall%3Dtrue), [SlideSeq](https://www.cell.com/cell/fulltext/S0092-8674(21)00627-9?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS0092867421006279%3Fshowall%3Dtrue) and [VISIUM](https://www.nature.com/articles/s42003-020-01247-y). This pipleine includes data preprocessing, alignment, collapsing barcodes into 
 gridded datasets and clustering based on classic [Seurat](https://satijalab.org/seurat/articles/spatial_vignette.html) using sliding window strategy and [BayesSpace](https://www.nature.com/articles/s41587-021-00935-2)
+
+## Getting Started
+
+## Overview of SeqScope Tools
+
+## Installation
+
+## Example Data
+
+## Input Data Format
 
 ## Required operation system and sofware tools
 Linux operatin system is necessary.
