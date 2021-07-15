@@ -1,0 +1,82 @@
+#!/usr/bin/env Rscript
+args = commandArgs(trailingOnly=TRUE)
+for(i in 1:5) { #-- Create objects  'r.1', 'r.2', ... 'r.6' --
+  nam <- paste0("r", i)
+  assign(nam, args[i])
+}
+
+
+
+runSeurat=function(DGEdir,spatial,outpath,n.PCs=10,res=0.5)
+{
+   packages = c("Seurat","Matrix","dplyr","ggplot2","patchwork")
+    ## add more packages to load if needed
+    ## Now load or install&load all
+   package.check <- lapply(
+      packages,
+      FUN = function(x) {
+        if (!require(x, character.only = TRUE)) {
+          install.packages(x, repos="https://cran.rstudio.com", dependencies = TRUE)
+          library(x, character.only = TRUE)
+        }
+      }
+   )
+
+
+  if (!dir.exists(DGEdir)){
+       stop("Digital Expression Matrix path does not exist")
+    }
+
+  if(!file.exists(spatial))
+  {
+    stop('Spatial coordinates does not exist')
+  }
+  setwd(DGEdir)
+  bc = read.table("barcodes.tsv",header=F)$V1
+  features = read.table('features.tsv',header=F)$V2
+  print(head(features))
+  m = readMM('matrix.mtx')
+  if(any(c(length(features),length(bc)) != dim(m)))
+  {
+    stop('Dimension of matrix.mtx does not match with features or barcodes')
+  }
+  rownames(m) = features
+  colnames(m) = bc
+ # m = m[,colSums(m)<=100&colSums(m)>0]  #remove outliers
+  print(dim(m))
+
+   print(head(colnames(m)))
+   print(head(rownames(m)))
+   miseq_pos = read.table(spatial)
+  #head(miseq_pos)
+  colnames(miseq_pos) = c('HDMI','lane_miseq','tile_miseq','x_miseq','y_miseq')
+  print('Start Seurat Clustering')
+  print(head(miseq_pos))
+  obj = CreateSeuratObject(counts=m,assay='Spatial')
+   print('obj')
+   print(obj)
+   #colnames(obj)=colnames(m)
+   #rownmaes(obj)=rownames(m)
+  print(obj)
+  obj@images$image = new(
+    Class = 'SlideSeq',
+    assay = "Spatial",
+    key = "image_",
+    coordinates = miseq_pos[,c('x_miseq','y_miseq')]
+  )
+  obj=SCTransform(obj, assay = "Spatial", verbose = FALSE)
+  obj= RunPCA(obj, verbose = FALSE)
+  obj=FindNeighbors(obj, reduction = "pca", dims = 1:n.PCs)
+  obj= FindClusters(obj, verbose = FALSE,resolution=res)
+  obj= RunUMAP(obj, reduction = "pca", dims = 1:n.PCs)
+  obj= RunTSNE(obj, reduction = "pca", dims = 1:n.PCs)
+  setwd(outpath)
+  saveRDS(obj,'SeuratClustering.RDS')
+  #png('SeuratSpatialPlot.png',width=7,height=6,units='in',res=300)
+  #SpatialDimPlot(obj, label = TRUE, label.size = 3)
+  #dev.off()
+  print('Done')
+}
+
+
+runSeurat(r1,r2,r3,r4,r5)

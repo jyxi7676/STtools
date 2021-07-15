@@ -241,22 +241,25 @@ def step4():
     #    args.outdir=os.getcwd()
     #if(os.path.isdir(args.outdir)==False):
      #   raise ValueError("Directory --outdir does not exist")
-
+    #if(args.lanes is None):
+        
     args.simple=args.STtools+"/getSimpleGrid/simpleGrid_v2.R"
     cmd4="Rscript {args.simple} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.tiles} {args.nrow} {args.ncol} {args.binsize} {args.outdir} {args.collapsePath}".format(args=args)
     ret = os.system(cmd4)
     if ( ret != 0 ):
         raise ValueError(f"ERROR in running {cmd4}, returning exit code {ret}")
-    no_bc=sp.getoutput("wc -l collapsedBarcodes.csv")
-    no_gene=sp.getoutput("wc -l collapsedGenes.csv")
+    #args.bc=args.outdir+'/collapsedBarcodes.csv'
+    #args.gene=args.outdir+'/collapsedGenes.csv'
+    #no_bc=sp.getoutput("wc -l collapsedBarcodes.csv")
+    #no_gene=sp.getoutput("wc -l collapsedGenes.csv")
 
-    print(no_bc)
-    print(args.outdir)
-    fout=args.outdir+"/summary_step4.txt"
-    f=open(fout,"w")
-    f.write('Total number of collapsed grids:'+str(no_bc)+" \n")
-    f.write('Total number of genes:' +str(no_gene) +' \n')
-    f.close()
+    #print(no_bc)
+    #print(args.outdir)
+   # fout=args.outdir+"/summary_step4.txt"
+   # f=open(fout,"w")
+   # f.write('Total number of collapsed grids:'+str(no_bc)+" \n")
+   # f.write('Total number of genes:' +str(no_gene) +' \n')
+   # f.close()
 
 def step5():
     print("Start Sliding Window Gridding")

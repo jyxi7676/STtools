@@ -53,6 +53,8 @@ parser.add_argument('--nCluster',type=float,help='number of expected clusters fo
 parser.add_argument('--nrep',type=float, help='number of repetion for running bayespace, it is suggested that at least 10000 is needed for a full data')
 parser.add_argument('--datasource',type=str,help='string of the data source, for example: SeqScope, VISIUM, etc.')
 parser.add_argument('--clusteringOption',type=str,help=' A string indicating what clustering method is employed. Is is suggested that either Seurat or Bayespace for VISIUM data, slidingWindow for SlideSeq and SeqScope data')
+parser.add_argument('--res',type=float,help='resolution for Seurat clustering')
+
 #Functions
 def step1():
 
@@ -250,7 +252,22 @@ def step4():
 
 
         if(args.clusteringOption=='Seurat'):
-            print('not ready yet')
+            if(os.path.isdir(args.DGEdir)==False):
+                raise ValueError("Directory --DGEdir does not exist")
+            if(args.spatial is None):
+                args.spatial=os.getcwd()+"/spatialcoordinates.txt"
+
+            if (args.nPCs is None):
+                args.nPCs = 10
+            if (args.res is None):
+                args.res=0.5
+            args.seurat=args.STtools+"/STSeurat/runSeurat.R"
+            cmd4="Rscript {args.seurat} {args.DGEdir} {args.spatial} {args.outdir} {args.nPCs} {args.res}".format(args=args)
+            print (cmd4)
+            ret = os.system(cmd4)
+            if ( ret != 0 ):
+                raise ValueError(f"ERROR in running {cmd4}, returning exit code {ret}")
+
     #For slideseq and seqscope data
     if(args.datasource != 'VISIUM'):
         if(args.clusteringOption is None):

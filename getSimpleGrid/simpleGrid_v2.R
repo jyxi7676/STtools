@@ -9,8 +9,12 @@ ncol=as.numeric(args[6])
 sidesize=as.numeric(args[7])
 outpath=args[8]
 collapsePath=args[9]
-tiles=as.numeric(unlist(strsplit(tiles,',')))
-
+print('tiles')
+print(tiles)
+#tiles=as.numeric(unlist(strsplit(tiles,',')))
+tiles=(unlist(strsplit(tiles,',')))
+print('tiles')
+print(tiles)
 ####################################################################################################3
 #' This function merges a list of Seurat object
 #' @param seurat_object_list a list of Seurat object
