@@ -12,3 +12,5 @@ Rcpp
 purrr
 ggsci
 mapplots
+SingleCellExperiment
+BayesSpace
