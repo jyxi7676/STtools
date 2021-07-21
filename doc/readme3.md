@@ -196,7 +196,7 @@ export STDATA=/path/to/spatial/data
 export STSUBDGE=/path/to/unspliced/DGE
 ## $STOUT indicates the path to digital expression matrix(DGE)
 export STOUT=/path/to/outdir
-python3 $STHOME/sttools.py --run-steps 7 --STtools $STHOME   --outdir $STOUT --spatial $STDATA/spatialcoordinates.txt --subDGEdir $STSUBDGE -alpha 0.02 --tiles 2106,2107
+python3 $STHOME/sttools.py --run-steps 7 --STtools $STHOME   --outdir $STOUT --spatial $STDATA/spatialcoordinates.txt --subDGEdir $STSUBDGE --alpha 0.02 --tiles 2106,2107
 
 
 ```
