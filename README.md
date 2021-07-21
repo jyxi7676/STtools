@@ -1,39 +1,15 @@
 
-# SeqScope Tools 
-STtools is an package that processing spatial transciriptomics data from various ST platform such as [Seq-Scope](https://www.cell.com/cell/fulltext/S0092-8674(21)00627-9?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS0092867421006279%3Fshowall%3Dtrue), [SlideSeq](https://www.cell.com/cell/fulltext/S0092-8674(21)00627-9?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS0092867421006279%3Fshowall%3Dtrue) and [VISIUM](https://www.nature.com/articles/s42003-020-01247-y). This pipleine includes data preprocessing, alignment, collapsing barcodes into 
-gridded datasets and clustering based on classic [Seurat](https://satijalab.org/seurat/articles/spatial_vignette.html) using sliding window strategy and [BayesSpace](https://www.nature.com/articles/s41587-021-00935-2)
+# Spatial Transcriptomic Tools 
+STtools is a package that processes spatial transciriptomics (ST) data from various platform such as [Seq-Scope](https://www.cell.com/cell/fulltext/S0092-8674(21)00627-9?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS0092867421006279%3Fshowall%3Dtrue), [SlideSeq](https://www.cell.com/cell/fulltext/S0092-8674(21)00627-9?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS0092867421006279%3Fshowall%3Dtrue) and [VISIUM](https://www.nature.com/articles/s42003-020-01247-y). This pipleine includes data preprocessing, alignment, collapsing barcodes into 
+square gridded datasets and different clustering method such as [Seurat](https://satijalab.org/seurat/articles/spatial_vignette.html) clustering with optional sliding window strategy and [BayesSpace](https://www.nature.com/articles/s41587-021-00935-2).
 
 ## Getting Started
+STtools is ran in Linux operating system.  The package have flexible options for the user to run either **from the step 1** or run for **consecutive steps** or for **one specific step**. Several examples from various scerios will be given for illustratrion. 
+* [Automatic running all steps](./doc/readme1.md)
+* [Running consecutive steps](./doc/readme2.md)
+* [Running specific step](./doc/readme3.md)
 
-## Overview of SeqScope Tools
-
-## Installation
-
-## Example Data
-
-## Input Data Format
-
-## Required operation system and sofware tools
-Linux operatin system is necessary.
-You need to install the following software tools before using this package .
-* STARSolo>=2.7.5c
-* seqtk
-* R 
-* Python >=3.0 (specify libraries)
-* perl
-* pigz
-
-## Installation
-git clone https://github.com/jyxi7676/STtools.git
-## Input and Output Data Format
-Please refer to [data formats](./doc/fileformats.md) for an illustration of required input data format and output data format for each step.
-
-## Example Data
-* SeqScope exmaple data for each step can be found at [example data 1](https://drive.google.com/file/d/1e0u57Yu_fVKFvs-UA7WYfj-vgm8Nd2y4/view?usp=sharing), please download the zip files. For each step, the example input data is stored in the corresponding subdirectories. 
-
-* VISIUM digital expresstion data and spatial coordinates are available at [example data 2](https://drive.google.com/drive/folders/130ENNRBEi7kCOXDnGZlHUnuf4CD3_JEI?usp=sharing)
-* SeqScope digital expression data and spatial coordinates are avaialbel at [example data 3](not ready yet)
-## Overall Workflow
+## Overview of STtools
 
 This image below shows the overall workflow for STtools. 
 
@@ -41,7 +17,7 @@ This image below shows the overall workflow for STtools.
     <img src="STtools_workflow.png" width="1550" height="700" />
 </p>
 
-There are 6 steps, each step takes input from either outputs from previous steps or the raw exapmle data. Please see a brief explanation about each step as follows:
+There are 6 steps, each step takes input from either the raw exapmle data or outputs from previous steps. Please see a brief explanation about each step as follows:
 ```
 
 * Step 1 takes fastq.gz files as input and output spatial coordinates .txt files and whitelist used for STARsolo alignemnt in the current working directory.
@@ -53,18 +29,48 @@ There are 6 steps, each step takes input from either outputs from previous steps
 * Step 7 takes DGE(Velocyto) from Step 3 and generate subcellular plots showing pattern of spliced/unspliced reads
 ```
 
+## Installation
+Linux operatin system is necessary to run STtools package. You also need to install the following software tools and librares/modules before using this package.
+* STAR>=2.7.5c (Click for instructions to install [STAR](https://github.com/alexdobin/STAR))
+* seqtk (Click for instructions to install [seqtk](https://github.com/lh3/seqtk))
+* R 
+```
+#Please install the following packages
+
+```
+* Python >=3.0 
+```
+Please install the following modules(install instead of asking user to install):
+import pip
+
+def import_or_install(package):
+    try:
+        __import__(package)
+    except ImportError:
+        pip.main(['install', package]) 
+```
+* perl
+* pigz(Click for instructions [pigz](https://zlib.net/pigz/))
 
 
-## Getting Started
-STtools commands are ran in the working directory and output files/plot will be stored in the working directory. The package have flexible options for the user to run either **from the step 1** or run for **consecutive steps** or for **one specific step**. Several examples from various scerios will be given for illustratrion. 
-* [Automatic running all steps](./doc/readme1.md)
-* [Running consecutive steps](./doc/readme2.md)
-* [Running specific step](./doc/readme3.md)
+To install **STtools**, please run:
+```
+git clone https://github.com/jyxi7676/STtools.git
+
+```
+
+
+## Example Data
+* SeqScope exmaple data for each step can be found at [example data 1](https://drive.google.com/file/d/1e0u57Yu_fVKFvs-UA7WYfj-vgm8Nd2y4/view?usp=sharing), please download the zip files. For each step, the example input data is stored in the corresponding subdirectories. 
+
+* VISIUM digital expresstion data and spatial coordinates are available at [example data 2](https://drive.google.com/drive/folders/130ENNRBEi7kCOXDnGZlHUnuf4CD3_JEI?usp=sharing)
+* SeqScope digital expression data and spatial coordinates are avaialbel at [example data 3](https://drive.google.com/drive/folders/1IktkJgDLnYS0fcW65xgHC04S-Mr8ciwf?usp=sharing)
+
+## Input Data Format
+Please refer to [data formats](./doc/fileformats.md) for an illustration of required input data format and output data format for each step.
 
 ## External links
 Here are some useful external links:
-* To instal seqtk: https://github.com/lh3/seqtk
-* To install STAR: https://github.com/alexdobin/STAR
 * To generate gene index for STARsolo alignment: https://hbctraining.github.io/Intro-to-rnaseq-hpc-O2/lessons/03_alignment.html
 * Multimodal reference mapping: https://satijalab.org/seurat/articles/multimodal_reference_mapping.html
 * Incoporate transgenes to alignment: add script for this?
