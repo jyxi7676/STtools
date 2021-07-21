@@ -1,5 +1,5 @@
 
-# Spatial Transcriptomic Tools 
+# Spatial Transcriptomic Tools (STtools)
 STtools is a package that processes spatial transciriptomics (ST) data from various platform such as [Seq-Scope](https://www.cell.com/cell/fulltext/S0092-8674(21)00627-9?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS0092867421006279%3Fshowall%3Dtrue), [SlideSeq](https://www.cell.com/cell/fulltext/S0092-8674(21)00627-9?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS0092867421006279%3Fshowall%3Dtrue) and [VISIUM](https://www.nature.com/articles/s42003-020-01247-y). This pipleine includes data preprocessing, alignment, collapsing barcodes into 
 square gridded datasets and different clustering method such as [Seurat](https://satijalab.org/seurat/articles/spatial_vignette.html) clustering with optional sliding window strategy and [BayesSpace](https://www.nature.com/articles/s41587-021-00935-2).
 
