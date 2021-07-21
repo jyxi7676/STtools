@@ -59,4 +59,4 @@ Please refer to [data formats](./doc/fileformats.md) for an illustration of requ
 Here are some useful external links:
 * To generate gene index for STARsolo alignment: https://hbctraining.github.io/Intro-to-rnaseq-hpc-O2/lessons/03_alignment.html
 * Multimodal reference mapping: https://satijalab.org/seurat/articles/multimodal_reference_mapping.html
-* Incoporate transgenes to alignment: add script for this?
+* Incoporate transgenes to alignment: Please modify the gtf and fasta files according to https://github.com/igordot/genomics/blob/master/workflows/ref-genome-gfp.md before generating  genome  index in STAR.
