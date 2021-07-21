@@ -16,7 +16,7 @@
 ## Step 2
 * --HDMI2ndSeq: txt file with only one column, representing the HDMIs from --first-fq. See following:
 <p align="center">
-    <img src="./HDMI2ndSeq.png" width="800" height="400" />
+    <img src="./HDMI2ndSeq.png" width="200" height="400" />
 </p>
 * --spatial: txt file with five columns: HDMI, lane, tile, X and Y (no header). See the following:
 <p align="center">
@@ -32,14 +32,19 @@
 
 ## Step 4
 * --spatial: txt file with five columns: HDMI, lane, tile, X and Y. Same as step 2
-* --DGEdir: This path should contain 3 files: barcodes.tsv, features.tsv and matrix.mtx. 
+* --DGEdir: This path should contain 3 files: barcodes.tsv, features.tsv and matrix.mtx. They are typical format for single cell RNA-seq. The format can be seen at the [link](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/output/matrices)
 ## Step 5
 * --spatial:txt file with five columns: HDMI, lane, tile, X and Y. Same as step 2 
 * --DGEdir: This path should contain 3 files: barcodes.tsv, features.tsv and matrix.mtx, the same as Step 4.
 ## Step 6
-* --
+* --simpleGridsPath: Path to SimpleSquareGrids.RDS. The RDS file will contain the "image" slots with the spatial coordinates and meta data along with the collapsed count data from Step 4.
+* --slidingGridsPath: Path to slidingSquareGrids.RDS. The RDS file will contain the "image" slots with the spatial coordinates and meta data along with the collapsed count data from Step 5.
 
 ## Step 7
 * --spatial: txt file with five columns: HDMI, lane, tile, X and Y.Same as step 2
-* --subDGEdir: This path should contain 3 files: barcodes.tsv, features.tsv and matrix.mtx. The last file matrix.mtx should contain unspliced and spliced reads as following:
+* --subDGEdir: This path should contain 3 files: barcodes.tsv, features.tsv and matrix.mtx. The first two files are typical file format from scRNA-seq. As for the matrix.mtx, it contain  spliced, unspliced, and ambiguous reads (col3=spliced, col4=unspliced, col5=ambiguous) as the following. 
+<p align="center">
+    <img src="./unspliced.png" width="800" height="400" />
+</p>
+
 
