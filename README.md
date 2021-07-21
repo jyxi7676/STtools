@@ -33,24 +33,10 @@ There are 6 steps, each step takes input from either the raw exapmle data or out
 Linux operatin system is necessary to run STtools package. You also need to install the following software tools and librares/modules before using this package.
 * STAR>=2.7.5c (Click for instructions to install [STAR](https://github.com/alexdobin/STAR))
 * seqtk (Click for instructions to install [seqtk](https://github.com/lh3/seqtk))
-* R 
-```
-#Please install the following packages
-
-```
-* Python >=3.0 
-```
-Please install the following modules(install instead of asking user to install):
-import pip
-
-def import_or_install(package):
-    try:
-        __import__(package)
-    except ImportError:
-        pip.main(['install', package]) 
-```
-* perl
-* pigz(Click for instructions [pigz](https://zlib.net/pigz/))
+* R>=4.0.0 (STtools will install packages automatically if not installed. Please refer to the  list of [packages](./doc/RPackages))
+* Python>= 3.0 (STtools will install modules automatically if not installed, refer to the list of [modules](./doc/PythonModules))
+* perl(Click for instructions for installing [perl](https://learn.perl.org/installing/unix_linux.html) )
+* pigz(Click for instructions for installing [pigz](https://zlib.net/pigz/))
 
 
 To install **STtools**, please run:
@@ -67,7 +53,7 @@ git clone https://github.com/jyxi7676/STtools.git
 * SeqScope digital expression data and spatial coordinates are avaialbel at [example data 3](https://drive.google.com/drive/folders/1IktkJgDLnYS0fcW65xgHC04S-Mr8ciwf?usp=sharing)
 
 ## Input Data Format
-Please refer to [data formats](./doc/fileformats.md) for an illustration of required input data format and output data format for each step.
+Please refer to [data formats](./doc/fileformats.md) for an illustration of required input data format for each step.
 
 ## External links
 Here are some useful external links:
