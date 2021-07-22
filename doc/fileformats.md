@@ -33,6 +33,11 @@
 ## Step 4
 * --spatial: txt file with five columns: HDMI, lane, tile, X and Y. Same as step 2
 * --DGEdir: This path should contain 3 files: barcodes.tsv, features.tsv and matrix.mtx. They are typical format for single cell RNA-seq. The format can be seen at the [link](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/output/matrices)
+* --layout: Path to a .csv file with the arrangement information of super tiles. 
+<p align="center">
+    <img src="./layout.png" width="400" height="200" />
+</p>
+
 ## Step 5
 * --spatial:txt file with five columns: HDMI, lane, tile, X and Y. Same as step 2 
 * --DGEdir: This path should contain 3 files: barcodes.tsv, features.tsv and matrix.mtx, the same as Step 4.
