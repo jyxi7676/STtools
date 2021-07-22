@@ -10,7 +10,7 @@ Step 1 aims to extracts spatial coordinates, whitelist and HDMIs from the sequen
   The user needs to provide some of the following files to run Step 1. 
   *   --first--fq: Path to 1st-Seq FASTQ.gz file. STtools takes in fastq.gz files with SeqScope sequence design structure. If the barcode/UMI/randomer location is different, please see this link xxxxx (we need to add this ???) for an example to make the inputs compatible to STtools package. **Required**. 
   *   --second-fq1 : Path to 2nd-Seq Read 1 FASTQ.gz file. If the barcode/UMI/randomer location is different, please see this link for an example to make it compatible to STtools package.**Required**. 
-  *   --hdmilength or -l: An integer of the length of HDMI/Barcode.(modify to take any number <=30???). By default hdmilength=20.
+  *   --hdmilength or -l: An integer of the length of HDMI/Barcode.If the length of HDMIs will be set to 30 if it is bigger than 30. By default hdmilength=20.
   *   --STtools: Path to the STtools package. If not given, using current working directory. **Required**
   *   --outdir: Path to output files. If not given, using current working directory
  ### *Code*
@@ -97,13 +97,16 @@ This step outputs folders with STARsolo summary statistics, bam file, DGE, etc.
 Step 4 bins the DGE into simple square gridded data and collapses the reads counts within each grid. A new DGE is generated and spatial information is updated with the center of each bin. This step outputs a RDS file with collapsed barcodes and spatial information. 
 ### *input*
 * --STtools: Path to STtools package. If not given, the current working directory is used.
-* --lanes: Need to add this and modifying the functions. If not given, using all lanes
+* --lane-tiles:(updated)Lane and tiles that the users are interested, for exaample: 1_2106 are lane 1 and tile 2106. Multiple lane and tiles should be separated by comma. For instance: --lane-tiles 1_2106, 2_2106, 1_2107.
+* --layout: (updated) User can have a customized arrangment of lanes and tiles, and --layout is the path to the file. Please click [layout](./fileformats.md) for the input format.
+* --order: (updated) How the lane and tiles are stacked when --layout is not given. If order is 'top' then the --lane-tiles will be ordered in increasing order and stacked in 2 rows. If order is 'bottom', they will be ordered in a decreasing order.  
+
 * --tiles: Tiles that the user is insterested in. Multiple tile numbers need to be separated by comma. For example: --tiles 2106,2107,2108. **Required**.
 * --binsize: The size of the square grids side. By default, it is set to 300 units.
 * --DGEdir: Path to the digital expression matrix. **Required**
 * --spatial: Path to the txt file of spatial coordinates. **Required**
-* --nrow: number of rows when generating the super tile. If not give, we assume there is only one tile, and nrow=1. (need to modify how to stack the tiles)
-* --ncol: number of cols when generating the super tile. If not give, we assume there is only one tile, and ncol=1.
+* --nrow: (to be updates in the script)number of rows when generating the super tile. If not give, we assume there is only one tile, and nrow=1. (need to modify how to stack the tiles)
+* --ncol: (to be updated in the script) number of cols when generating the super tile. If not give, we assume there is only one tile, and ncol=1.
 * --outdir: Path to output files. If not given, using current working directory
 ### *code*
 ```sh
