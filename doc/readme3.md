@@ -61,6 +61,7 @@ tile_lane*.png
 ### *Input*
  * --second-fq1: Path to 2nd-Seq FASTQ.gz file of read 1. Required.
  * --second-fq2: Path to 2nd-Seq FASTQ.gz file of read 2. Required.
+ * --hdmilength or -l: An integer of the length of HDMI/Barcode.If the length of HDMIs will be set to 30 if it is bigger than 30. By default hdmilength=20.
  * --whitelist: Txt file of the whitelist, if not given, searching whitelist.txt in the current folder.
  * --genome or -g: STAR geneome index. **Required**
  * --STtools: Path to the STtools package. If not given, using currently working directory.
