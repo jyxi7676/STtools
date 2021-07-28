@@ -5,12 +5,25 @@ def str2bool(value):
         return True
     raise ValueError(f'{value} is not a valid boolean value')
 
+def import_or_install(package):
+    try:
+        #print('try')
+        __import__(package)
+    except ImportError:
+        #print('install')
+        pip.main(['install', package])
 
 #modules
+import pip
+modules = ["argparse","os",'sys','subprocess','math']
+#map(import_or_install,modules)
+md=[import_or_install(i) for i in modules]
 import argparse
 import os, sys
 import subprocess as sp
 import math
+
+
 
 parser = argparse.ArgumentParser(description="STtools Main Launcher")
 parser.add_argument("--run-all", default=False, action='store_true', help="Run all steps sequentially")
@@ -53,6 +66,8 @@ parser.add_argument('--enhancedRes',type=str2bool,default=False, help='boolean v
 parser.add_argument('--nCluster',type=float,help='number of expected clusters for visium data')
 parser.add_argument('--nrep',type=float, help='number of repetion for running bayespace, it is suggested that at least 10000 is needed for a full data')
 parser.add_argument('--datasource',type=str,help='string of the data source, for example: SeqScope, VISIUM, etc.')
+parser.add_argument('--layout',type=str,help='path of layout files of super tiles')
+parser.add_argument('--order',type=str,help='either bottom(bottom tiles at bottom) or top(bottom tiles at top)')
 
 #Functions
 def step1():
@@ -215,7 +230,7 @@ def step4():
       #  args.ncol=math.ceil(len(tiles_vec)/args.nrow)
 
 
-
+    
     args.nrow=1
     args.ncol=1
     args.collapsePath=args.STtools+"/getSimpleGrid/collapse.cpp"
@@ -237,14 +252,23 @@ def step4():
         raise ValueError("File --collapsePath does not exist")
     if(args.spatial is None):
         args.spatial=args.outdir+"/spatialcoordinates.txt"
-   # if(args.outdir is None):
+    if(args.order is None):
+        args.order='top'
+    if(args.layout is None):
+        args.layout='FALSE'
+
+    
+    # if(args.outdir is None):
     #    args.outdir=os.getcwd()
     #if(os.path.isdir(args.outdir)==False):
      #   raise ValueError("Directory --outdir does not exist")
     #if(args.lanes is None):
         
-    args.simple=args.STtools+"/getSimpleGrid/simpleGrid_v2.R"
-    cmd4="Rscript {args.simple} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.tiles} {args.nrow} {args.ncol} {args.binsize} {args.outdir} {args.collapsePath}".format(args=args)
+    args.simple=args.STtools+"/getSimpleGrid/simpleGrid_v3.R"
+    #cmd4="Rscript {args.simple} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.tiles} {args.nrow} {args.ncol} {args.binsize} {args.outdir} {args.collapsePath}".format(args=args)
+    print('here')
+    cmd4="Rscript {args.simple} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.tiles} {args.nrow} {args.ncol} {args.binsize} {args.outdir} {args.collapsePath} {args.layout} {args.order}".format(args=args)
+
     ret = os.system(cmd4)
     if ( ret != 0 ):
         raise ValueError(f"ERROR in running {cmd4}, returning exit code {ret}")

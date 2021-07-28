@@ -107,7 +107,8 @@ paste  ./HDMIs-MiSeq-temp-rev.txt ./pos-MiSeq-temp.txt | column -s $'\t' -t > ./
 #remove duplicated HDMIs
 awk '!seen[$1]++' ./MiSeq-temp-revHDMIs-pos.txt  > $miseq_pos
 ##bottom tiles for MiSeq
-if [  "$hdmilength" -eq 30 ]
+
+if [ "$hdmilength" -gt 30 ]
 then
   zcat $hiseq | perl -lane 'print $_ if ( $. % 4 == 2 )'  | cut -c 1-30 > ./HDMI_SeqScope_2nd.txt
   zcat $miseq | perl -lane 'print $_ if ( $. % 4 == 2 )'  | cut -c 3-32  > ./HDMIs-MiSeq-temp.txt
@@ -116,16 +117,39 @@ then
   #remove duplicated HDMIs
   awk '!seen[$1]++' ./MiSeq-temp-revHDMIs-pos.txt  > $miseq_pos
   cat $miseq_pos | awk '{ print $1 }' > $whitelists
-else 
-  zcat $hiseq | perl -lane 'print $_ if ( $. % 4 == 2 )'  | cut -c 1-20 > ./HDMI_SeqScope_2nd.txt
-  zcat $miseq | perl -lane 'print $_ if ( $. % 4 == 2 )'  | cut -c 1-20  > ./HDMIs-MiSeq-temp.txt
+else
+  echo $hdmilength
+  zcat $hiseq | perl -lane 'print $_ if ( $. % 4 == 2 )'  | cut -c 1-$hdmilength > ./HDMI_SeqScope_2nd.txt
+  zcat $miseq | perl -lane 'print $_ if ( $. % 4 == 2 )'  | cut -c 1-$hdmilength  > ./HDMIs-MiSeq-temp.txt
   cat ./HDMIs-MiSeq-temp.txt | rev | tr ACGTN TGCAN > ./HDMIs-MiSeq-temp-rev.txt
   paste  ./HDMIs-MiSeq-temp-rev.txt ./pos-MiSeq-temp.txt | column -s $'\t' -t > ./MiSeq-temp-revHDMIs-pos.txt
   #remove duplicated HDMIs
   awk '!seen[$1]++' ./MiSeq-temp-revHDMIs-pos.txt  > $miseq_pos
-  cat $miseq_pos | awk '{ if ($3 > 2100) { print $1 } }' > $whitelists
-
+  cat $miseq_pos | awk '{ print $1 }' > $whitelists
 fi
+
+
+
+
+#if [  "$hdmilength" -eq 30 ]
+#then
+#  zcat $hiseq | perl -lane 'print $_ if ( $. % 4 == 2 )'  | cut -c 1-30 > ./HDMI_SeqScope_2nd.txt
+#  zcat $miseq | perl -lane 'print $_ if ( $. % 4 == 2 )'  | cut -c 3-32  > ./HDMIs-MiSeq-temp.txt
+#  cat ./HDMIs-MiSeq-temp.txt | rev | tr ACGTN TGCAN > ./HDMIs-MiSeq-temp-rev.txt
+#  paste  ./HDMIs-MiSeq-temp-rev.txt ./pos-MiSeq-temp.txt | column -s $'\t' -t > ./MiSeq-temp-revHDMIs-pos.txt
+  #remove duplicated HDMIs
+#  awk '!seen[$1]++' ./MiSeq-temp-revHDMIs-pos.txt  > $miseq_pos
+#  cat $miseq_pos | awk '{ print $1 }' > $whitelists
+#else 
+#  zcat $hiseq | perl -lane 'print $_ if ( $. % 4 == 2 )'  | cut -c 1-20 > ./HDMI_SeqScope_2nd.txt
+#  zcat $miseq | perl -lane 'print $_ if ( $. % 4 == 2 )'  | cut -c 1-20  > ./HDMIs-MiSeq-temp.txt
+#  cat ./HDMIs-MiSeq-temp.txt | rev | tr ACGTN TGCAN > ./HDMIs-MiSeq-temp-rev.txt
+#  paste  ./HDMIs-MiSeq-temp-rev.txt ./pos-MiSeq-temp.txt | column -s $'\t' -t > ./MiSeq-temp-revHDMIs-pos.txt
+  #remove duplicated HDMIs
+#  awk '!seen[$1]++' ./MiSeq-temp-revHDMIs-pos.txt  > $miseq_pos
+#  cat $miseq_pos | awk '{ if ($3 > 2100) { print $1 } }' > $whitelists
+
+#fi
 #rm ./pos-MiSeq-temp.txt
 #rm ./HDMIs-MiSeq-temp.txt
 #rm ./MiSeq-temp-revHDMIs-pos.txt

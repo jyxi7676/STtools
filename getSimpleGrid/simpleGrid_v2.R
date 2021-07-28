@@ -201,8 +201,15 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
     
   #get spatial info
   miseq_pos = read.table(spatial)
- # print(head(miseq_pos))  
+  print(head(miseq_pos))
+#  miseq_pos$tile=paste(miseq_pos$lane,miseq_pos$tile,sep="_")
+#  print(head(miseq_pos))
+  
+                                       # print(head(miseq_pos))  
   colnames(miseq_pos) = c('HDMI','lane_miseq','tile_miseq','x_miseq','y_miseq')
+  miseq_pos$tile_miseq=paste(miseq_pos$lane_miseq,miseq_pos$tile_miseq,sep="_")
+  print(head(miseq_pos))
+
   tiles = intersect(tiles,unique(miseq_pos$tile_miseq))
   bottom=miseq_pos[miseq_pos$tile_miseq %in% tiles,]
  
