@@ -2,10 +2,11 @@
 # User Manual
 ## Running user defined consecutive steps in STtools
 STtools can run user specified consecutive steps with the option: --run-steps
-For example: --run-steps 1,2,3 or --run-steps 4,5. The steps must be separated by comma and must be consecutive. The command will raise an error if the steps are not continuous integers such as --run-steps 3,5,6.
+For example: --run-steps 1,2,3 or --run-steps 4,5. The steps must be separated by comma and must be consecutive. The command will raise an error if the steps are not continuous  such as --run-steps 3,5,6.
 
 ### Input&Output
-  The inputs and outputs for the command depend on the optional steps. Please refer to https://github.com/jyxi7676/STtools/blob/main/scipts/readme3.md for more details about the details for each step. Here, we will give you some examples for better illustration.
+  The inputs and outputs for the command depend on the optional steps. Please refer to [running specific step](./doc/readme3.md)
+ for more details of each step. Here, we will give you some examples for better illustration.
  
 
 ### Example 1:
@@ -21,6 +22,7 @@ python3 $STHOME/sttools.py --run-steps 1,2,3 --first-fq $STDATA/liver-MiSeq-tile
 ```
 ### Example 2
 If the user wants to start from DGE and spatial coordinates and generate simple square grids, sliding square grids and reference mapping. Then the user can specify --run-steps 4,5,6 as follows:
+
 
 ```
 export STHOME=/path/to/STtools
