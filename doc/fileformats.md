@@ -29,10 +29,7 @@
 
 ## Step 3
 * --second-fq1: FASTQ.GZ file. See Step 1 --second-fq1 input format.
-* --second-fq1: FASTQ.GZ file. The first N bases are randomers or UMIs, followed by cDNA sequences.
-<p align="center">
-    <img src="./secondseq_fq2.png" width="800" height="400" />
-</p>
+* --second-fq2: FASTQ.GZ file. The first N bases are randomers or UMIs, followed by cDNA sequences.
 
 ## Step 4
 * --spatial: txt file with five columns: HDMI, lane, tile, X and Y. Same as step 2
