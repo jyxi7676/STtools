@@ -1,7 +1,7 @@
 
 # Input File formarts 
 ## Step 1
-* --first-fq: FASTQ.GZ file. The first N bases are HDMIs. Coordinates information of HDMIs  is stored in the header of FASTQ.GZ file.
+* --first-fq: FASTQ.GZ file. The first N bases are HDMIs. Coordinates information (lane, tile, X and Y) of HDMIs  is stored in the header of FASTQ.GZ file. Please click the [FASTQ file format](https://support.illumina.com/help/BaseSpace_OLH_009008/Content/Source/Informatics/BS/FileFormat_FASTQ-files_swBS.htm) for more details. An example of our sample data is shown below:
 <p align="center">
     <img src="./firstseq.png" width="800" height="400" />
 </p>
