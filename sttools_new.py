@@ -4,7 +4,19 @@ def str2bool(value):
     elif value.lower() in {'true', 't', '1', 'yes', 'y'}:
         return True
     raise ValueError(f'{value} is not a valid boolean value')
+ef import_or_install(package):
+    try:
+        #print('try')
+        __import__(package)
+    except ImportError:
+        #print('install')
+        pip.main(['install', package])
 
+#modules
+import pip
+modules = ["argparse","os",'sys','subprocess','math']
+#map(import_or_install,modules)
+md=[import_or_install(i) for i in modules]
 #modules
 import argparse
 import os, sys
@@ -52,9 +64,11 @@ parser.add_argument('--enhancedRes',type=str2bool,default=False,const=True, narg
 parser.add_argument('--nCluster',type=float,help='number of expected clusters for visium data')
 parser.add_argument('--nrep',type=float, help='number of repetion for running bayespace, it is suggested that at least 10000 is needed for a full data')
 parser.add_argument('--datasource',type=str,help='string of the data source, for example: SeqScope, VISIUM, etc.')
-parser.add_argument('--clusteringOption',type=str,help=' A string indicating what clustering method is employed. Is is suggested that either Seurat or Bayespace for VISIUM data, slidingWindow for SlideSeq and SeqScope data')
+parser.add_argument('--algo',type=str,help=' A string indicating what clustering method is employed. Is is suggested that either Seurat or Bayespace for VISIUM data, slidingWindow for SlideSeq and SeqScope data')
 parser.add_argument('--res',type=float,help='resolution for Seurat clustering')
-
+parser.add_argument('--layout',type=str,help='path of layout files of super tiles')
+parser.add_argument('--order',type=str,help='either bottom(bottom tiles at bottom) or top(bottom tiles at top)')
+parser.add_argument
 #Functions
 def step1():
 
@@ -218,11 +232,11 @@ def step4():
         if(os.path.isdir(args.outdir)==False):
             raise ValueError("Directory --outdir does not exist")
 
-        if(args.clusteringOption is None):
-            args.clusteringOption='Bayespace'
-        print(args.clusteringOption)
+        if(args.algo is None):
+            args.algo='Bayespace'
+
         print('stop 2')
-        if(args.clusteringOption=='Bayespace'):
+        if(args.algo=='Bayespace'):
             print('Starting Clustering using Bayespace')
             if(os.path.isdir(args.DGEdir)==False):
                 raise ValueError("Directory --DGEdir does not exist")
@@ -251,7 +265,7 @@ def step4():
                 raise ValueError(f"ERROR in running {cmd4}, returning exit code {ret}")
 
 
-        if(args.clusteringOption=='Seurat'):
+        if(args.algo=='Seurat'):
             if(os.path.isdir(args.DGEdir)==False):
                 raise ValueError("Directory --DGEdir does not exist")
             if(args.spatial is None):
@@ -270,12 +284,11 @@ def step4():
 
     #For slideseq and seqscope data
     if(args.datasource != 'VISIUM'):
-        if(args.clusteringOption is None):
-            args.clusteringOption=='slidingWindow'
-        else:
-            raise ValueError('Cannot use other clustering option other than slidingwindow for SeqScope and SlideSeq data')
-
-
+       # if(args.algo is None):
+       #     args.clusteringOption=='SimpleGridding'
+       # else:
+       #     raise ValueError('Cannot use other clustering option other than slidingwindow for SeqScope and SlideSeq data')
+    
 
         print('Start Simple Gridding')
         #if(args.nrow is None):
@@ -303,28 +316,27 @@ def step4():
             raise ValueError("File --collapsePath does not exist")
         if(args.spatial is None):
             args.spatial=args.outdir+"/spatialcoordinates.txt"
-        if(args.tiles is None):
-            raise ValueError("Tiles are required")
-       # if(args.outdir is None):
-        #    args.outdir=os.getcwd()
-        #if(os.path.isdir(args.outdir)==False):
-         #   raise ValueError("Directory --outdir does not exist")
 
-        args.simple=args.STtools+"/getSimpleGrid/simpleGrid_v2.R"
-        cmd4="Rscript {args.simple} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.tiles} {args.nrow} {args.ncol} {args.binsize} {args.outdir} {args.collapsePath}".format(args=args)
+        if(args.order is None):
+            args.order='top'
+        if(args.layout is None):
+            args.layout='FALSE'
+
+        args.simple=args.STtools+"/getSimpleGrid/simpleGrid_v3.R"
+        cmd4="Rscript {args.simple} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.tiles} {args.nrow} {args.ncol} {args.binsize} {args.outdir} {args.collapsePath} {args.layout} {args.order}".format(args=args)
         ret = os.system(cmd4)
         if ( ret != 0 ):
             raise ValueError(f"ERROR in running {cmd4}, returning exit code {ret}")
-        no_bc=sp.getoutput("wc -l collapsedBarcodes.csv")
-        no_gene=sp.getoutput("wc -l collapsedGenes.csv")
+        #no_bc=sp.getoutput("wc -l collapsedBarcodes.csv")
+        #no_gene=sp.getoutput("wc -l collapsedGenes.csv")
 
-        print(no_bc)
-        print(args.outdir)
-        fout=args.outdir+"/summary_step4.txt"
-        f=open(fout,"w")
-        f.write('Total number of collapsed grids:'+str(no_bc)+" \n")
-        f.write('Total number of genes:' +str(no_gene) +' \n')
-        f.close()
+        #print(no_bc)
+        #print(args.outdir)
+        #fout=args.outdir+"/summary_step4.txt"
+        #f=open(fout,"w")
+        #f.write('Total number of collapsed grids:'+str(no_bc)+" \n")
+        #f.write('Total number of genes:' +str(no_gene) +' \n')
+        #f.close()
 
 
 

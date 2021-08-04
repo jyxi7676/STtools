@@ -446,21 +446,21 @@ if ( args.run_all ):
     print("Running the following steps: ", steps)
 
     ## check whether parameter is given
-    if ( args.first-fq is None ):
+    if ( args.first_fq is None ):
         raise ValueError("Cannot find --first-fq argument. Need to specify for running all")
-    if ( args.second-fq1 is None ):
+    if ( args.second_fq1 is None ):
         raise ValueError("Cannot find --second-fq1 argument. Need to specify for running all")
-    if ( args.second-fq2 is None ):
+    if ( args.second_fq2 is None ):
         raise ValueError("Cannot find --second-fq2 argument. Need to specify for running all")
     if ( args.genome is None ):
         raise ValueError("Cannot find --genome argument. Need to specify for running all")
 
     #check file/directory path exist:
-    if(os.path.isfile(args.first-fq)==False):
+    if(os.path.isfile(args.first_fq)==False):
         raise ValueError("File --first-fq does not exist")
-    if(os.path.isfile(args.second-fq1)==False):
+    if(os.path.isfile(args.second_fq1)==False):
         raise ValueError("File --second-fq1 does not exist")
-    if(os.path.isfile(args.second-fq2)==False):
+    if(os.path.isfile(args.second_fq2)==False):
         raise ValueError("File --second-fq2 does not exist")
     if(os.path.isdir(args.star_path)==False):
         raise ValueError("Directory --star-path does not exist")
@@ -472,6 +472,6 @@ if ( args.run_all ):
         raise ValueError("Directory --STtools does not exist")
 
     for i in range(1,8):
-            print('Running step:' + i)
+            print('Running step:' + str(i))
             func=eval("step"+str(i))
             func()
