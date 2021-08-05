@@ -235,10 +235,21 @@ slidingWindowSub=function(collapsePath,DGEdir,outpath,window,sidesize,xargs)
 
 
   setwd(outpath)
-
-  tile=strsplit(xargs,'_')[[1]][1]
-  groupid=strsplit(xargs,'_')[[1]][2]
-  m_tile_sub=readMM(paste0('m_tile_',tile,'_sub_',groupid))
+  print('xargs')
+  print(xargs)
+  pat = "(.*?_.*?)_(.*)"
+  tile=sub(pat,"\\1",xargs)
+  print('tile')
+  print(tile)
+  groupid=sub(pat,"\\2",xargs)
+  print('groupid')
+  print(groupid)
+  print('stop')
+ # tile=strsplit(xargs,'_')[[1]][1]
+ # groupid=strsplit(xargs,'_')[[1]][2]
+  tilefile=paste0('m_tile_',tile,'_sub_',groupid)
+  print(tilefile)
+  m_tile_sub=readMM(tilefile)
   sub=read.csv(paste0('group_tile_',tile,'.csv'))
   sub_xargs=sub[sub$tile_groupid==xargs,]
   colnames(m_tile_sub)=sub_xargs$HDMI

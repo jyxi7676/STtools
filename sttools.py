@@ -38,7 +38,7 @@ parser.add_argument("--second-fq2", type=str, help="Path to 2nd-Seq Read 2 FASTQ
 parser.add_argument("-o","--outprefix" ,type=str, help="Prefix for STARsolo output",default='Sample')
 parser.add_argument("--STtools",type=str,help='Path to the scripts of STtools scripts',default='STtools')
 parser.add_argument("--py",type=str,default=sys.executable,help='Binary path to python executable')
-parser.add_argument("--tiles",type=str,help='tiles')
+parser.add_argument("--lane-tiles",type=str,help='lane and tiles')
 parser.add_argument("--binsize",type=int,help='size of the side of  square grids',default=300)
 parser.add_argument("--window",type=int,help='sliding size of sliding window',default=150)
 parser.add_argument("-c", "--cores",type=int,help='number of cores',default=5)
@@ -267,7 +267,7 @@ def step4():
     args.simple=args.STtools+"/getSimpleGrid/simpleGrid_v3.R"
     #cmd4="Rscript {args.simple} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.tiles} {args.nrow} {args.ncol} {args.binsize} {args.outdir} {args.collapsePath}".format(args=args)
     print('here')
-    cmd4="Rscript {args.simple} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.tiles} {args.nrow} {args.ncol} {args.binsize} {args.outdir} {args.collapsePath} {args.layout} {args.order}".format(args=args)
+    cmd4="Rscript {args.simple} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.lane_tiles} {args.nrow} {args.ncol} {args.binsize} {args.outdir} {args.collapsePath} {args.layout} {args.order}".format(args=args)
 
     ret = os.system(cmd4)
     if ( ret != 0 ):
@@ -317,9 +317,13 @@ def step5():
         args.window=150
     if(args.binsize is None):
         args.binsize=300
-    if(args.tiles is None):
-        raise ValueError("Tiles are required")
-    tiles_vec =args.tiles.split(',')
+    if(args.lane_tiles is None):
+        raise ValueError("Lane and tiles are required")
+    if(args.order is None):
+        args.order='top'
+    if(args.layout is None):
+        args.layout='FALSE'
+    #tiles_vec =args.tiles.split(',')
    # inputF=os.getcwd()+'/inputTiles.txt'
    # with open(inputF, 'w') as f:
    #     for l in tiles_vec:
@@ -341,7 +345,7 @@ def step5():
     if(os.path.isfile(args.sliding_P3)==False):
         raise ValueError("File --sliding_P3 does not exist")
     
-    cmd5_1="Rscript {args.sliding_P1} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.outdir} {args.tiles}".format(args=args)
+    cmd5_1="Rscript {args.sliding_P1} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.outdir} {args.lane_tiles}".format(args=args)
     ret = os.system(cmd5_1)
     if ( ret != 0 ):
         raise ValueError(f"ERROR in running {cmd5_1}, returning exit code {ret}")
@@ -352,7 +356,7 @@ def step5():
     if ( ret != 0 ):
         raise ValueError(f"ERROR in running {cmd5_2}, returning exit code {ret}")
 
-    cmd5_3 = "Rscript {args.sliding_P3} {args.outdir} {args.ncol} {args.nrow}".format(args=args)
+    cmd5_3 = "Rscript {args.sliding_P3} {args.outdir} {args.ncol} {args.nrow} {args.layout} {args.order} {args.lane_tiles}".format(args=args)
     ret = os.system(cmd5_3)
     if ( ret != 0 ):
         raise ValueError(f"ERROR in running {cmd5_3}, returning exit code {ret}\
