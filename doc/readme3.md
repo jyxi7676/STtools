@@ -98,17 +98,14 @@ This step outputs folders with STARsolo summary statistics, bam file, DGE, etc.
 Step 4 bins the DGE into simple square gridded data and collapses the reads counts within each grid. A new DGE is generated and spatial information is updated with the center of each bin. This step outputs a RDS file with collapsed barcodes and spatial information. 
 ### *input*
 * --STtools: Path to STtools package. If not given, the current working directory is used.
-* --lane-tiles:(updated)Lane and tiles that the users are interested, for exaample: 1_2106 are lane 1 and tile 2106. Multiple lane and tiles should be separated by comma. For instance: --lane-tiles 1_2106, 2_2106, 1_2107.
-* --layout: (updated) User can have a customized arrangment of lanes and tiles, and --layout is the path to the file. Please click [layout](./fileformats.md) for the input format.
-* --order: (updated) How the lane and tiles are stacked when --layout is not given. If order is 'top' then the --lane-tiles will be ordered in increasing order and stacked in 2 rows. If order is 'bottom', they will be ordered in a decreasing order.  
+* --lane-tiles:Lane and tiles that the users are interested, for exaample: 1_2106 are lane 1 and tile 2106. Multiple lane and tiles should be separated by comma. For instance: --lane-tiles 1_2106, 2_2106, 1_2107. **Required**
+* --layout: User can have a customized arrangment of lanes and tiles, and --layout is the path to the file. Please click [layout](./fileformats.md) for the input format.
+* --order: How the lane and tiles are stacked when --layout is not given. If order is 'top' then the --lane-tiles will be ordered in increasing order and stacked in 2 rows. If order is 'bottom', they will be ordered in a decreasing order.  
 
-* --tiles: Tiles that the user is insterested in. Multiple tile numbers need to be separated by comma. For example: --tiles 2106,2107,2108. **Required**.
 * --binsize: The size of the square grids side. By default, it is set to 300 units.
 * --DGEdir: Path to the digital expression matrix. **Required**
 * --spatial: Path to the txt file of spatial coordinates. **Required**
-* --nrow: (to be updates in the script)number of rows when generating the super tile. If not give, we assume there is only one tile, and nrow=1. (need to modify how to stack the tiles)
-* --ncol: (to be updated in the script) number of cols when generating the super tile. If not give, we assume there is only one tile, and ncol=1.
-* --outdir: Path to output files. If not given, using current working directory
+* --outdir: Path to output files. If not given, using current working directory.
 ### *code*
 ```sh
 ## $STHOME indicates the path to the directory of STtools repository
@@ -119,8 +116,7 @@ export STDATA=/path/to/data
 export STOUT=/path/to/outdir
 ## $STDGE indicates the path to digital expression matrix(DGE)
 export STDGE=/path/to/DGE/
-python3  $STHOME/sttools.py --run-steps 4 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --tiles 2106 --binsize 300  -l 20 --DGEdir $STDGE
-
+python3  $STHOME/sttools.py --run-steps 4 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --lane-tiles 1_2106 --binsize 300  -l 20 --DGEdir $STDGE 
 ```
 ### *output*
 * SimpleSquareGrids.RDS
@@ -130,7 +126,7 @@ python3  $STHOME/sttools.py --run-steps 4 --STtools $STHOME --spatial $STDATA/sp
 Step 5 bins the DGE into simple square gridded data using sliding window strategy and outputs a RDS file with collapsed barcodes and spatial information. 
 ### *input*
 * --STtools: Path to STtools package. If not given, the current working directory is used.(add this to pkg).
-* --tiles: Tiles that the user is insterested in. Multiple tile numbers need to be separated by comma. For example: --tiles 2106,2107,2108. Required.
+* --lane-tiles: Tiles that the user is insterested in. Multiple tile numbers need to be separated by comma. For example: --lane-tiles 1_2106,1_2107,1_2108. **Required**.
 * --binsize: The size of the square grids side. By default, it is set to 300 units.
 * --window: The side of sliding window. By default it is set to by 150 units.
 * --DGEdir: Path to the digital expression matrix. If not given, use the path to DGE from previous steps.
@@ -138,6 +134,8 @@ Step 5 bins the DGE into simple square gridded data using sliding window strateg
 * --nrow: number of rows when generating the super tile. If not give, we assume there is only one tile, and nrow=1.
 * --ncol: number of cols when generating the super tile. If not give, we assume there is only one tile, and ncol=1.
 * --outdir: Path to output files. If not given, using current working directory
+*  --layout: User can have a customized arrangment of lanes and tiles, and --layout is the path to the file. Please click [layout](./fileformats.md) for the input format.
+* --order: How the lane and tiles are stacked when --layout is not given. If order is 'top' then the --lane-tiles will be ordered in increasing order and stacked in 2 rows. If order is 'bottom', they will be ordered in a decreasing order.  
 ### *code*
 ```sh
 ## $STHOME indicates the path to the directory of STtools repository
@@ -148,7 +146,7 @@ export STDATA=/path/to/data
 export STOUT=/path/to/outdir
 ## $STOUT indicates the path to digital expression matrix(DGE)
 export STDGE=/path/to/DGE/
-python3 $STHOME/sttools.py --run-steps 5 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --tiles 2106 --binsize 300  -l 20 --window 150 --DGEdir $STDGE
+python3 $STHOME/sttools.py --run-steps 5 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --lane-tiles 1_2106 --binsize 300  -l 20 --window 150 --DGEdir $STDGE
 
 ```
 ### *output*
