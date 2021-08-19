@@ -139,16 +139,24 @@ file1_final_gz="$file1_final.gz"
 cd $outdir
 #cd $seqtkpath
 echo 'trimming R1'
+#if [  "$hdmilength" -gt 30 ]
+#then
+#    hdmilength=30
+
 $seqtk_executable trimfq -q 0 -l $hdmilength $file1 > ./file1_trim.fastq
 pigz -p 8 -f ./file1_trim.fastq
 #gzip ./file1_trim.fastq
 echo $file1_final
 
-if [  "$hdmilength" -eq 30 ]
-then 
+if [  "$hdmilength" -gt 30 ]
+then
+  echo 'bigger30'
+  hdmilength=30
+# export hdmi_l=$hdmilength
   paste <(zcat ./file1_trim.fastq.gz) <(zcat $file2) | perl -lane 'if ( $. % 4 == 1 ) { print "$F[0] $F[1]"; } elsif ( $. % 4 == 3 ) { print "+"; } else { print substr($F[0],0,30).substr($F[1],0,9).substr($F[0],50); }' > $file1_final
-else 
-  paste <(zcat ./file1_trim.fastq.gz) <(zcat $file2) | perl -lane 'if ( $. % 4 == 1 ) { print "$F[0] $F[1]"; } elsif ( $. % 4 == 3 ) { print "+"; } else { print substr($F[0],0,20).substr($F[1],0,9).substr($F[0],50); }' > $file1_final
+else
+  export hdmi_l=$hdmilength
+  paste <(zcat ./file1_trim.fastq.gz) <(zcat $file2) | perl -lane 'if ( $. % 4 == 1 ) { print "$F[0] $F[1]"; } elsif ( $. % 4 == 3 ) { print "+"; } else { print substr($F[0],0,$ENV{hdmi_l}).substr($F[1],0,9).substr($F[0],50);print "$hdmilength" }' > $file1_final
 fi
 #gzip $file1_final
 pigz -p 8 -f $file1_final

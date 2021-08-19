@@ -1,3 +1,20 @@
+
+
+def import_or_install(package):
+    try:
+       # print('try')                                                           
+        __import__(package)
+    except ImportError:
+        #print('install')                                                      \
+                                                                                
+        pip.main(['install', package])
+
+#modules                                                                       \
+import pip
+modules = ["sys","os","csv","gzip","scipy","numpy","pandas","seaborn","matplotlib","scprep"]
+#map(import_or_install,modules)                           
+md=[import_or_install(i) for i in modules]
+
 import sys
 import os
 import csv

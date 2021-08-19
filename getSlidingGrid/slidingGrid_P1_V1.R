@@ -5,9 +5,9 @@ for(i in 1:5) { #-- Create objects  'r.1', 'r.2', ... 'r.6' --
   assign(nam, args[i])
 }
 
-r5=as.numeric(as.vector((strsplit(r5, ",")[[1]])))
-
-
+#r5=as.numeric(as.vector((strsplit(r5, ",")[[1]])))
+r5=(unlist(strsplit(r5,',')))
+print(r5)
 ####################################################################################################3
 #' This function generate grids in subfields of a tile
 #' @param groupid an integer indicates the id for the subfield
@@ -17,7 +17,7 @@ r5=as.numeric(as.vector((strsplit(r5, ",")[[1]])))
 #' @param window sliding window size
 #' @param binx x side size of the simple grid
 #' @param biny y side size of the simple grid
-#' @param tile integer of the tile number
+#' @param tile The lane_ tile number
 getSubGrids = function(groupid,tile_df,m_tile,slidestarts,window,binx,biny,tile)
 {
 
@@ -130,9 +130,15 @@ getSubfield = function(seqscope1st,DGEdir,spatial,outpath,tiles)
   print('Reading spatial info')
   miseq_pos = read.table(spatial)
   colnames(miseq_pos) = c('HDMI','lane_miseq','tile_miseq','x_miseq','y_miseq')
-  #print(!any(tiles%in%miseq_pos$tile_miseq))
+  miseq_pos$tile_miseq=paste(miseq_pos$lane_miseq,miseq_pos$tile_miseq,sep="_")
+                                        #print(!any(tiles%in%miseq_pos$tile_miseq))
+  print(tiles)
+  print(head(miseq_pos))
+  print(head(miseq_pos$tile_miseq))
+#  print(table(miseq_pos$tile_miseq))
   if (all(tiles%in%miseq_pos$tile_miseq))
   {
+    print('yes')
     miseq_pos=miseq_pos[miseq_pos$tile_miseq %in% tiles,]
   }
   else
@@ -144,7 +150,11 @@ getSubfield = function(seqscope1st,DGEdir,spatial,outpath,tiles)
   tile_df = merge(miseq_pos,df,by = "HDMI")  #this takes some time, just save this
   m_tile = m[,tile_df$HDMIind]
   tile_df$UMI=colSums(m_tile)
-
+  if (file.exists('groupgrids_tile.txt'))
+  {
+      file.remove('groupgrids_tile.txt')
+  }
+  
   out=sapply(1:length(tiles),getGroupGrids,tiles=tiles,tile_df=tile_df,m_tile=m_tile,slidestarts=slidestarts,window=window,binx=binx,biny=biny)
 
 print('Finish generating subfields!')

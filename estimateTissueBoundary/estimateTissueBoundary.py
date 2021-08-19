@@ -1,3 +1,21 @@
+def import_or_install(package):
+    try:
+       # print('try')
+        __import__(package)
+    except ImportError:
+        #print('install')                                                       
+        pip.main(['install', package])
+
+#modules                                                                        
+import pip
+modules = ["numpy","pandas","os","mpl-scatter-density","matplotlib","pylab","sys"]
+#map(import_or_install,modules)                                                 
+md=[import_or_install(i) for i in modules]
+
+
+
+
+
 import numpy as np
 import pandas as pd
 import pandas as pd
