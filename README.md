@@ -50,7 +50,7 @@ git clone https://github.com/jyxi7676/STtools.git
 * SeqScope exmaple data for each step can be found at [example data 1](https://drive.google.com/file/d/1e0u57Yu_fVKFvs-UA7WYfj-vgm8Nd2y4/view?usp=sharing), please download the zip files. For each step, the example input data is stored in the corresponding subdirectories. 
 
 * VISIUM digital expresstion data and spatial coordinates are available at [example data 2](https://drive.google.com/drive/folders/130ENNRBEi7kCOXDnGZlHUnuf4CD3_JEI?usp=sharing)
-* SeqScope digital expression data and spatial coordinates are avaialbel at [example data 3](https://drive.google.com/drive/folders/1IktkJgDLnYS0fcW65xgHC04S-Mr8ciwf?usp=sharing)
+* SlideSeq digital expression data and spatial coordinates are avaialbel at [example data 3](https://drive.google.com/drive/folders/1IktkJgDLnYS0fcW65xgHC04S-Mr8ciwf?usp=sharing)
 
 ## Input Data Format
 Please refer to [data formats](./doc/fileformats.md) for an illustration of required input data format for each step.
