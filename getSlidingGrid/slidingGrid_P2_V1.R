@@ -256,8 +256,10 @@ slidingWindowSub=function(collapsePath,DGEdir,outpath,window,sidesize,xargs)
   rownames(m_tile_sub)=features
   print('collapsing')
   sub_xargs$tileHDMIind=1:(dim(sub_xargs))[1]
-
-  clp=getSubGrids(groupid,sub_xargs,m_tile_sub,slidestarts,window,binx,biny,as.numeric(tile),collapsePath)
+  print('Pring tiles')
+#  print(tile)
+ # print(as.numeric(tile))
+  clp=getSubGrids(groupid,sub_xargs,m_tile_sub,slidestarts,window,binx,biny,tile,collapsePath)
   saveRDS(clp,paste0('tile_',tile,'_subfield_',groupid,'.RDS'))
   #out=sapply(group,getSubGrids,tile_df=tile_df_exact,m_tile=m_tile,slidestarts=slidestarts,window=window,binx=binx,biny=biny,tile=tile)  #function applies on subfied
   print('finish subfield collapsing')

@@ -11,6 +11,11 @@ outpath=args[8]
 collapsePath=args[9]
 layout=args[10]
 order=args[11]
+nMax=args[12]
+print('nMAX')
+print(nMax)
+print(is.null(nMax))
+print(nMax=="None")
 print('tiles')
 print(tiles)
 #tiles=as.numeric(unlist(strsplit(tiles,',')))
@@ -28,6 +33,8 @@ if(length(tiles)==1)
 }
 print('tiles')
 print(tiles)
+print(order)
+print(order=='top')
 ####################################################################################################3
 #' This function merges a list of Seurat object
 #' @param seurat_object_list a list of Seurat object
@@ -151,8 +158,10 @@ collapseTiles=function(tile_df,i,binx,biny,m_tile)
 #' @import ggplot2
 #' @export
 
-getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collapsePath,layout,order)
+getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collapsePath,layout,order,nMax)
 {
+  print('nMAX')
+    
 
   print('inside')                                        #print(tiles)
 #  if(missing(nrow)| missing(ncol))
@@ -209,7 +218,14 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
   }
   rownames(m) = features
   colnames(m) = bc
-  m = m[,colSums(m)<=100&colSums(m)>0]  #remove outliers
+  
+  if (nMax!='None')
+  {
+    m = m[,colSums(m)<=100&colSums(m)>0]  #remove outliers
+  }
+
+
+  #m = m[,colSums(m)<=100&colSums(m)>0]  #remove outliers
   # print(dim(m))
     
   #get spatial info
@@ -334,7 +350,7 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
 
 
 
-getSimpleGrid(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collapsePath,layout,order)
+getSimpleGrid(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collapsePath,layout,order,nMax)
 
 
 

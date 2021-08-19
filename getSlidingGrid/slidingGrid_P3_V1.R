@@ -28,10 +28,10 @@ print(r3)
 mergeSeuratObj=function(seurat_object_list)
 {
 
-  for (i in names(seurat_object_list))
+  for (i in length(seurat_object_list))
   {
     seurat_object_list[[i]] = RenameCells(seurat_object_list[[i]],
-                                          add.cell.id = i)
+                                          add.cell.id = paste0('Cell',i))
   }
   merged_combined = suppressWarnings(expr=reduce(seurat_object_list,
                                                  merge,
@@ -62,7 +62,8 @@ mergeTileSubFieldRds=function(outpath,ncol,nrow,layout,order,tiles)
   df = list.files(pattern = ".RDS") %>% map(readRDS)
   print('merge rds')
   obj = mergeSeuratObj(df)
-
+  print(obj)
+  print(head(obj@meta.data))
   #obj_list[[as.character(tile)]] = obj_tile
   #obj= mergeSeuratObj(obj_list)
   

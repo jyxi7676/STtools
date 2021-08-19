@@ -223,6 +223,13 @@ def step3():
 
 
 def step4():
+    if(args.datasource is None):
+       args.datasource = 'SeqScope'
+       args.nMax=100
+    if(args.datasource =='SlideSeq'):
+       args.nMax=None
+    
+        
     print('Start Simple Gridding')
     #if(args.nrow is None):
      #   args.nrow=2
@@ -267,7 +274,7 @@ def step4():
     args.simple=args.STtools+"/getSimpleGrid/simpleGrid_v3.R"
     #cmd4="Rscript {args.simple} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.tiles} {args.nrow} {args.ncol} {args.binsize} {args.outdir} {args.collapsePath}".format(args=args)
     print('here')
-    cmd4="Rscript {args.simple} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.lane_tiles} {args.nrow} {args.ncol} {args.binsize} {args.outdir} {args.collapsePath} {args.layout} {args.order}".format(args=args)
+    cmd4="Rscript {args.simple} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.lane_tiles} {args.nrow} {args.ncol} {args.binsize} {args.outdir} {args.collapsePath} {args.layout} {args.order} {args.nMax}".format(args=args)
 
     ret = os.system(cmd4)
     if ( ret != 0 ):
@@ -359,8 +366,7 @@ def step5():
     cmd5_3 = "Rscript {args.sliding_P3} {args.outdir} {args.ncol} {args.nrow} {args.layout} {args.order} {args.lane_tiles}".format(args=args)
     ret = os.system(cmd5_3)
     if ( ret != 0 ):
-        raise ValueError(f"ERROR in running {cmd5_3}, returning exit code {ret}\
-")
+        raise ValueError(f"ERROR in running {cmd5_3}, returning exit code {ret}")
 
 
 
