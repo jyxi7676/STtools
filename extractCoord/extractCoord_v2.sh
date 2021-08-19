@@ -108,7 +108,9 @@ paste  ./HDMIs-MiSeq-temp-rev.txt ./pos-MiSeq-temp.txt | column -s $'\t' -t > ./
 awk '!seen[$1]++' ./MiSeq-temp-revHDMIs-pos.txt  > $miseq_pos
 ##bottom tiles for MiSeq
 
-if [ "$hdmilength" -gt 30 ]
+
+
+if [  "$hdmilength" -gt 30 ]
 then
   zcat $hiseq | perl -lane 'print $_ if ( $. % 4 == 2 )'  | cut -c 1-30 > ./HDMI_SeqScope_2nd.txt
   zcat $miseq | perl -lane 'print $_ if ( $. % 4 == 2 )'  | cut -c 3-32  > ./HDMIs-MiSeq-temp.txt

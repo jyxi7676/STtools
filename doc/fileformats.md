@@ -1,17 +1,21 @@
 
 # Input File formarts 
 ## Step 1
-* --first-fq: FASTQ.GZ file. The first N bases are HDMIs. Coordinates information of HDMIs  is stored in the header of FASTQ.GZ file.
+* --first-fq: FASTQ.GZ file. The first N bases are HDMIs. Coordinates information (lane, tile, X and Y) of HDMIs  is stored in the header of FASTQ.GZ file. Please click the [FASTQ file format](https://support.illumina.com/help/BaseSpace_OLH_009008/Content/Source/Informatics/BS/FileFormat_FASTQ-files_swBS.htm) for more details. An example of our sample data is shown below:
 <p align="center">
-    <img src="./firstseq.png" width="800" height="400" />
+    <img src="./firstseq.png" width="800" height="250" />
 </p>
  
 
-* --second-fq1: FASTQ.GZ file. The first N bases are HDMIs, which are reverse complementary of the HDMIs from --first-fq.
+* --second-fq1: FASTQ.GZ file. The first N bases are HDMIs. For example, in the example data 1, we have N=20.
 <p align="center">
-    <img src="./secondseq_fq1.png" width="800" height="400" />
+    <img src="./secondseq_fq1.png" width="800" height="250" />
 </p>
- 
+
+--second-fq2: FASTQ.GZ file. Read 2 are cDNA sequences and the first 9 bases are randomers. 
+<p align="center">
+    <img src="./secondseq_fq2.png" width="800" height="250" />
+</p> 
  
 ## Step 2
 * --HDMI2ndSeq: txt file with only one column, representing the HDMIs from --first-fq. See following:
@@ -25,10 +29,7 @@
 
 ## Step 3
 * --second-fq1: FASTQ.GZ file. See Step 1 --second-fq1 input format.
-* --second-fq1: FASTQ.GZ file. The first N bases are randomers or UMIs, followed by cDNA sequences.
-<p align="center">
-    <img src="./secondseq_fq2.png" width="800" height="400" />
-</p>
+* --second-fq2: FASTQ.GZ file. The first N bases are randomers or UMIs, followed by cDNA sequences.
 
 ## Step 4
 * --spatial: txt file with five columns: HDMI, lane, tile, X and Y. Same as step 2
