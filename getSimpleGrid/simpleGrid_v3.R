@@ -12,12 +12,14 @@ collapsePath=args[9]
 layout=args[10]
 order=args[11]
 nMax=args[12]
+clustering=args[13]
 print('nMAX')
 print(nMax)
 print(is.null(nMax))
 print(nMax=="None")
 print('tiles')
 print(tiles)
+print(clustering)
 #tiles=as.numeric(unlist(strsplit(tiles,',')))
 tiles=(unlist(strsplit(tiles,',')))
 if(length(tiles)>1)
@@ -158,7 +160,7 @@ collapseTiles=function(tile_df,i,binx,biny,m_tile)
 #' @import ggplot2
 #' @export
 
-getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collapsePath,layout,order,nMax)
+getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collapsePath,layout,order,nMax,clustering)
 {
   print('nMAX')
     
@@ -342,15 +344,66 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
   write.csv(bc,'collapsedBarcodes.csv')
   saveRDS(obj,'SimpleSquareGrids.RDS')
   junk = dir(path=outpath,  pattern="Temp")
-  file.remove(junk)  
-  print('Done!')
+  file.remove(junk) 
 
+
+                                        #clustering
+  print('feature eplot')
+  png("nFeatureplot.png",width=7*2,height=6,res=300,units='in')
+  p1=VlnPlot(obj, features = "nFeature_Spatial", pt.size = 0) + NoLegend()
+  p2=VlnPlot(obj, features = "nFeature_Spatial", pt.size = 0,log=T) + NoLegend()
+  plot_grid(p1,p2,ncol=2)
+  dev.off()
+  #png("nFeatureplot",width=7,height=6,res=300,units='in')
+  #VlnPlot(obj, features = "nFeature_Spatial", pt.size = 0,log=T) + NoLegend()
+                                        #dev.off()
+  
+  if(nMax !='None')
+  {
+
+    geneCount1=median(obj@meta.data$nFeature_Spatial)  #?automatic ??????
+    print('geneCount')
+    print(geneCount1)
+
+  }
+  else
+      geneCount1=0
+
+
+  print(clustering)
+  if(clustering)
+  {
+      
+   # geneCount1=median(obj@meta.data$nFeature_Spatial)  #?automatic ??????
+   # print('geneCount')
+   # print(geneCount1)
+    obj_simple = subset(obj, subset = nFeature_Spatial>geneCount1)
+    obj_simple = SCTransform(obj_simple, assay = "Spatial")
+    obj_simple = RunPCA(obj_simple)
+    obj_simple = RunUMAP(obj_simple, dims = 1:30)
+    obj_simple = FindNeighbors(obj_simple, dims = 1:30)
+    obj_simple = FindClusters(obj_simple)
+    saveRDS(obj_simple,'SimpleSquareGridsWithClustering.RDS') 
+    meta=obj_simple@meta.data
+    meta=cbind(meta,obj_simple@reductions$umap@cell.embeddings)
+    print(nrow)
+    print(ncol)
+    png('SpatialDimPlot.png',width=ncol*7,height=nrow*6,res=300,units='in')
+    ggplot(meta,aes(X_expand,Y_expand,color=seurat_clusters))+geom_point(size=1,alpha=1)
+    dev.off()
+
+    #  png('SpatialDimPlot.png',width=7,height=6,res=300)
+    #SpatialDimPlot(obj_simple, stroke = 0)
+    #dev.off()
+  } 
+
+  print('Done!')
 
 }
 
 
 
-getSimpleGrid(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collapsePath,layout,order,nMax)
+getSimpleGrid(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collapsePath,layout,order,nMax,clustering)
 
 
 
