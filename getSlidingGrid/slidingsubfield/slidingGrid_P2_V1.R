@@ -10,6 +10,7 @@ r11=as.numeric(as.vector((strsplit(r11, ",")[[1]])))
 
 ####################################################################################################3
 #' This function generate grids in subfields of a tile
+#' @param groupid an integer indicates the id for the subfield
 #' @param tile_df dataframe with spatial info of a certain tile
 #' @param m_tile sparise matrix
 #' @param slidestarts  a vector of the sliding steps
@@ -17,26 +18,55 @@ r11=as.numeric(as.vector((strsplit(r11, ",")[[1]])))
 #' @param binx x side size of the simple grid
 #' @param biny y side size of the simple grid
 #' @param tile integer of the tile number
-getSubGrids = function(tile_df,m_tile,slidestarts,window,binx,biny,tile,collapsePath)
+getSubGrids = function(groupid,tile_df,m_tile,slidestarts,window,binx,biny,tile,collapsePath)
 {
 
   obj=suppressWarnings(CreateSeuratObject(m_tile[,1:2]))#initialize note if none
-  tile_df_sub= tile_df
+  tile_df_sub= tile_df[tile_df$ID==groupid,]
+  #sourceCpp(slidingPath) put into the main function
   #Use nested loop instead
   #obj=slidingWindow(slidestarts,tile_df_sub,window,binx,biny,simpleGrid,obj,m_tile,colnames(m_tile),rownames(m_tile),tile,groupid)
   for(j in slidestarts)
   {
-    print(j)
+    #print(j)
     for(t in slidestarts)
     {
-     print(t)
+     # print(t)
 
-      obj=simpleGrid(tile_df_sub,binx,biny,window,j,t,obj,m_tile,colnames(m_tile),rownames(m_tile),tile,collapsePath);
+      obj=simpleGrid(tile_df_sub,binx,biny,window,j,t,obj,m_tile,colnames(m_tile),rownames(m_tile),tile,groupid,collapsePath);
     }
   }
   return(obj)
 
 }
+
+getGroupGrids=function(i,tiles,tile_df,m_tile,slidestarts,window,binx,biny)
+{
+  tile=tiles[i]
+  tile_df_exact=tile_df[tile_df$tile_miseq == tile,]
+  nsub_x=nsub_y=5
+  tile_df_exact$xcut = cut(tile_df_exact$x_miseq,nsub_x)
+  tile_df_exact$ycut = cut(tile_df_exact$y_miseq,nsub_y)
+  tile_df_exact=tile_df_exact%>%mutate(ID = group_indices(., xcut, ycut))
+  tile_df_exact$tile=tile
+  tile_df_exact$tile_groupid=paste0(tile_df_exact$tile,'_',tile_df_exact$ID)
+
+  write.csv(tile_df_exact,paste0('group_tile_',tile,'.csv'))
+
+
+
+
+  group = unique(tile_df_exact$tile_groupid)
+  group = group[order(unique(tile_df_exact$ID))]
+  write.table(group,paste0('groupgrids_tile_',tile,'.txt'),row.names=FALSE,sep="\t",col.names=F,quote=F)
+  #return(tile_df_exact)
+  #obj = suppressWarnings(CreateSeuratObject(m_tile[,1:10]))
+  #out=sapply(1:5,getSubGrids,tile_df=tile_df_exact,m_tile=m_tile,slidestarts=slidestarts,window=window,binx=binx,biny=biny,tile=tile)  #function applies on subfied
+  #obj_tile = mergeSeuratObj(out)
+  #obj_list[[as.character(tile)]] = obj_tile
+  # return(obj_list)
+}
+
 
 ####################################################################################################3
 #' This function merges a list of Seurat object
@@ -68,7 +98,7 @@ mergeSeuratObj=function(seurat_object_list)
 #' @param m_bc barcodes of m_tile
 #' @param m_gene barcodes of m_gene
 #' @param tile integer of one tile
-simpleGrid = function(tile_df_sub,binx,biny,window,j,t,obj,m_tile,m_bc,m_gene,tile,collapsePath)
+simpleGrid = function(tile_df_sub,binx,biny,window,j,t,obj,m_tile,m_bc,m_gene,tile,groupid,collapsePath)
 {
   miny = min(tile_df_sub$y_miseq)
   maxy = max(tile_df_sub$y_miseq)
@@ -92,8 +122,8 @@ simpleGrid = function(tile_df_sub,binx,biny,window,j,t,obj,m_tile,m_bc,m_gene,ti
 #  fn1=paste0('Temp_CollapsedHDMIsIndLength','.csv')
 #  fn2=paste0('Temp_CollapsedHDMIsInd','.txt')
 
-  fn1=paste0('Temp_CollapsedHDMIsIndLength',tile,'_',j,t,'.csv')
-  fn2=paste0('Temp_CollapsedHDMIsInd',tile,'_',j,t,'.txt')
+  fn1=paste0('Temp_CollapsedHDMIsIndLength',tile,'_',groupid,'_',j,t,'.csv')
+  fn2=paste0('Temp_CollapsedHDMIsInd',tile,'_',groupid,'_',j,t,'.txt')
   
   if (file.exists(fn1)) {
     #Delete file if it exists
@@ -104,34 +134,23 @@ simpleGrid = function(tile_df_sub,binx,biny,window,j,t,obj,m_tile,m_bc,m_gene,ti
     #Delete file if it exists
     file.remove(fn2)
   }
-  #grd_re = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$tileHDMIind, binx, biny, xlim2, ylim2,function(x) {write(length(x), file=fn1,append = T)})
-  #grd_re = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$tileHDMIind, binx, biny, xlim2, ylim2,function(x) {cat(x,file=fn2,append=TRUE,sep='\n')})
-  test.env <- new.env()
-
-  #assign('var', 100, envir=test.env)
-# or simply
-  test.env$len =c()
-  test.env$no = c()
-  grd_re = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$tileHDMIind, binx, biny, xlim2, ylim2,function(x) {test.env$len=c(test.env$len,length(x))})
-  grd_re = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$tileHDMIind, binx, biny, xlim2, ylim2,function(x) {test.env$no=c(test.env$no,x)})  
-  #grd_re = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$tileHDMIind, binx, biny, xlim2, ylim2,function(x) {write(length(x), file=fn1,append = T);cat(x,file=fn2,append=TRUE,sep='\n')})
-
-
+  grd_re = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$tileHDMIind, binx, biny, xlim2, ylim2,function(x) {write(length(x), file=fn1,append = T)})
+  grd_re = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$tileHDMIind, binx, biny, xlim2, ylim2,function(x) {cat(x,file=fn2,append=TRUE,sep='\n')})
   #draw the grids centers:
   # write.csv(as.numeric(colnames(grd)),paste0('grd_col',j,t,'.csv'))
   #  write.csv(as.numeric(rownames(grd)),paste0('grd_row',j,t,'.csv'))
-  collapseLen = test.env$len
-  collapseInd = test.env$no
+  collapseLen = read.csv(fn1,header=F)
+  collapseInd = read.table(fn2,header=F)
 
-  collapseLen = cbind(collapseLen,cumsum(collapseLen))
+
+  collapseLen = cbind(collapseLen,cumsum(collapseLen$V1))
   colnames(collapseLen) =c("len","end")
-  collapseLen=as.data.frame(collapseLen)
   interv = c(0,collapseLen$end)
 
 
   #create dataframe of the assignment of collapsed grids for each HDMI
 
-  df=data.frame('HDMIind' = collapseInd,"HDMI" = m_bc[collapseInd])
+  df=data.frame('HDMIind' = collapseInd$V1,"HDMI" = m_bc[collapseInd$V1])
   assign=c()
   out=sapply(1:(dim(collapseLen)[1]),function(x) {nrep=collapseLen$len[x];return(c(assign,rep(paste0('Collapse2_',x),nrep)))})
   assign = unlist(out)
@@ -141,11 +160,11 @@ simpleGrid = function(tile_df_sub,binx,biny,window,j,t,obj,m_tile,m_bc,m_gene,ti
   #print('collapse')
   sourceCpp(collapsePath)
   print('source sucesful')
-  tic();collapseM = collapse(m_tile,collapseInd,interv);toc()
+  tic();collapseM = collapse(m_tile,collapseInd$V1,interv);toc()
   #print('finished collapse!')
   rownames(collapseM) = m_gene
-  colnames(collapseM) = paste0("Collase_tile_",tile,"_",j,"_",t,"_",1:(length(interv)-1))
-  sparse.gbm = Matrix(collapseM , sparse = T )
+  colnames(collapseM) = paste0("Collase_tile_",tile,"_sub_",groupid,"_",j,"_",t,1:(length(interv)-1))
+  sparse.gbm <- Matrix(collapseM , sparse = T )
 
 
   grd=t(grd)
@@ -218,23 +237,21 @@ slidingWindowSub=function(collapsePath,DGEdir,outpath,window,sidesize,xargs)
   setwd(outpath)
   print('xargs')
   print(xargs)
-  # pat = "(.*?_.*?)_(.*)"
-  # tile=sub(pat,"\\1",xargs)
-  # print('tile')
-  # print(tile)
-  # groupid=sub(pat,"\\2",xargs)
-  # print('groupid')
-  # print(groupid)
-  # print('stop')
-  tile=xargs
+  pat = "(.*?_.*?)_(.*)"
+  tile=sub(pat,"\\1",xargs)
+  print('tile')
+  print(tile)
+  groupid=sub(pat,"\\2",xargs)
+  print('groupid')
+  print(groupid)
+  print('stop')
  # tile=strsplit(xargs,'_')[[1]][1]
  # groupid=strsplit(xargs,'_')[[1]][2]
-  tilefile=paste0('m_tile_',tile)
+  tilefile=paste0('m_tile_',tile,'_sub_',groupid)
   print(tilefile)
   m_tile_sub=readMM(tilefile)
-
   sub=read.csv(paste0('group_tile_',tile,'.csv'))
-  sub_xargs=sub[sub$tile_miseq==xargs,]
+  sub_xargs=sub[sub$tile_groupid==xargs,]
   colnames(m_tile_sub)=sub_xargs$HDMI
   rownames(m_tile_sub)=features
   print('collapsing')
@@ -242,8 +259,8 @@ slidingWindowSub=function(collapsePath,DGEdir,outpath,window,sidesize,xargs)
   print('Pring tiles')
 #  print(tile)
  # print(as.numeric(tile))
-  clp=getSubGrids(sub_xargs,m_tile_sub,slidestarts,window,binx,biny,tile,collapsePath)
-  saveRDS(clp,paste0('tile_',tile,'.RDS'))
+  clp=getSubGrids(groupid,sub_xargs,m_tile_sub,slidestarts,window,binx,biny,tile,collapsePath)
+  saveRDS(clp,paste0('tile_',tile,'_subfield_',groupid,'.RDS'))
   #out=sapply(group,getSubGrids,tile_df=tile_df_exact,m_tile=m_tile,slidestarts=slidestarts,window=window,binx=binx,biny=biny,tile=tile)  #function applies on subfied
   print('finish subfield collapsing')
 }

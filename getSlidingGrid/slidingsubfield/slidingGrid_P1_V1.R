@@ -43,28 +43,37 @@ getSubGrids = function(groupid,tile_df,m_tile,slidestarts,window,binx,biny,tile)
 }
 
 
-getGroupGrids=function(tiles,tile_df,m_tile,slidestarts,window,binx,biny)
+getGroupGrids=function(i,tiles,tile_df,m_tile,slidestarts,window,binx,biny)
 {
   tile=tiles[i]
-  #tile_df_exact=tile_df[tile_df$tile_miseq == tile,]
-  # nsub_x=nsub_y=5
-  # tile_df_exact$xcut = cut(tile_df_exact$x_miseq,nsub_x)
-  # tile_df_exact$ycut = cut(tile_df_exact$y_miseq,nsub_y)
-  # tile_df_exact=tile_df_exact%>%mutate(ID = group_indices(., xcut, ycut))
-  # tile_df_exact$tile=tile
+  tile_df_exact=tile_df[tile_df$tile_miseq == tile,]
+  nsub_x=nsub_y=5
+  tile_df_exact$xcut = cut(tile_df_exact$x_miseq,nsub_x)
+  tile_df_exact$ycut = cut(tile_df_exact$y_miseq,nsub_y)
+  tile_df_exact=tile_df_exact%>%mutate(ID = group_indices(., xcut, ycut))
+  tile_df_exact$tile=tile
   
   #tile_df_exact$tile_groupid=paste0(tile_df_exact$tile,'_',tile_df_exact$ID)
-  submat=sapply(1:length(tiles),function(x) {tile_df_=tile_df[tile_df$tile_miseq==tiles[x],];ind=match(tile_df_$HDMI,colnames(m_tile));m_tile_=m_tile[,ind];writeMM(m_tile_,paste0('m_tile_',tiles[x]));file=paste0('group_tile_',tiles[x],'.csv');  tile_df_$tileHDMIind=1:dim(tile_df_)[1];write.csv(tile_df_,file,append=F)})
+  submat=sapply(1:25,function(x) {tile_df_=tile_df_exact[tile_df_exact$ID==x,];ind=match(tile_df_$HDMI,colnames(m_tile));m_tile_=m_tile[,ind];writeMM(m_tile_,paste0('m_tile_',tile,'_sub_',x))})
+#insert gap filling
+  tile_df_exact$tile_groupid=paste0(tile_df_exact$tile,'_',tile_df_exact$ID)
+  tile_df_exact$tileHDMIind=1:dim(tile_df_exact)[1]
 
-#  submat=sapply(1:length(tiles),function(x) {tile_df_=tile_df[tile_df$tile_miseq==tiles[x],];ind=match(tile_df_$HDMI,colnames(m_tile));m_tile_=m_tile[,ind];writeMM(m_tile_,paste0('m_tile_',tiles[x]))})
-#  tile_df$tileHDMIind=1:dim(tile_df)[1]
+  file=paste0('group_tile_',tile,'.csv')
+  write.csv(tile_df_exact,file,append=F)
 
- # file=paste0('group_tile_',tile,'.csv')
- # write.csv(tile_df,file,append=F)
-
-  group = unique(tile_df$tile_miseq)
-  group = group[order(unique(tile_df$tile_miseq))]
+  group = unique(tile_df_exact$tile_groupid)
+  group = group[order(unique(tile_df_exact$ID))]
   write.table(group,paste0('groupgrids_tile','.txt'),row.names=FALSE,sep="\t",col.names=F,quote=F,append=T)
+
+  #need to take the adjacent subfield into consideration
+  
+                                        #return(tile_df_exact)
+  #obj = suppressWarnings(CreateSeuratObject(m_tile[,1:10]))
+  #out=sapply(1:5,getSubGrids,tile_df=tile_df_exact,m_tile=m_tile,slidestarts=slidestarts,window=window,binx=binx,biny=biny,tile=tile)  #function applies on subfied
+  #obj_tile = mergeSeuratObj(out)
+  #obj_list[[as.character(tile)]] = obj_tile
+  # return(obj_list)
 }
 
 
@@ -128,13 +137,15 @@ getSubfield = function(seqscope1st,DGEdir,spatial,outpath,tiles)
   miseq_pos = read.table(spatial)
   colnames(miseq_pos) = c('HDMI','lane_miseq','tile_miseq','x_miseq','y_miseq')
   miseq_pos$tile_miseq=paste(miseq_pos$lane_miseq,miseq_pos$tile_miseq,sep="_")
-
+                                        #print(!any(tiles%in%miseq_pos$tile_miseq))
+  print(tiles)
+  print(head(miseq_pos))
+  print(head(miseq_pos$tile_miseq))
 #  print(table(miseq_pos$tile_miseq))
   if (all(tiles%in%miseq_pos$tile_miseq))
   {
     print('yes')
     miseq_pos=miseq_pos[miseq_pos$tile_miseq %in% tiles,]
-    print(head(miseq_pos))
   }
   else
   {
@@ -144,16 +155,13 @@ getSubfield = function(seqscope1st,DGEdir,spatial,outpath,tiles)
   setwd(outpath)
   tile_df = merge(miseq_pos,df,by = "HDMI")  #this takes some time, just save this
   m_tile = m[,tile_df$HDMIind]
-  print(dim( m_tile))
   tile_df$UMI=colSums(m_tile)
   if (file.exists('groupgrids_tile.txt'))
   {
       file.remove('groupgrids_tile.txt')
   }
-  print('sapply')
-  out=getGroupGrids(tiles=tiles,tile_df=tile_df,m_tile=m_tile,slidestarts=slidestarts,window=window,binx=binx,biny=biny)
-
-  #out=sapply(1:length(tiles),getGroupGrids,tiles=tiles,tile_df=tile_df,m_tile=m_tile,slidestarts=slidestarts,window=window,binx=binx,biny=biny)
+  
+  out=sapply(1:length(tiles),getGroupGrids,tiles=tiles,tile_df=tile_df,m_tile=m_tile,slidestarts=slidestarts,window=window,binx=binx,biny=biny)
 
 print('Finish generating subfields!')
 }

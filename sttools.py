@@ -404,15 +404,15 @@ def step5():
         raise ValueError(f"ERROR in running {cmd5_1}, returning exit code {ret}")
 
     args.input=args.outdir+'/groupgrids_tile.txt'
-   # cmd5_2='cat {args.input} | xargs -I [] -P {args.cores} bash -c "Rscript {args.sliding_P2} {args.collapsePath} {args.DGEdir} {args.outdir} {args.window} {args.binsize} []"'.format(args=args)
-   # ret = os.system(cmd5_2)
-    #if ( ret != 0 ):
-     #   raise ValueError(f"ERROR in running {cmd5_2}, returning exit code {ret}")
-    #print('fnish cmd52')
-    #cmd5_3 = "Rscript {args.sliding_P3} {args.outdir} {args.ncol} {args.nrow} {args.layout} {args.order} {args.lane_tiles}".format(args=args)
-    #ret = os.system(cmd5_3)
-    #if ( ret != 0 ):
-    #    raise ValueError(f"ERROR in running {cmd5_3}, returning exit code {ret}")
+    cmd5_2='cat {args.input} | xargs -I [] -P {args.cores} bash -c "Rscript {args.sliding_P2} {args.collapsePath} {args.DGEdir} {args.outdir} {args.window} {args.binsize} []"'.format(args=args)
+    ret = os.system(cmd5_2)
+    if ( ret != 0 ):
+        raise ValueError(f"ERROR in running {cmd5_2}, returning exit code {ret}")
+    print('fnish cmd52')
+    cmd5_3 = "Rscript {args.sliding_P3} {args.outdir} {args.ncol} {args.nrow} {args.layout} {args.order} {args.lane_tiles}".format(args=args)
+    ret = os.system(cmd5_3)
+    if ( ret != 0 ):
+        raise ValueError(f"ERROR in running {cmd5_3}, returning exit code {ret}")
 
 
 

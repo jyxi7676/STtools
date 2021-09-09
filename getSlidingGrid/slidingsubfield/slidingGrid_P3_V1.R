@@ -60,14 +60,9 @@ mergeTileSubFieldRds=function(outpath,ncol,nrow,layout,order,tiles)
   }
   setwd(outpath)
   df = list.files(pattern = ".RDS") %>% map(readRDS)
-  df=df[df!='SimpleSquareGrids.RDS']
-  df=df[df!='SlidingSquareGrids.RDS']
-
-  print(df)
   print('merge rds')
   obj = mergeSeuratObj(df)
   print(obj)
-  print(table(obj$tile))
   print(head(obj@meta.data))
   #obj_list[[as.character(tile)]] = obj_tile
   #obj= mergeSeuratObj(obj_list)
@@ -75,11 +70,9 @@ mergeTileSubFieldRds=function(outpath,ncol,nrow,layout,order,tiles)
   objfile='SlidingSquareGrids.RDS'
   # if (file.exists(objfile))
   #   file.remove(objfile)
-
-
-  #junk = dir(path=outpath,  pattern=".RDS")
-  #junk=junk[!junk %in% 'SimpleSquareGrids.RDS']
-  #file.remove(junk)
+  junk = dir(path=outpath,  pattern=".RDS")
+  junk=junk[!junk %in% 'SimpleSquareGrids.RDS']
+  file.remove(junk)
   junk = dir(path=outpath,  pattern=".csv")
   file.remove(junk)
   junk = dir(path=outpath,  pattern="group_tile")

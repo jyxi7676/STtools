@@ -260,8 +260,13 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
  #  print(dim(tile_df))
   # print(head(tile_df))
 
-  #aggregate all tils by expanding coord
-  tile_df$aggrInd =  as.numeric(factor(tile_df$tile_miseq))-1
+
+  tile_df$tile=as.factor(tile_df$tile)                                       #aggregate all tils by expanding coord
+  x=unique(tile_df$tile)
+  ordering=data.frame('tile'=levels(tile_df$tile),'aggrInd'=order(as.factor(x))-1)
+  tile_df=merge(tile_df,ordering,by='tile')
+  
+  #tile_df$aggrInd =  as.numeric(factor(tile_df$tile_miseq))-1
   #tile_df$aggrInd = tile_df$tile_miseq - min(tile_df$tile_miseq)
   m_tile = m[,tile_df$HDMIind]
   tile_df$UMI = colSums(m_tile)
@@ -272,6 +277,10 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
   obj=mergeSeuratObj(obj)
   
   tile_df = obj@meta.data
+  tile_df$tile=as.factor(tile_df $tile)                                       #aggregate all tils by expanding coord
+  x=unique(tile_df$tile)
+  ordering=data.frame('tile'=levels(tile_df$tile),'aggrInd'=order(as.factor(x))-1)
+  tile_df=merge(tile_df,ordering,by='tile')
   if (layout=='FALSE')
   {
     if(order=='top')
@@ -279,7 +288,7 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
       
       addson_hori = max(tile_df$Y)
       addson_verti = max(tile_df$X)
-      tile_df$aggrInd =  as.numeric(factor(tile_df$tile))-1
+     # tile_df$aggrInd =  as.numeric(factor(tile_df$tile))-1
       tile_df$aggrInd2 = tile_df$aggrInd
       tile_df$y_miseq_expand = tile_df$Y +  addson_hori*(((tile_df$aggrInd2%%ncol)))
       tile_df$x_miseq_expand =   tile_df$X +  addson_verti*(floor((tile_df$aggrInd2/ncol)))
