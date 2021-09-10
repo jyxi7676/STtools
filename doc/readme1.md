@@ -1,8 +1,8 @@
 
 # User Manual
 ## Running all steps in STtools
-Before running all steps, it is suggested that the user take a look at the  [running specific step](./doc/readme3.md).
-The user need to use the option --run-all to run all steps and to provide the following input files. 
+Before running all steps, it is suggested that the user take a look at the  [running specific step](./readme3.md).
+The user needs to use the option --run-all to run all steps and to provide the following input files. 
 ### Input
   The user need to provide some of the following files in order for STtools to run all the steps sequentially. 
   *   --STtools: Path to the STtools package. If not given, using current working directory.
@@ -18,7 +18,7 @@ The user need to use the option --run-all to run all steps and to provide the fo
   *   --outprefix or -o: Output prefix for STARsolo alignemnt, if not given, outprefix will be set to 'Sample'
   *   --tiles: The tiles that the user are interested in for Step 3,4,5,6. If more than one tiles are given, separate them by comma.
   *   --binsize: Side length of square grid. By default, sidesize=300
-  *   --window: Sise of sliding window. By default, window=150
+  *   --window: Size of sliding window. By default, window=150
   *   --cores: Number of cores for parralell computing of step 5. By default is 5.
   *   --maxScale: max color bar value for HDMI discovery plot in step 2, if not given, will use the max number of HDMI reads.
   *   --alpha: Transparency for plotting in step 6. If not given, alpha=0.01
