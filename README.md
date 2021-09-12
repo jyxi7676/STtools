@@ -33,7 +33,7 @@ There are 6 steps, each step takes input from either the raw exapmle data or out
 Linux operatin system is necessary to run STtools package. You also need to install the following software tools and librares/modules before using this package.
 * STAR>=2.7.5c (Click for instructions to install [STAR](https://github.com/alexdobin/STAR))
 * seqtk (Click for instructions to install [seqtk](https://github.com/lh3/seqtk))
-* R>=4.0.0 (STtools will install packages automatically if not installed. Please refer to the  list of [packages](./doc/RPackages))
+* R>=4.0.0 (STtools will install packages automatically if not installed. Please refer to the  list of [packages](./doc/Rpackages))
 * Python>= 3.0 (STtools will install modules automatically if not installed, refer to the list of [modules](./doc/PythonModules))
 * perl(Click for instructions for installing [perl](https://learn.perl.org/installing/unix_linux.html) )
 * pigz(Click for instructions for installing [pigz](https://zlib.net/pigz/))
