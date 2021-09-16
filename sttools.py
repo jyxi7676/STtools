@@ -72,8 +72,7 @@ parser.add_argument('--order',type=str,help='either bottom(bottom tiles at botto
 parser.add_argument('--algo',type=str,help=' A string indicating what clustering method is employed. Is is suggested that either Seurat or Bayespace for VISIUM data, slidingWindow for SlideSeq and SeqScope data')
 parser.add_argument('--res',type=float,help='resolution for Seurat clustering')
 parser.add_argument('--clustering',type=str2bool,help='wheather clustering for simplesquaregrids, default is False')
-
-#parser.add_argument('--layout',type=str,help='path of layout files of super tiles')
+parser.add_argument('--seqscope1st',type=str,help='either MiSeq or HiSeq or Custom')
 #parser.add_argument('--order',type=str,help='either bottom(bottom tiles at bottom) or top(bottom tiles at top)')
 
 #Functions
@@ -101,13 +100,13 @@ def step1():
         raise ValueError(f"ERROR in running {cmd1}, returning exit code {ret}")
 
 
-    no_miseq=sp.getoutput("wc -l ./HDMIs-MiSeq-temp.txt")
+    #no_miseq=sp.getoutput("wc -l ./HDMIs-MiSeq-temp.txt")
     #print(no_miseq)
-    no_miseq_uniq=sp.getoutput("wc -l ./whitelist.txt")
-    f=open("./summary_step1.txt","w")
-    f.write('MiSeq reads:'+str(no_miseq)+" \n")
-    f.write('Unique MiSeq:' +str(no_miseq_uniq) +' \n')
-    f.close()    
+    #no_miseq_uniq=sp.getoutput("wc -l ./whitelist.txt")
+    #f=open("./summary_step1.txt","w")
+    #f.write('MiSeq reads:'+str(no_miseq)+" \n")
+    #f.write('Unique MiSeq:' +str(no_miseq_uniq) +' \n')
+    #f.close()    
 
 
 
@@ -300,7 +299,7 @@ def step4():
     args.ncol=1
     args.collapsePath=args.STtools+"/getSimpleGrid/collapse.cpp"
     if (args.clustering is None):
-        args.clustering = True  
+        args.clustering = False  
     if(args.binsize is None):
         args.binsize=300
     if(args.outdir is None):
@@ -312,7 +311,7 @@ def step4():
     if(os.path.isdir(args.DGEdir)==False):
         raise ValueError("Directory --DGEdir does not exist")
     if(('seqscope1st' in vars(args))==False):
-        args.seqscope1st='MiSeq'
+        args.seqscope1st='HiSeq'
     if(os.path.isfile(args.collapsePath)==False):
         raise ValueError("File --collapsePath does not exist")
     if(args.spatial is None):
@@ -321,6 +320,8 @@ def step4():
         args.order='top'
     if(args.layout is None):
         args.layout='FALSE'
+    if(args.lane_tiles is None):
+        args.lane_tiles='All'
     print('clustering')
     print(args.clustering)
     args.simple=args.STtools+"/getSimpleGrid/simpleGrid_v3.R"
@@ -358,7 +359,7 @@ def step5():
     #if(os.path.isfile(args.slidingPath)==False):
      #   raise ValueError("File --slidingPath does not exist")
     if(('seqscope1st' in vars(args))==False):
-        args.seqscope1st='MiSeq'
+        args.seqscope1st='HiSeq'
     if(args.spatial is None):
         args.spatial=args.outdir+"/spatialcoordinates.txt"
     if(os.path.isfile(args.spatial)==False):
@@ -477,7 +478,7 @@ def step7():
     args.subana=args.STtools+"/subCellularAna/subCellularAna_v2.py"
     #args.workingdir=os.getcwd()
     if(('seqscope1st' in vars(args))==False):
-        args.seqscope1st='MiSeq'  
+        args.seqscope1st='HiSeq'  
     if(args.tiles is None):
         raise ValueError("Tiles are required")
     if(args.alpha is None):

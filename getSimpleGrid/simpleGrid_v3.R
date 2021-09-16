@@ -22,6 +22,7 @@ print(tiles)
 print(clustering)
 #tiles=as.numeric(unlist(strsplit(tiles,',')))
 tiles=(unlist(strsplit(tiles,',')))
+
 if(length(tiles)>1)
 {
     print('two')
@@ -163,7 +164,7 @@ collapseTiles=function(tile_df,i,binx,biny,m_tile)
 getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collapsePath,layout,order,nMax,clustering)
 {
   print('nMAX')
-    
+
 
   print('inside')                                        #print(tiles)
 #  if(missing(nrow)| missing(ncol))
@@ -173,7 +174,7 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
  # }
   if(missing(seqscope1st))
   {
-    seqscope1st="MiSeq"
+    seqscope1st="HiSeq"
   }
   if(missing(sidesize))
   {
@@ -220,7 +221,7 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
   }
   rownames(m) = features
   colnames(m) = bc
-  
+
   if (nMax!='None')
   {
     m = m[,colSums(m)<=100&colSums(m)>0]  #remove outliers
@@ -229,182 +230,265 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
 
   #m = m[,colSums(m)<=100&colSums(m)>0]  #remove outliers
   # print(dim(m))
-    
+
   #get spatial info
   miseq_pos = read.table(spatial)
- # print(head(miseq_pos))  
+ # print(head(miseq_pos))
   colnames(miseq_pos) = c('HDMI','lane_miseq','tile_miseq','x_miseq','y_miseq')
   miseq_pos$tile_miseq=paste(miseq_pos$lane_miseq,miseq_pos$tile_miseq,sep="_")
   print(head(miseq_pos))
+  if (tiles=='All')
+  {
+    tiles=unique(miseq_pos$tile_miseq)
+
+  }
 
   tiles = intersect(tiles,unique(miseq_pos$tile_miseq))
   bottom=miseq_pos[miseq_pos$tile_miseq %in% tiles,]
- 
+
   if (seqscope1st=='MiSeq')
   {
     #bottom = miseq_pos[miseq_pos$tile>2100,]
     plotwidth = plotheight=3.5
+    nrow=1
+    ncol=length(tiles)
   }
-  else
+  if (seqscope1st=='HiSeq')
   {
     #bottom = miseq_pos
     plotheight=3.5
     plotwidth=plotheight*3
+    if (length(tiles)==1)
+    {
+      nrow=ncol=1
+    }
+    else
+    {
+      nrow=2
+      ncol=ceiling(length(tiles)/nrow)
+    }
+  }
+  if (seqscope1st=='Custom')
+  {
+    if (layout=='False' & length(tiles)==1)
+    {
+      nrow=ncol=1
+
+    }
+    print('fix later')
   }
 
   print('merge')
 
   df = data.frame("HDMI" =colnames(m),"HDMIind" = 1:(dim(m)[2]))
-      
+
   tile_df = merge(bottom,df,by = "HDMI")
- #  print(dim(tile_df))
-  # print(head(tile_df))
 
-
-  tile_df$tile=as.factor(tile_df$tile)                                       #aggregate all tils by expanding coord
+  tile_df$tile=as.factor(tile_df$tile)  #aggregate all tils by expanding coord
   x=unique(tile_df$tile)
   ordering=data.frame('tile'=levels(tile_df$tile),'aggrInd'=order(as.factor(x))-1)
   tile_df=merge(tile_df,ordering,by='tile')
-  
+
   #tile_df$aggrInd =  as.numeric(factor(tile_df$tile_miseq))-1
   #tile_df$aggrInd = tile_df$tile_miseq - min(tile_df$tile_miseq)
   m_tile = m[,tile_df$HDMIind]
   tile_df$UMI = colSums(m_tile)
   tile_df$tileHDMIind= match(tile_df$HDMI,colnames(m_tile))
+
+
+
+
   setwd(outpath)
-  print('Start collapsing')    
+  print('Start collapsing')
   obj=sapply(tiles,collapseTiles, tile_df=tile_df,binx=binx,biny=biny,m_tile=m_tile)
   obj=mergeSeuratObj(obj)
-  
+
   tile_df = obj@meta.data
   tile_df$tile=as.factor(tile_df $tile)                                       #aggregate all tils by expanding coord
   x=unique(tile_df$tile)
   ordering=data.frame('tile'=levels(tile_df$tile),'aggrInd'=order(as.factor(x))-1)
   tile_df=merge(tile_df,ordering,by='tile')
+
+  #generating super tiles
   if (layout=='FALSE')
   {
-    if(order=='top')
+    if(seqscope1st == 'HiSeq')
     {
-      
+
       addson_hori = max(tile_df$Y)
       addson_verti = max(tile_df$X)
-     # tile_df$aggrInd =  as.numeric(factor(tile_df$tile))-1
+      # tile_df$aggrInd =  as.numeric(factor(tile_df$tile))-1
       tile_df$aggrInd2 = tile_df$aggrInd
       tile_df$y_miseq_expand = tile_df$Y +  addson_hori*(((tile_df$aggrInd2%%ncol)))
       tile_df$x_miseq_expand =   tile_df$X +  addson_verti*(floor((tile_df$aggrInd2/ncol)))
+
+
     }
-    if(order=='bottom')
+    if(seqscope1st == 'MiSeq')
     {
-      
       addson_hori = max(tile_df$Y)
       addson_verti = max(tile_df$X)
-      tile_df$aggrInd =  as.numeric(factor(tile_df$tile))-1
-      
-      tile_df$aggrInd2 = 0
-      tile_df[tile_df$aggrInd<ncol,"aggrInd2"] = tile_df[tile_df$aggrInd<ncol,]$aggrInd+ncol
-      tile_df[tile_df$aggrInd>=ncol,"aggrInd2"] = tile_df[tile_df$aggrInd>=ncol,]$aggrInd-ncol
-      tile_df$y_miseq_expand = tile_df$Y +  addson_hori*(((tile_df$aggrInd2%%ncol)))
-      tile_df$x_miseq_expand =   tile_df$X +  addson_verti*(floor((tile_df$aggrInd2/ncol)))
+      # tile_df$aggrInd =  as.numeric(factor(tile_df$tile))-1
+      tile_df$aggrInd2 = tile_df$aggrInd
+      tile_df$y_miseq_expand = tile_df$Y +  addson_hori*tile_df$aggrInd2
+      tile_df$x_miseq_expand =   tile_df$X
+
     }
-    #for super tile
-  
-  }
-  else
-  {
-    print('layout')
-    layout = read.csv(layout,row.names=1)
-    nrow = max(layout$ROW)
-    ncol = max(layout$COL)
-   # layout$tile=  paste(layout[,3],layout[,4],sep="_")
-    layout$tile=paste(layout$LANE,layout$TILE,sep="_")
-   #layout$ROW_COL=paste(layout$ROW,layout$COL,sep="_")
-    #layout$aggrInd =  as.numeric(factor(layout$ROW_COL))-1
-    print(head(layout)) 
-    
-    print(head(tile_df))
-    #tile_df$aggrInd2 = layout$aggrInd
-    tile_df = merge(tile_df,layout,by='tile')
-    addson_hori = max(tile_df$Y)
-    addson_verti = max(tile_df$X)
-    tile_df$y_miseq_expand = tile_df$Y +  addson_hori*(tile_df$COL-1)
-    tile_df$x_miseq_expand = tile_df$X +  addson_verti*(tile_df$ROW-1)
-    
+    if (seqscope1st == 'Custom')
+    {
+      tile_df$y_miseq_expand = tile_df$Y
+      tile_df$x_miseq_expand =   tile_df$X
+    }
 
   }
-  
+
+  else
+    {
+      print('layout')
+      layout = read.csv(layout,row.names=1)
+      nrow = max(layout$ROW)
+      ncol = max(layout$COL)
+     # layout$tile=  paste(layout[,3],layout[,4],sep="_")
+      layout$tile=paste(layout$LANE,layout$TILE,sep="_")
+     #layout$ROW_COL=paste(layout$ROW,layout$COL,sep="_")
+      #layout$aggrInd =  as.numeric(factor(layout$ROW_COL))-1
+      print(head(layout))
+
+      print(head(tile_df))
+      #tile_df$aggrInd2 = layout$aggrInd
+      tile_df = merge(tile_df,layout,by='tile')
+      addson_hori = max(tile_df$Y)
+      addson_verti = max(tile_df$X)
+      tile_df$y_miseq_expand = tile_df$Y +  addson_hori*(tile_df$COL-1)
+      tile_df$x_miseq_expand = tile_df$X +  addson_verti*(tile_df$ROW-1)
+
+    }
+
+#
+#   if (layout=='FALSE')
+#   {
+#     if(order=='top')
+#     {
+#
+#       addson_hori = max(tile_df$Y)
+#       addson_verti = max(tile_df$X)
+#      # tile_df$aggrInd =  as.numeric(factor(tile_df$tile))-1
+#       tile_df$aggrInd2 = tile_df$aggrInd
+#       tile_df$y_miseq_expand = tile_df$Y +  addson_hori*(((tile_df$aggrInd2%%ncol)))
+#       tile_df$x_miseq_expand =   tile_df$X +  addson_verti*(floor((tile_df$aggrInd2/ncol)))
+#     }
+#     if(order=='bottom')
+#     {
+#
+#       addson_hori = max(tile_df$Y)
+#       addson_verti = max(tile_df$X)
+#       tile_df$aggrInd =  as.numeric(factor(tile_df$tile))-1
+#
+#       tile_df$aggrInd2 = 0
+#       tile_df[tile_df$aggrInd<ncol,"aggrInd2"] = tile_df[tile_df$aggrInd<ncol,]$aggrInd+ncol
+#       tile_df[tile_df$aggrInd>=ncol,"aggrInd2"] = tile_df[tile_df$aggrInd>=ncol,]$aggrInd-ncol
+#       tile_df$y_miseq_expand = tile_df$Y +  addson_hori*(((tile_df$aggrInd2%%ncol)))
+#       tile_df$x_miseq_expand =   tile_df$X +  addson_verti*(floor((tile_df$aggrInd2/ncol)))
+#     }
+#     #for super tile
+#
+#   }
+#   else
+#   {
+#     print('layout')
+#     layout = read.csv(layout,row.names=1)
+#     nrow = max(layout$ROW)
+#     ncol = max(layout$COL)
+#    # layout$tile=  paste(layout[,3],layout[,4],sep="_")
+#     layout$tile=paste(layout$LANE,layout$TILE,sep="_")
+#    #layout$ROW_COL=paste(layout$ROW,layout$COL,sep="_")
+#     #layout$aggrInd =  as.numeric(factor(layout$ROW_COL))-1
+#     print(head(layout))
+#
+#     print(head(tile_df))
+#     #tile_df$aggrInd2 = layout$aggrInd
+#     tile_df = merge(tile_df,layout,by='tile')
+#     addson_hori = max(tile_df$Y)
+#     addson_verti = max(tile_df$X)
+#     tile_df$y_miseq_expand = tile_df$Y +  addson_hori*(tile_df$COL-1)
+#     tile_df$x_miseq_expand = tile_df$X +  addson_verti*(tile_df$ROW-1)
+#
+#
+#   }
+
   #tile_df$orig.ident = rownames(tile_df)
   obj@meta.data$X_expand = tile_df$x_miseq_expand
   obj@meta.data$Y_expand = tile_df$y_miseq_expand
-  
+
   obj@images$image = new(
     Class = 'SlideSeq',
     assay = "Spatial",
     key = "image_",
     coordinates = obj@meta.data[,c('Y_expand','X_expand')]
-  ) 
+  )
 
   print(obj)
   m=(obj@assays$Spatial@counts)
   gene=rownames(obj)
   bc=colnames(obj)
- 
+
   writeMM(obj = m, file="collapsedMatrix.mtx")
   write.csv(gene,'collapsedGenes.csv')
   write.csv(bc,'collapsedBarcodes.csv')
   saveRDS(obj,'SimpleSquareGrids.RDS')
   junk = dir(path=outpath,  pattern="Temp")
-  file.remove(junk) 
+  file.remove(junk)
 
-
-                                        #clustering
-  print('feature eplot')
-  png("nFeatureplot.png",width=7*2,height=6,res=300,units='in')
-  p1=VlnPlot(obj, features = "nFeature_Spatial", pt.size = 0) + NoLegend()
-  p2=VlnPlot(obj, features = "nFeature_Spatial", pt.size = 0,log=T) + NoLegend()
-  plot_grid(p1,p2,ncol=2)
-  dev.off()
-  #png("nFeatureplot",width=7,height=6,res=300,units='in')
-  #VlnPlot(obj, features = "nFeature_Spatial", pt.size = 0,log=T) + NoLegend()
-                                        #dev.off()
-  
-  if(nMax !='None')
-  {
-
-    geneCount1=median(obj@meta.data$nFeature_Spatial)  #?automatic ??????
-    print('geneCount')
-    print(geneCount1)
-
-  }
-  else
-      geneCount1=0
-
-
-  print(clustering)
-  if(clustering)
-  {
-      
-   # geneCount1=median(obj@meta.data$nFeature_Spatial)  #?automatic ??????
-   # print('geneCount')
-   # print(geneCount1)
-    obj_simple = subset(obj, subset = nFeature_Spatial>geneCount1)
-    obj_simple = SCTransform(obj_simple, assay = "Spatial")
-    obj_simple = RunPCA(obj_simple)
-    obj_simple = RunUMAP(obj_simple, dims = 1:30)
-    obj_simple = FindNeighbors(obj_simple, dims = 1:30)
-    obj_simple = FindClusters(obj_simple)
-    saveRDS(obj_simple,'SimpleSquareGridsWithClustering.RDS') 
-    meta=obj_simple@meta.data
-    meta=cbind(meta,obj_simple@reductions$umap@cell.embeddings)
-    print(nrow)
-    print(ncol)
-    png('SpatialDimPlot.png',width=ncol*7,height=nrow*6,res=300,units='in')
-    ggplot(meta,aes(X_expand,Y_expand,color=seurat_clusters))+geom_point(size=1,alpha=1)
-    dev.off()
-
-    #  png('SpatialDimPlot.png',width=7,height=6,res=300)
-    #SpatialDimPlot(obj_simple, stroke = 0)
-    #dev.off()
-  } 
+#
+#                                         #clustering
+#   print('feature eplot')
+#   png("nFeatureplot.png",width=7*2,height=6,res=300,units='in')
+#   p1=VlnPlot(obj, features = "nFeature_Spatial", pt.size = 0) + NoLegend()
+#   p2=VlnPlot(obj, features = "nFeature_Spatial", pt.size = 0,log=T) + NoLegend()
+#   plot_grid(p1,p2,ncol=2)
+#   dev.off()
+#   #png("nFeatureplot",width=7,height=6,res=300,units='in')
+#   #VlnPlot(obj, features = "nFeature_Spatial", pt.size = 0,log=T) + NoLegend()
+#                                         #dev.off()
+#
+#   if(nMax !='None')
+#   {
+#
+#     geneCount1=median(obj@meta.data$nFeature_Spatial)  #?automatic ??????
+#     print('geneCount')
+#     print(geneCount1)
+#
+#   }
+#   else
+#       geneCount1=0
+#
+#
+#   print(clustering)
+#   if(clustering)
+#   {
+#
+#    # geneCount1=median(obj@meta.data$nFeature_Spatial)  #?automatic ??????
+#    # print('geneCount')
+#    # print(geneCount1)
+#     obj_simple = subset(obj, subset = nFeature_Spatial>geneCount1)
+#     obj_simple = SCTransform(obj_simple, assay = "Spatial")
+#     obj_simple = RunPCA(obj_simple)
+#     obj_simple = RunUMAP(obj_simple, dims = 1:30)
+#     obj_simple = FindNeighbors(obj_simple, dims = 1:30)
+#     obj_simple = FindClusters(obj_simple)
+#     saveRDS(obj_simple,'SimpleSquareGridsWithClustering.RDS')
+#     meta=obj_simple@meta.data
+#     meta=cbind(meta,obj_simple@reductions$umap@cell.embeddings)
+#     print(nrow)
+#     print(ncol)
+#     png('SpatialDimPlot.png',width=ncol*7,height=nrow*6,res=300,units='in')
+#     ggplot(meta,aes(X_expand,Y_expand,color=seurat_clusters))+geom_point(size=1,alpha=1)
+#     dev.off()
+#
+#     #  png('SpatialDimPlot.png',width=7,height=6,res=300)
+#     #SpatialDimPlot(obj_simple, stroke = 0)
+#     #dev.off()
+#   }
 
   print('Done!')
 
