@@ -75,8 +75,10 @@ tile_lane*.png
 ``` sh
  ## $STHOME indicates the path to the directory of STtools repository
  export STHOME=/path/to/STtools
- ## $STDATA indicates the directory containing the example input files of whitelist, and 2nd-Seq FASTQ.gz files
+ ## $STDATA indicates the directory containing 2nd-Seq R1 and R2 files in FASTQ.GZ format
  export STDATA=/path/to/data
+ ## $STWHITELIST indicates the directory containing the whiteslist.txt. If not given,searching in the current directory
+ export STWHITELIST=/path/to/whitelist
  ## $STOUT indicates the directory containing the example output files.
  export STOUT=/path/to/outdir
  ## $GENEINDEX indicates the path to genome index for STARsolo alignment
@@ -86,7 +88,7 @@ tile_lane*.png
  ## $STARPATH indicates the path to the STAR executive
  export STARPATH=/path/to/star/executive
  
-python3 $STHOME/sttools.py --run-steps 3 --STtools $STHOME --whitelist $STDATA/whitelist.txt --second-fq1 $STDATA/liver_tile2106_sub_R1.fastq.gz --second-fq2 $STDATA/liver_tile2106_sub_R2.fastq.gz --outdir $STOUT --genome $GENOMEINDEX --star-path $STARPATH --seqtk-path $SEQTKPATH
+python3 $STHOME/sttools.py --run-steps 3 --STtools $STHOME --whitelist $STWHITELIST/whitelist.txt --second-fq1 $STDATA/liver_tile2106_sub_R1.fastq.gz --second-fq2 $STDATA/liver_tile2106_sub_R2.fastq.gz --outdir $STOUT --genome $GENOMEINDEX --star-path $STARPATH --seqtk-path $SEQTKPATH
 
 ```
 ### *Output*
