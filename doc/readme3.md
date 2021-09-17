@@ -4,7 +4,7 @@
 The user needs to use the option --run-steps if interested in running steps separately. (We will give a detailed illustration about how to run STtools per step with several examples,link). Please modify your input files format according to  [the link](./doc/fileformats.md) 
 
 ## Step 1
-Step 1 aims to extracts spatial coordinates, whitelist and HDMIs from the sequenced raw FASTQ.gz file. It assumes the user has the SeqScope data format (see [Seq-Scope](https://www.cell.com/cell/fulltext/S0092-8674(21)00627-9?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS0092867421006279%3Fshowall%3Dtrue) paper), where spatial information such as HDMI/Barcode, lane, tile, X and Y coordinates can be retrieved from 1st-Seq and transcriptomic information can be retrieved from 2nd-Seq. It the data are from VISIUM or SlideSeq, we need to add this to our tool?
+Step 1 aims to extracts spatial coordinates, whitelist and HDMIs from the sequenced raw FASTQ.gz file. It assumes the user has the SeqScope data format (see [Seq-Scope](https://www.cell.com/cell/fulltext/S0092-8674(21)00627-9?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS0092867421006279%3Fshowall%3Dtrue) paper), where spatial information such as HDMI/Barcode, lane, tile, X and Y coordinates can be retrieved from 1st-Seq and transcriptomic information can be retrieved from 2nd-Seq. If the data are from VISIUM or SlideSeq, we need to add this to our tool?
 
 ### *Input*
   The user needs to provide some of the following files to run Step 1. 
@@ -29,7 +29,6 @@ Step 1 aims to extracts spatial coordinates, whitelist and HDMIs from the sequen
  * spatialcoordinates.txt 
  * whitelist.txt
  * HDMI_SeqScope_2nd.txt
- * summary_step1.txt
  
 ## Step 2
 Step2 visualizes the barcode/HDMI density discovery plot, with which the user is able to compare with histology images to estimate the tissue boundary. The alignment is done manually and automatic alignment is under development. 
@@ -52,7 +51,7 @@ Step2 visualizes the barcode/HDMI density discovery plot, with which the user is
   python3 $STHOME/sttools.py --run-steps 2 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt --hdmi2ndSeq $STDATA/HDMI_SeqScope_2nd.txt --outdir $STOUT
   ```
 ### *Output*
-tile_lane*.png
+lane_tile*.png
 
 ## Step 3
  Step 3 maps the reads to the reference genome using the standard STAR  read alignment algorithm and outputs digital expression matrix under Gene,GeneFull, and Velocyto options (change here? add option?).
@@ -81,7 +80,7 @@ tile_lane*.png
  export STWHITELIST=/path/to/whitelist
  ## $STOUT indicates the directory containing the example output files.
  export STOUT=/path/to/outdir
- ## $GENEINDEX indicates the path to genome index for STARsolo alignment
+ ## $GENOMEINDEX indicates the path to genome index for STARsolo alignment
  export GENOMEINDEX=/path/to/genomeIndex
  ## $SEQTKPATH indicates the path to the seqtk executive
  export SEQTKPATH=/path/to/seqtk/executive
@@ -92,21 +91,25 @@ python3 $STHOME/sttools.py --run-steps 3 --STtools $STHOME --whitelist $STWHITEL
 
 ```
 ### *Output*
-This step outputs folders with STARsolo summary statistics, bam file, DGE, etc.
+This step outputs folders with STARsolo summary statistics, bam file, DGE, etc. The key outputs are as follows:
 * SampleSolo.out/
-* summary_step3.txt
+* SampleAligned.sortedByCoord.out.bam
   
 ## Step 4
-Step 4 bins the DGE into simple square gridded data and collapses the reads counts within each grid. A new DGE is generated and spatial information is updated with the center of each bin. This step outputs a RDS file with collapsed barcodes and spatial information. 
+Step 4 conducts different functions depending on the input --datasource.
+
+If datasource is 'SeqScope', then Step 4 bins the DGE into simple square gridded data and collapses the reads counts within each grid. A new DGE is generated and spatial information is updated with the center of each bin. This step outputs a RDS file with collapsed barcodes and spatial information. 
+If datasource is 'VISIUM', then Step 4 will implement either Seurat pipeline or BayesSpace pipeline depending on the --algo option.
+If datasource is 'SlideSeq', then Step 4 will implement either simple square gridding (by default) or Seurat pipeline depending on --algo option.
+
 ### *input*
 * --STtools: Path to STtools package. If not given, the current working directory is used.
-* --lane-tiles:Lane and tiles that the users are interested, for exaample: 1_2106 are lane 1 and tile 2106. Multiple lane and tiles should be separated by comma. For instance: --lane-tiles 1_2106, 2_2106, 1_2107. **Required**
-* --layout: User can have a customized arrangment of lanes and tiles, and --layout is the path to the file. Please click [layout](./fileformats.md) for the input format.
-* --order: How the lane and tiles are stacked when --layout is not given. If order is 'top' then the --lane-tiles will be ordered in increasing order and stacked in 2 rows. If order is 'bottom', they will be ordered in a decreasing order.  
-
-* --binsize: The size of the square grids side. By default, it is set to 300 units.
+* --binsize: The size of the square grids side. By default, it is set to 300 pixel units, which is 10um in SeqScope data.
 * --DGEdir: Path to the digital expression matrix. **Required**
 * --spatial: Path to the txt file of spatial coordinates. **Required**
+* --lane-tiles: Lane and tiles that the users are interested,for exaample: 1_2106 are lane 1 and tile 2106. By default, all lanes and tiles will be used. Otherwise, the user should give a value for the parameter. Multiple lane and tiles should be separated by comma. For instance: --lane-tiles 1_2106, 2_2106, 1_2107. 
+* --seqscope1st: String indicating the layout template, either 'MiSeq' or 'HiSeq' or 'Custom'. By default, seqscope1st='HiSeq'. If the seqscope1st is 'MiSeq' or 'HiSeq', the supertiles will be generated according to the template layout(link) among --lane-tiels. If seqscope1st is 'Custom' then the user should give the --layout with user specified layout if more than 1 tiles are used. 
+* --layout: User can have a customized arrangment of lanes and tiles, and --layout is the path to the file. Please click [layout](./fileformats.md) for the input format. 
 * --outdir: Path to output files. If not given, using current working directory.
 ### *code*
 ```sh
@@ -118,11 +121,14 @@ export STDATA=/path/to/data
 export STOUT=/path/to/outdir
 ## $STDGE indicates the path to digital expression matrix(DGE)
 export STDGE=/path/to/DGE/
-python3  $STHOME/sttools.py --run-steps 4 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --lane-tiles 1_2106 --binsize 300  -l 20 --DGEdir $STDGE 
+
+python3  $STHOME/sttools.py --run-steps 4 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --binsize 300 --DGEdir $STDGE --seqscope1st MiSeq
 ```
 ### *output*
 * SimpleSquareGrids.RDS
-* summary_step4.txt
+* collapsedBarcodes.csv			
+* collapsedGenes.csv			 
+* collapsedMatrix.mtx
 
 ## Step 5
 Step 5 bins the DGE into simple square gridded data using sliding window strategy and outputs a RDS file with collapsed barcodes and spatial information. 
