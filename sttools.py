@@ -479,7 +479,7 @@ def step7():
     #args.workingdir=os.getcwd()
     if(('seqscope1st' in vars(args))==False):
         args.seqscope1st='HiSeq'  
-    if(args.tiles is None):
+    if(args.lane_tiles is None):
         raise ValueError("Tiles are required")
     if(args.alpha is None):
         args.alpha=0.01
@@ -491,7 +491,7 @@ def step7():
 
 
     #print(args.py)
-    cmd7="{args.py} {args.subana} {args.subDGEdir} {args.outdir} {args.spatial} {args.seqscope1st} {args.tiles} {args.alpha}".format(args=args)
+    cmd7="{args.py} {args.subana} {args.subDGEdir} {args.outdir} {args.spatial} {args.seqscope1st} {args.lane_tiles} {args.alpha}".format(args=args)
     ret = os.system(cmd7)
     if ( ret != 0 ):
         raise ValueError(f"ERROR in running {cmd7}, returning exit code {ret}")

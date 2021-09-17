@@ -31,8 +31,14 @@ from sys import argv
 
 def subPlot(df_pos,tiles,alpha,title):
     """Function to plot unspliced or spliced genes on subcelullar resolution"""
+    #print(tiles)
+   # print('df_pos')
+   # print(df_pos.head())
     for i in tiles:
-        z = df_pos[df_pos.tile_miseq==int(i)]
+       # print(i)
+        z = df_pos[df_pos.tile_miseq==i]
+        #print(z)
+        #print(z.head())
         if z.empty==True:
             next
         else:
@@ -76,7 +82,7 @@ def getSubset(unspliced,spliced,geneInd,barcode_df,bottom):
 
 def subCellularAna(DGEdir,workingdir,spatial,seqscope1st,tiles,alpha):
     """Function to plot unspliced or spliced genes on subcelullar resolution"""
-    print(tiles)
+    #print(tiles)
     if os.path.isdir(DGEdir)==True:
         os.chdir(DGEdir)
     else:
@@ -94,14 +100,18 @@ def subCellularAna(DGEdir,workingdir,spatial,seqscope1st,tiles,alpha):
      #   vmax=2
 
     miseq_pos = pd.read_csv(spatial,delim_whitespace=True, header=None)
+    #print(miseq_pos.head())
     miseq_pos.columns = ['HDMI','lane_miseq','tile_miseq','x_miseq','y_miseq']
+    #print(miseq_pos.head())
+    miseq_pos['tile_miseq']=miseq_pos['lane_miseq'].astype(str) +'_'+ miseq_pos['tile_miseq'].astype(str)
+    #print(miseq_pos.head())
     tiles_cat = '|'.join(tiles)
     miseq_pos[miseq_pos['tile_miseq'].astype(str).str.contains(tiles_cat)]
-    if seqscope1st=='MiSeq':
-        bottom= miseq_pos[miseq_pos['tile_miseq']>=2000]    #This should be made more flexible
-    if seqscope1st=='HiSeq':
-        bottom=miseq_pos
-        
+    #if seqscope1st=='MiSeq':
+    #    bottom= miseq_pos[miseq_pos['tile_miseq']>=2000]    #This should be made more flexible
+    #if seqscope1st=='HiSeq':
+     #   bottom=miseq_pos
+    bottom=miseq_pos
     os.chdir(DGEdir) #Velocyto/raw/
     #Read featrures.tsv
     gene_names = [row[1] for row in csv.reader(open("features.tsv"), delimiter="\t")]
@@ -137,6 +147,7 @@ def subCellularAna(DGEdir,workingdir,spatial,seqscope1st,tiles,alpha):
     unspliced3_pos,spliced3_pos = getSubset(unsplice,splice,geneset1_ind,barcode_df,bottom)
 
     os.chdir(workingdir)
+    print(unspliced1_pos.head())
     for i in range(1,4):
         file1_name = 'unspliced'+str(i)+'_pos'
         file2_name = 'spliced'+str(i)+'_pos'
@@ -146,9 +157,10 @@ def subCellularAna(DGEdir,workingdir,spatial,seqscope1st,tiles,alpha):
         plot2_name = 'splice_subset_'+str(i)
         eval( file1_name).to_csv(out1_name)
         eval(file2_name).to_csv(out2_name)
+        #print('csv')
         subPlot(eval(file1_name),tiles,alpha,plot1_name)
         subPlot(eval(file2_name),tiles,alpha,plot2_name)
-
+       # print('plot')
 
 
 

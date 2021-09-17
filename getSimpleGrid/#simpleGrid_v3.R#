@@ -363,7 +363,7 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
       tile_df$x_miseq_expand = tile_df$X +  addson_verti*(tile_df$ROW-1)
 
     }
-
+print(head(
 #
 #   if (layout=='FALSE')
 #   {
@@ -416,12 +416,11 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
 #
 #   }
 
-                                        #tile_df$orig.ident = rownames(tile_df)
-  print(head(tile_df))
+  #tile_df$orig.ident = rownames(tile_df)
   obj@meta.data$X_expand = tile_df$x_miseq_expand
   obj@meta.data$Y_expand = tile_df$y_miseq_expand
   print(obj)
-  print(head(obj@meta.data))
+  print(head(obj@head))
   obj@images$image = new(
     Class = 'SlideSeq',
     assay = "Spatial",
