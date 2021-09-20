@@ -108,7 +108,7 @@ If datasource is 'SlideSeq', then Step 4 will implement either simple square gri
 * --DGEdir: Path to the digital expression matrix. **Required**
 * --spatial: Path to the txt file of spatial coordinates. **Required**
 * --lane-tiles: Lane and tiles that the users are interested,for exaample: 1_2106 are lane 1 and tile 2106. By default, all lanes and tiles will be used. Otherwise, the user should give a value for the parameter. Multiple lane and tiles should be separated by comma. For instance: --lane-tiles 1_2106, 2_2106, 1_2107. 
-* --seqscope1st: String indicating the layout template, either 'MiSeq' or 'HiSeq' or 'Custom'. By default, seqscope1st='HiSeq'. If the seqscope1st is 'MiSeq' or 'HiSeq', the supertiles will be generated according to the template layout(link) among --lane-tiels. If seqscope1st is 'Custom' then the user should give the --layout with user specified layout if more than 1 tiles are used. 
+* --seqscope1st: String indicating the layout template, either 'MiSeq' or 'HiSeq' or 'Custom'. If the seqscope1st is 'MiSeq' or 'HiSeq', the supertiles will be generated according to the template layout(link) among --lane-tiels. If seqscope1st is 'Custom' then the user should give the --layout with user specified layout if more than 1 tiles are used. 
 * --layout: User can have a customized arrangment of lanes and tiles, and --layout is the path to the file. Please click [layout](./fileformats.md) for the input format. 
 * --outdir: Path to output files. If not given, using current working directory.
 ### *code*
@@ -122,7 +122,7 @@ export STOUT=/path/to/outdir
 ## $STDGE indicates the path to digital expression matrix(DGE)
 export STDGE=/path/to/DGE/
 
-python3  $STHOME/sttools.py --run-steps 4 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --binsize 300 --DGEdir $STDGE --seqscope1st MiSeq
+python3  $STHOME/sttools.py --run-steps 4 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --binsize 300 --DGEdir $STDGE --seqscope1st HiSeq
 ```
 ### *output*
 * SimpleSquareGrids.RDS
