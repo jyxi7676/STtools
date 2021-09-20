@@ -23,6 +23,8 @@ print(clustering)
 #tiles=as.numeric(unlist(strsplit(tiles,',')))
 tiles=(unlist(strsplit(tiles,',')))
 
+
+
 if(length(tiles)>1)
 {
     print('two')
@@ -38,25 +40,13 @@ print('tiles')
 print(tiles)
 print(order)
 print(order=='top')
+print(length(tiles))
+print(tiles)
+
+
+
+
 ####################################################################################################3
-#' This function merges a list of Seurat object
-#' @param seurat_object_list a list of Seurat object
-mergeSeuratObj=function(seurat_object_list)
-{
-
-  for (i in names(seurat_object_list))
-  {
-    seurat_object_list[[i]] = RenameCells(seurat_object_list[[i]],
-                                          add.cell.id = i)
-  }
-  merged_combined = suppressWarnings(expr=reduce(seurat_object_list,
-                                                 merge,
-                                                 do.normalize = FALSE))
-  return(merged_combined)
-}
-
-
-
 ####################################################################################################3
 #' This function collapse tiles into small grids and create Seurat objects
 #' @param tile_df Dataframe including coordinates
@@ -71,6 +61,10 @@ collapseTiles=function(tile_df,i,binx,biny,m_tile)
   #print('start collaping tile')
   #print(i)
   tile_df_i=tile_df[tile_df$tile_miseq==i,]
+  if(dim(tile_df_i)[1]==0)
+  {
+    return(NULL)
+  }
   miny = min(tile_df_i$y_miseq)
   maxy = max(tile_df_i$y_miseq)
   minx = min(tile_df_i$x_miseq)
@@ -79,9 +73,14 @@ collapseTiles=function(tile_df,i,binx,biny,m_tile)
   ylim = c(min(tile_df_i$y_miseq),max(tile_df_i$y_miseq))
   grd = make.grid(tile_df_i$x_miseq,tile_df_i$y_miseq,tile_df_i$UMI, binx,biny, xlim, ylim)
   grd=t(grd)
-  #colom
-  fn1=paste0('Temp_CollapsedHDMIsIndLength',i,'.csv')
-  fn2=paste0('Temp_CollapsedHDMIsInd',i,'.txt')
+
+
+ fn1=paste0('Temp_CollapsedHDMIsIndLength','.csv')
+ fn2=paste0('Temp_CollapsedHDMIsInd','.txt')
+
+  #fn1=paste0('Temp_CollapsedHDMIsIndLength',tile,'_',j,t,'.csv')
+  #fn2=paste0('Temp_CollapsedHDMIsInd',tile,'_',j,t,'.txt')
+  
   if (file.exists(fn1)) {
     #Delete file if it exists
     file.remove(fn1)
@@ -91,21 +90,37 @@ collapseTiles=function(tile_df,i,binx,biny,m_tile)
     #Delete file if it exists
     file.remove(fn2)
   }
-  grd_re = make.grid(tile_df_i$x_miseq,tile_df_i$y_miseq,tile_df_i$tileHDMIind, binx, biny, xlim, ylim,function(x) {write(length(x), file=fn1,append = T)})
-  grd_re = make.grid(tile_df_i$x_miseq,tile_df_i$y_miseq,tile_df_i$tileHDMIind, binx, biny, xlim, ylim,function(x) {cat(x,file=fn2,append=TRUE,sep='\n')})
+  #grd_re = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$tileHDMIind, binx, biny, xlim2, ylim2,function(x) {write(length(x), file=fn1,append = T)})
+  #grd_re = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$tileHDMIind, binx, biny, xlim2, ylim2,function(x) {cat(x,file=fn2,append=TRUE,sep='\n')})
+  test.env <- new.env()
 
-  collapseLen = read.csv(fn1,header=F)
-  collapseInd = read.table(fn2,header=F)
+  #assign('var', 100, envir=test.env)
+# or simply
+  test.env$len =c()
+  test.env$no = c()
+  grd_re = make.grid(tile_df_i$x_miseq,tile_df_i$y_miseq,tile_df_i$tileHDMIind, binx, biny, xlim, ylim,function(x) {test.env$len=c(test.env$len,length(x))})
+  grd_re = make.grid(tile_df_i$x_miseq,tile_df_i$y_miseq,tile_df_i$tileHDMIind, binx, biny, xlim, ylim,function(x) {test.env$no=c(test.env$no,x)})  
+  #grd_re = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$tileHDMIind, binx, biny, xlim2, ylim2,function(x) {write(length(x), file=fn1,append = T);cat(x,file=fn2,append=TRUE,sep='\n')})
+  #draw the grids centers:
+  # write.csv(as.numeric(colnames(grd)),paste0('grd_col',j,t,'.csv'))
+  #  write.csv(as.numeric(rownames(grd)),paste0('grd_row',j,t,'.csv'))
+  collapseLen = test.env$len
+  collapseInd = test.env$no
+
+  # collapseLen = cbind(collapseLen,cumsum(collapseLen$V1))
+  # colnames(collapseLen) =c("len","end")
+  # interv = c(0,collapseLen$end)
 
 
-  collapseLen = cbind(collapseLen,cumsum(collapseLen$V1))
+  collapseLen = cbind(collapseLen,cumsum(collapseLen))
   colnames(collapseLen) =c("len","end")
+  collapseLen=as.data.frame(collapseLen)
   interv = c(0,collapseLen$end)
 
 
   #sourceCpp(collapsePath)
   print('Start Simple Square Gridding!')
-  tic();collapseM = collapse(m_tile,collapseInd$V1,interv);toc()
+  tic();collapseM = collapse(m_tile,collapseInd,interv);toc()
   rownames(collapseM) = rownames(m_tile)
   colnames(collapseM) = paste0("Collapse_",i,'_',1:(length(interv)-1))
   sparse.gbm <- Matrix(collapseM , sparse = T )
@@ -129,19 +144,35 @@ collapseTiles=function(tile_df,i,binx,biny,m_tile)
   obj1@meta.data$tile = i
   return(obj1)
 
-
-  #if(i==tiles[1])
-  #{
-  #  obj=obj1
-  #}
-  #else
-  #{
-   # obj = merge(obj,obj1)
-
-  #}
-  #print(obj)
-  #return (obj)
 }
+
+
+
+
+
+
+
+
+mergeSeuratObj=function(seurat_object_list)
+{
+  seurat_object_list = unlist(seurat_object_list)
+
+  for (i in names(seurat_object_list))
+  {
+    seurat_object_list[[i]] = RenameCells(seurat_object_list[[i]],
+                                          add.cell.id = i)
+  }
+  merged_combined = suppressWarnings(expr=reduce(seurat_object_list,
+                                                 merge,
+                                                 do.normalize = FALSE))
+  return(merged_combined)
+}
+
+
+
+
+
+
 
 
 
@@ -172,6 +203,9 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
   #    nrow=2
    #   ncol=ceiling(length(tiles)/nrow)
  # }
+  print('seqscope1st')
+  print(seqscope1st)
+  tile_ind=tiles
   if(missing(seqscope1st))
   {
     seqscope1st="HiSeq"
@@ -240,9 +274,11 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
   if (tiles=='All')
   {
     tiles=unique(miseq_pos$tile_miseq)
+    #tile_ind='All'
 
   }
-
+  print('tiles')
+  print(tiles)
   tiles = intersect(tiles,unique(miseq_pos$tile_miseq))
   bottom=miseq_pos[miseq_pos$tile_miseq %in% tiles,]
 
@@ -285,9 +321,9 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
   tile_df = merge(bottom,df,by = "HDMI")
 
   tile_df$tile=as.factor(tile_df$tile)  #aggregate all tils by expanding coord
-  x=unique(tile_df$tile)
-  ordering=data.frame('tile'=levels(tile_df$tile),'aggrInd'=order(as.factor(x))-1)
-  tile_df=merge(tile_df,ordering,by='tile')
+  #x=unique(tile_df$tile)
+  #ordering=data.frame('tile'=levels(tile_df$tile),'aggrInd'=order(as.factor(x))-1)
+  #tile_df=merge(tile_df,ordering,by='tile')
 
   #tile_df$aggrInd =  as.numeric(factor(tile_df$tile_miseq))-1
   #tile_df$aggrInd = tile_df$tile_miseq - min(tile_df$tile_miseq)
@@ -297,24 +333,43 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
 
 
 
-
   setwd(outpath)
+  write.csv(tile_df,'tile_df.csv')
+
   print('Start collapsing')
   obj=sapply(tiles,collapseTiles, tile_df=tile_df,binx=binx,biny=biny,m_tile=m_tile)
   obj=mergeSeuratObj(obj)
+  print(head(obj@meta.data))
 
   tile_df = obj@meta.data
-  tile_df$tile=as.factor(tile_df $tile)                                       #aggregate all tils by expanding coord
+  rownames(tile_df)=colnames(obj)
+  tile_df$tile=as.factor(tile_df$tile)                                       #aggregate all tils by expanding coord
   x=unique(tile_df$tile)
-  ordering=data.frame('tile'=levels(tile_df$tile),'aggrInd'=order(as.factor(x))-1)
+  if(tile_ind== 'All')
+  {
+    print('All 128')
+
+    lane12=c(paste('1',1101:1116,sep='_'),paste('1',1201:1216,sep='_'),paste('1',2101:2116,sep='_'),paste('1',2201:2216,sep='_'),paste('2',1101:1116,sep='_'),paste('2',1201:1216,sep='_'),paste('2',2101:2116,sep='_'),paste('2',2201:2216,sep='_'))
+  }
+  if (tile_ind !='All')
+  {
+    lane12=tiles
+  }
+  #ordering=data.frame('tile'=levels(tile_df$tile),'aggrInd'=order(as.factor(x))-1)
+  ordering=data.frame('tile'=lane12,'aggrInd'=order(as.factor(lane12))-1)
   tile_df=merge(tile_df,ordering,by='tile')
 
   #generating super tiles
   if (layout=='FALSE')
   {
+    print('layout is false')
     if(seqscope1st == 'HiSeq')
     {
-
+      print('hiseq')
+      print(nrow)
+      print(ncol)
+      nrow=2
+      ncol=ceiling(length(lane12)/nrow)
       addson_hori = max(tile_df$Y)
       addson_verti = max(tile_df$X)
       # tile_df$aggrInd =  as.numeric(factor(tile_df$tile))-1
@@ -417,9 +472,12 @@ getSimpleGrid = function(seqscope1st,DGEdir,spatial,tiles,nrow,ncol,sidesize,out
 #   }
 
                                         #tile_df$orig.ident = rownames(tile_df)
+  rownames(tile_df)=colnames(obj)
   print(head(tile_df))
-  obj@meta.data$X_expand = tile_df$x_miseq_expand
-  obj@meta.data$Y_expand = tile_df$y_miseq_expand
+  obj@meta.data=tile_df
+
+  obj@meta.data$X_expand = obj@meta.data$x_miseq_expand
+  obj@meta.data$Y_expand = obj@meta.data$y_miseq_expand
   print(obj)
   print(head(obj@meta.data))
   obj@images$image = new(
