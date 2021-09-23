@@ -72,14 +72,14 @@ def estimateTissueBoundary(pos1stSeq,hdmi2ndSeq,maxScale,outpath):
 
     merge_df=readFiles(pos1stSeq,hdmi2ndSeq)
     merge_df["lane_tile"]=merge_df["lane"].astype(str)+"_"+merge_df["tile"].astype(str)
-    print(merge_df.head())
+    #print(merge_df.head())
     tiles_uniq = merge_df['lane_tile'].unique()
     
     tiles_uniq = list(tiles_uniq)
     print('maxscale')
-    print(maxScale)
+    #print(maxScale)
     if maxScale == '0':
-        print('TRUE 0')
+       # print('TRUE 0')
         maxScale=None
           
     for i in tiles_uniq:

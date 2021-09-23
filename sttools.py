@@ -73,12 +73,11 @@ parser.add_argument('--algo',type=str,help=' A string indicating what clustering
 parser.add_argument('--res',type=float,help='resolution for Seurat clustering')
 parser.add_argument('--clustering',type=str2bool,help='wheather clustering for simplesquaregrids, default is False')
 parser.add_argument('--seqscope1st',type=str,help='either MiSeq or HiSeq or Custom')
-#parser.add_argument('--order',type=str,help='either bottom(bottom tiles at bottom) or top(bottom tiles at top)')
-
+parser.add_argument('--annotatedSimpleGrids',type=str2bool,help='indecate weather cluster is annoted by user or not. If yes, will not run clustering in Step6, otehrwise, run clustering with simple steps')
 #Functions
 def step1():
 
-    print('Start running Step 1: extract coordinates')
+    #print('Start running Step 1: extract coordinates')
     #check files
     if(os.path.isfile(args.first_fq)==False):
         raise ValueError("File --first-fq does not exist")
@@ -93,7 +92,7 @@ def step1():
     if(os.path.isdir(args.outdir)==False):
         raise ValueError("Directory --outdir does not exist")
     
-    args.extract=args.STtools+"/extractCoord/extractCoord_v2.sh"
+    args.extract=args.STtools+"/extractCoord/extractCoord.sh"
     cmd1 = "bash {args.extract} -m {args.first_fq} -h {args.second_fq1} -l {args.hdmilength} -o {args.outdir}".format(args=args)
     ret = os.system(cmd1)
     if ( ret != 0 ):
@@ -111,7 +110,7 @@ def step1():
 
 
 def step2():
-    print("Tissue boundary estimation")
+    #print("Tissue boundary estimation")
     if(args.outdir is None):
         args.outdir=os.getcwd()
     if(os.path.isdir(args.outdir)==False):
@@ -130,12 +129,12 @@ def step2():
     #args.maxScale=2
     #if(args.outdir is None):
      #   args.outdir=os.getcwd()
-    print(args.maxScale)
+    #print(args.maxScale)
     args.estTB=args.STtools+"/estimateTissueBoundary/estimateTissueBoundary.py"
-    cmd3="{args.py} {args.estTB} {args.spatial} {args.hdmi2ndSeq} {args.maxScale} {args.outdir} ".format(args=args)
-    ret = os.system(cmd3)
+    cmd2="{args.py} {args.estTB} {args.spatial} {args.hdmi2ndSeq} {args.maxScale} {args.outdir} ".format(args=args)
+    ret = os.system(cmd2)
     if ( ret != 0 ):
-        raise ValueError(f"ERROR in running {cmd3}, returning exit code {ret}")
+        raise ValueError(f"ERROR in running {cmd2}, returning exit code {ret}")
 
 
 
@@ -145,7 +144,7 @@ def step2():
     
 def step3():
 
-    print('Start running Step 2: STARsolo alignment')
+    #print('Start running Step 2: STARsolo alignment')
     if ( args.second_fq1 is None ):
         raise ValueError("Cannot find --second-fq1 argument. Need to specify for running all")
     if ( args.second_fq2 is None ):
@@ -182,49 +181,13 @@ def step3():
 #st")
 
 
-    args.align=args.STtools+"/align/align_v2.sh"
-    print(args.outdir)
+    args.align=args.STtools+"/align/align.sh"
+    #print(args.outdir)
 
-    cmd2 = "bash {args.align} -a {args.second_fq1} -b {args.second_fq2} -l {args.hdmilength} -w {args.whitelist} -o {args.outprefix} -t {args.star_path} -q {args.seqtk_path} -g {args.genome} -d {args.outdir}".format(args=args) 
-    ret = os.system(cmd2)
+    cmd3 = "bash {args.align} -a {args.second_fq1} -b {args.second_fq2} -l {args.hdmilength} -w {args.whitelist} -o {args.outprefix} -t {args.star_path} -q {args.seqtk_path} -g {args.genome} -d {args.outdir}".format(args=args) 
+    ret = os.system(cmd3)
     if ( ret != 0 ):
-        raise ValueError(f"ERROR in running {cmd2}, returning exit code {ret}")
-
-
-    #with open(args.outprefix+'Solo.out/GeneFull/Summary.csv','r') as firstfile, open('summary_step3.txt','a') as secondfile:
-        #for line in firstfile:
-               
-             # append content to second file
-            # secondfile.write(line)
-
-   # no_hiseq=sp.getoutput("wc -l ./HDMI_SeqScope_2nd.txt")
-    #print(no_miseq)
-  #  args.out=os.getcwd()+"/"+args.outprefix+"Solo.out/GeneFull/Summary.csv"
- #   print(args.out)
-#    os.system("scp {args.out} summary_step3.txt")
-    #print(out)
-    #print(args.out)
-    
-    #starsolo=sp.getoutput('less {args.out}')
-    #f=open("summary_step3.txt","w")
-    #f.write('HiSeq reads:'+str(no_hiseq)+" \n")
-    #f.write('StarSolo summmaries:' +' \n')
-    #f.write((starsolo))
-    #f.close()
-    #copyfile(args.out, 'summary_step3.txt')
-
-    ##no_hiseq=sp.getoutput("wc -l HDMI_SeqScope_2nd.txt")
-   # print(no_hiseq)
-   # out=os.getcwd()+"/"+args.outprefix+"Solo/GeneFull/Summary.csv"
-   # print(out)
-   # args.out=out
-   # print(args.out)
-   # starsolo=sp.getoutput('less {args.out}')
-   # f=open("./summary_step3.txt","w")
-   # f.write('HiSeq reads:'+str(no_hiseq)+" \n")
-   # f.write('StarSolo summmaries:' +' \n')
-   # f.write((starsolo))
-    #f.close()
+        raise ValueError(f"ERROR in running {cmd3}, returning exit code {ret}")
 
 
 
@@ -292,128 +255,108 @@ def step4():
             if ( ret != 0 ):
                 raise ValueError(f"ERROR in running {cmd4}, returning exit code {ret}")
 
+    if(args.datasource !='VISIUM'):    
+        print('Start Simple Squre Gridding')
+        args.nrow=1
+        args.ncol=1
+        args.collapsePath=args.STtools+"/getSimpleGrid/collapse.cpp"
+        if (args.clustering is None):
+            args.clustering = False  
+        if(args.binsize is None):
+            args.binsize=300
+        if(args.outdir is None):
+            args.outdir=os.getcwd()
+        if(os.path.isdir(args.outdir)==False):
+            raise ValueError("Directory --outdir does not exist")
+        if(args.DGEdir is None):
+            args.DGEdir=args.outdir+'/'+args.outprefix+"Solo.out/GeneFull/raw/"
+        if(os.path.isdir(args.DGEdir)==False):
+            raise ValueError("Directory --DGEdir does not exist")
 
-      
-    print('Start Simple Gridding')
-    args.nrow=1
-    args.ncol=1
-    args.collapsePath=args.STtools+"/getSimpleGrid/collapse.cpp"
-    if (args.clustering is None):
-        args.clustering = False  
-    if(args.binsize is None):
-        args.binsize=300
-    if(args.outdir is None):
-        args.outdir=os.getcwd()
-    if(os.path.isdir(args.outdir)==False):
-        raise ValueError("Directory --outdir does not exist")
-    if(args.DGEdir is None):
-        args.DGEdir=args.outdir+'/'+args.outprefix+"Solo.out/GeneFull/raw/"
-    if(os.path.isdir(args.DGEdir)==False):
-        raise ValueError("Directory --DGEdir does not exist")
-    if(('seqscope1st' in vars(args))==False):
-        args.seqscope1st='HiSeq'
-    if(os.path.isfile(args.collapsePath)==False):
-        raise ValueError("File --collapsePath does not exist")
-    if(args.spatial is None):
-        args.spatial=args.outdir+"/spatialcoordinates.txt"
-    if(args.order is None):
-        args.order='top'
-    if(args.layout is None):
-        args.layout='FALSE'
-    if(args.lane_tiles is None):
-        args.lane_tiles='All'
-    print('clustering')
-    print(args.clustering)
-    args.simple=args.STtools+"/getSimpleGrid/simpleGrid_v3.R"
-    cmd4="Rscript {args.simple} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.lane_tiles} {args.nrow} {args.ncol} {args.binsize} {args.outdir} {args.collapsePath} {args.layout} {args.order} {args.nMax} {args.clustering}".format(args=args)
-    ret = os.system(cmd4)
-    if ( ret != 0 ):
-        raise ValueError(f"ERROR in running {cmd4}, returning exit code {ret}")
+        if(os.path.isfile(args.collapsePath)==False):
+            raise ValueError("File --collapsePath does not exist")
+        if(args.spatial is None):
+            args.spatial=args.outdir+"/spatialcoordinates.txt"
+        if(args.layout is None):
+            args.layout='MiSeq'
+        if(args.lane_tiles is None):
+            args.lane_tiles='All'
+
+        args.simple=args.STtools+"/getSimpleGrid/simpleGrid.R"
+        print(args.lane_tiles)
+        cmd4="Rscript {args.simple}  {args.DGEdir} {args.spatial} {args.lane_tiles} {args.nrow} {args.ncol} {args.binsize} {args.outdir} {args.collapsePath} {args.layout} {args.nMax} {args.clustering}".format(args=args)
+        ret = os.system(cmd4)
+        if ( ret != 0 ):
+            raise ValueError(f"ERROR in running {cmd4}, returning exit code {ret}")
 
 def step5():
     if(args.datasource is None):
        args.datasource = 'SeqScope'
        args.nMax=100
     if(args.datasource =='VISIUM'):
-       return None    
+       print('Not a step for VISIUM data')   
   #  if (args.datasource == 'SlideSeq' ):
    #     args.sliding=
-
-
-    print("Start Sliding Window Gridding")
-    args.nrow=1
-    args.ncol=1
-    args.collapsePath=args.STtools+"/getSimpleGrid/collapse.cpp"
-    #args.slidingPath=args.STtools+"/getSlidingGrid/slidingWindow.cpp"
- #   args.outpath=os.getcwd()
-    if(args.outdir is None):
-        args.outdir=os.getcwd()
-    if(os.path.isdir(args.outdir)==False):
-        raise ValueError("Directory --outdir does not exist")
-    if(args.DGEdir is None):
-        args.DGEdir=args.outdir+'/'+args.outprefix+"Solo.out/GeneFull/raw/"
-    if(os.path.isdir(args.DGEdir)==False):
-        raise ValueError("Directory --DGEdir does not exist")
-    if(os.path.isfile(args.collapsePath)==False):
-        raise ValueError("File --collapsePath does not exist")
-    #if(os.path.isfile(args.slidingPath)==False):
-     #   raise ValueError("File --slidingPath does not exist")
-    if(('seqscope1st' in vars(args))==False):
-        args.seqscope1st='HiSeq'
-    if(args.spatial is None):
-        args.spatial=args.outdir+"/spatialcoordinates.txt"
-    if(os.path.isfile(args.spatial)==False):
-        raise ValueError("File --spatial does not exist")
-    if(args.cores is None):
-        args.cores=5
+    else:
+        print("Start Sliding Window Gridding")
+        args.nrow=1
+        args.ncol=1
+        args.collapsePath=args.STtools+"/getSimpleGrid/collapse.cpp"
+        #args.slidingPath=args.STtools+"/getSlidingGrid/slidingWindow.cpp"
+     #   args.outpath=os.getcwd()
+        if(args.outdir is None):
+            args.outdir=os.getcwd()
+        if(os.path.isdir(args.outdir)==False):
+            raise ValueError("Directory --outdir does not exist")
+        if(args.DGEdir is None):
+            args.DGEdir=args.outdir+'/'+args.outprefix+"Solo.out/GeneFull/raw/"
+        if(os.path.isdir(args.DGEdir)==False):
+            raise ValueError("Directory --DGEdir does not exist")
+        if(os.path.isfile(args.collapsePath)==False):
+            raise ValueError("File --collapsePath does not exist")
+        if(args.spatial is None):
+            args.spatial=args.outdir+"/spatialcoordinates.txt"
+        if(os.path.isfile(args.spatial)==False):
+            raise ValueError("File --spatial does not exist")
+        if(args.cores is None):
+            args.cores=5
+            
+        if(args.window is None):
+            args.window=150
+        if(args.binsize is None):
+            args.binsize=300
+        if(args.lane_tiles is None):
+            raise ValueError("Lane and tiles are required")
+        if(args.layout is None):
+            args.layout='HiSeq'
+ 
+        args.sliding_P1=args.STtools+"/getSlidingGrid/slidingGrid_P1.R"
+        args.sliding_P2=args.STtools+"/getSlidingGrid/slidingGrid_P2.R"
+        args.sliding_P3=args.STtools+"/getSlidingGrid/slidingGrid_P3.R"
+        if(os.path.isfile(args.sliding_P1)==False):
+            raise ValueError("File --sliding_P1 does not exist")
+       
+        if(os.path.isfile(args.sliding_P2)==False):
+            raise ValueError("File --sliding_P2 does not exist")
         
-    if(args.window is None):
-        args.window=150
-    if(args.binsize is None):
-        args.binsize=300
-    if(args.lane_tiles is None):
-        raise ValueError("Lane and tiles are required")
-    if(args.order is None):
-        args.order='top'
-    if(args.layout is None):
-        args.layout='FALSE'
-    #tiles_vec =args.tiles.split(',')
-   # inputF=os.getcwd()+'/inputTiles.txt'
-   # with open(inputF, 'w') as f:
-   #     for l in tiles_vec:
-   #         f.write(l+'\n')
-   # f.close()
-   # args.input=inputF
+        if(os.path.isfile(args.sliding_P3)==False):
+            raise ValueError("File --sliding_P3 does not exist")
+        
+        cmd5_1="Rscript {args.sliding_P1} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.outdir} {args.lane_tiles}".format(args=args)
+        ret = os.system(cmd5_1)
+        if ( ret != 0 ):
+            raise ValueError(f"ERROR in running {cmd5_1}, returning exit code {ret}")
 
-    #args.input=os.getcwd()+'/input.txt'
-    #print(args.input)
-    args.sliding_P1=args.STtools+"/getSlidingGrid/slidingGrid_P1_V1.R"
-    args.sliding_P2=args.STtools+"/getSlidingGrid/slidingGrid_P2_V1.R"
-    args.sliding_P3=args.STtools+"/getSlidingGrid/slidingGrid_P3_V1.R"
-    if(os.path.isfile(args.sliding_P1)==False):
-        raise ValueError("File --sliding_P1 does not exist")
-   
-    if(os.path.isfile(args.sliding_P2)==False):
-        raise ValueError("File --sliding_P2 does not exist")
-    
-    if(os.path.isfile(args.sliding_P3)==False):
-        raise ValueError("File --sliding_P3 does not exist")
-    
-    cmd5_1="Rscript {args.sliding_P1} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.outdir} {args.lane_tiles}".format(args=args)
-    ret = os.system(cmd5_1)
-    if ( ret != 0 ):
-        raise ValueError(f"ERROR in running {cmd5_1}, returning exit code {ret}")
-
-    args.input=args.outdir+'/groupgrids_tile.txt'
-    cmd5_2='cat {args.input} | xargs -I [] -P {args.cores} bash -c "Rscript {args.sliding_P2} {args.collapsePath} {args.DGEdir} {args.outdir} {args.window} {args.binsize} []"'.format(args=args)
-    ret = os.system(cmd5_2)
-    if ( ret != 0 ):
-        raise ValueError(f"ERROR in running {cmd5_2}, returning exit code {ret}")
-    print('fnish cmd52')
-    cmd5_3 = "Rscript {args.sliding_P3} {args.outdir} {args.ncol} {args.nrow} {args.layout} {args.order} {args.lane_tiles}".format(args=args)
-    ret = os.system(cmd5_3)
-    if ( ret != 0 ):
-        raise ValueError(f"ERROR in running {cmd5_3}, returning exit code {ret}")
+        args.input=args.outdir+'/groupgrids_tile.txt'
+        cmd5_2='cat {args.input} | xargs -I [] -P {args.cores} bash -c "Rscript {args.sliding_P2} {args.collapsePath} {args.DGEdir} {args.outdir} {args.window} {args.binsize} []"'.format(args=args)
+        ret = os.system(cmd5_2)
+        if ( ret != 0 ):
+            raise ValueError(f"ERROR in running {cmd5_2}, returning exit code {ret}")
+        print('fnish cmd52')
+        cmd5_3 = "Rscript {args.sliding_P3} {args.outdir} {args.ncol} {args.nrow} {args.layout} {args.order} {args.lane_tiles}".format(args=args)
+        ret = os.system(cmd5_3)
+        if ( ret != 0 ):
+            raise ValueError(f"ERROR in running {cmd5_3}, returning exit code {ret}")
 
 
 
@@ -432,13 +375,15 @@ def step6():
     if(args.slidingGridsPath is None):
         args.slidingGridsPath = args.outdir+'/SlidingSquareGrids.RDS'
     if(args.geneCount1 is None):
-        args.geneCount1=0
+        args.geneCount1=-1
     if(args.geneCount2 is None):
-        args.geneCount2=0
-    if(args.nFeaturePlotOnly is None):
-        args.nFeaturePlotOnly = 'FALSE'
-    print(args.slidingGridsPath)
-    print(args.simpleGridsPath)
+        args.geneCount2=-1
+    if(args.annotatedSimpleGrids is None):
+        args.annotatedSimpleGrids=False
+    # if(args.nFeaturePlotOnly is None):
+    #     args.nFeaturePlotOnly = 'FALSE'
+    # print(args.slidingGridsPath)
+    # print(args.simpleGridsPath)
     if(os.path.isfile(args.slidingGridsPath)==False):
         raise ValueError("Path --slidingGridsPath does not exist")
     if(os.path.isfile(args.simpleGridsPath)==False):
@@ -451,10 +396,10 @@ def step6():
     #print(args.slidingGridsPath)
     args.clus=args.STtools+'/clusterAndMap/clusterAndMap.R'
     
-    cmd = "Rscript {args.clus} {args.outdir} {args.simpleGridsPath} {args.slidingGridsPath} {args.geneCount1} {args.geneCount2} {args.nFeaturePlotOnly}".format(args=args)
-    ret = os.system(cmd)
+    cmd6 = "Rscript {args.clus} {args.outdir} {args.simpleGridsPath} {args.slidingGridsPath} {args.geneCount1} {args.geneCount2} {args.annotatedSimpleGrids}".format(args=args)
+    ret = os.system(cmd6)
     if(ret!=0):
-        raise ValueError (f"ERROR in running {cmd}, returning exit code {ret}")
+        raise ValueError (f"ERROR in running {cmd6}, returning exit code {ret}")
 
 
     
@@ -503,7 +448,7 @@ steps = []
 if ( args.run_steps is not None ):
     steps = [int(x) for x in args.run_steps.split(',')]
     n_steps=len(steps)
-    print(n_steps)
+    #print(n_steps)
     s_steps=sorted(steps)
   #if only one step
     if (set(steps).issubset(set(range(1,8))) ==False):
