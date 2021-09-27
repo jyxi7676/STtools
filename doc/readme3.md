@@ -122,7 +122,7 @@ export STOUT=/path/to/outdir
 ## $STDGE indicates the path to digital expression matrix(DGE)
 export STDGE=/path/to/DGE/
 
-python3  $STHOME/sttools.py --run-steps 4 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --binsize 300 --DGEdir $STDGE --seqscope1st HiSeq
+python3  $STHOME/sttools.py --run-steps 4 --STtools $STHOME --spatial $STDATA/spatialcoordinates.txt   --outdir $STOUT --binsize 300 --DGEdir $STDGE --layout HiSeq 
 ```
 ### *output*
 * SimpleSquareGrids.RDS
