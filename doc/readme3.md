@@ -109,7 +109,7 @@ If datasource is 'SlideSeq', then Step 4 will implement either simple square gri
 * --spatial: Path to the txt file of spatial coordinates. **Required**
 * --lane-tiles: Lane and tiles that the users are interested,for exaample: 1_2106 are lane 1 and tile 2106. By default, all lanes and tiles will be used. Otherwise, the user should give a value for the parameter. Multiple lane and tiles should be separated by comma. For instance: --lane-tiles 1_2106, 2_2106, 1_2107. 
 * --seqscope1st: String indicating the layout template, either 'MiSeq' or 'HiSeq' or 'Custom'. If the seqscope1st is 'MiSeq' or 'HiSeq', the supertiles will be generated according to the template layout(link) among --lane-tiels. If seqscope1st is 'Custom' then the user should give the --layout with user specified layout if more than 1 tiles are used. 
-* --layout: User can have a customized arrangment of lanes and tiles, and --layout is the path to the file. Please click [layout](./doc/Layout_template.png) for the input format. 
+* --layout: User can have a customized arrangment of lanes and tiles, and --layout is the path to the file. Please click [layout](./Layout_template.png) for the input format. 
 * --outdir: Path to output files. If not given, using current working directory.
 ### *code*
 ```sh
