@@ -69,30 +69,17 @@ collapseTiles=function(tile_df,i,binx,biny,m_tile)
   #grd_re = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$tileHDMIind, binx, biny, xlim2, ylim2,function(x) {write(length(x), file=fn1,append = T)})
   #grd_re = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$tileHDMIind, binx, biny, xlim2, ylim2,function(x) {cat(x,file=fn2,append=TRUE,sep='\n')})
   test.env <- new.env()
-
-  #assign('var', 100, envir=test.env)
-# or simply
   test.env$len =c()
   test.env$no = c()
   grd_re = make.grid(tile_df_i$x_miseq,tile_df_i$y_miseq,tile_df_i$tileHDMIind, binx, biny, xlim, ylim,function(x) {test.env$len=c(test.env$len,length(x))})
   grd_re = make.grid(tile_df_i$x_miseq,tile_df_i$y_miseq,tile_df_i$tileHDMIind, binx, biny, xlim, ylim,function(x) {test.env$no=c(test.env$no,x)})  
-  #grd_re = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$tileHDMIind, binx, biny, xlim2, ylim2,function(x) {write(length(x), file=fn1,append = T);cat(x,file=fn2,append=TRUE,sep='\n')})
-  #draw the grids centers:
-  # write.csv(as.numeric(colnames(grd)),paste0('grd_col',j,t,'.csv'))
-  #  write.csv(as.numeric(rownames(grd)),paste0('grd_row',j,t,'.csv'))
+ 
   collapseLen = test.env$len
   collapseInd = test.env$no
-
-  # collapseLen = cbind(collapseLen,cumsum(collapseLen$V1))
-  # colnames(collapseLen) =c("len","end")
-  # interv = c(0,collapseLen$end)
-
-
   collapseLen = cbind(collapseLen,cumsum(collapseLen))
   colnames(collapseLen) =c("len","end")
   collapseLen=as.data.frame(collapseLen)
   interv = c(0,collapseLen$end)
-
 
   #sourceCpp(collapsePath)
   print('Start Simple Square Gridding!')
@@ -243,40 +230,47 @@ getSimpleGrid = function(DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collaps
   print(tiles)
   print(tiles_uniq)
   if (layout=='HiSeq')
-  {
-    lane12=c(paste('1',1101:1116,sep='_'),paste('1',1201:1216,sep='_'),paste('1',2101:2116,sep='_'),paste('1',2201:2216,sep='_'),paste('2',1101:1116,sep='_'),paste('2',1201:1216,sep='_'),paste('2',2101:2116,sep='_'),paste('2',2201:2216,sep='_'))
-    nrow=2
-    ncol=ceiling(length(lane12)/nrow)
+  { 
+    lane1_tile=c(paste('1',1201:1216,sep='_'),paste('1',2201:2216,sep='_'),paste('1',1101:1116,sep='_'),paste('1',2101:2116,sep='_'))
+    lane1_rtile=sapply(1:length(lane1_tile),function(i) {strsplit(lane1_tile[i],'_')[[1]][2]})
+    lane1_layout=data.frame('ROW'=c(rep(1,32),rep(2,32)),'COL'=c(seq(1,32,1),seq(1,32,1)),'LANE'=1,'OTILE'=lane1_rtile)
+
+    lane2_tile=c(paste('2',1201:1216,sep='_'),paste('2',2201:2216,sep='_'),paste('2',1101:1116,sep='_'),paste('2',2101:2116,sep='_'))
+    lane2_rtile=sapply(1:length(lane2_tile),function(i) {strsplit(lane2_tile[i],'_')[[1]][2]})
+    lane2_layout=data.frame('ROW'=c(rep(3,32),rep(4,32)),'COL'=c(seq(1,32,1),seq(1,32,1)),'LANE'=2,'OTILE'=lane2_rtile)
+
+    layout=rbind(lane1_layout,lane2_layout)
+    #lane12=c(paste('1',1101:1116,sep='_'),paste('1',1201:1216,sep='_'),paste('1',2101:2116,sep='_'),paste('1',2201:2216,sep='_'),paste('2',1101:1116,sep='_'),paste('2',1201:1216,sep='_'),paste('2',2101:2116,sep='_'),paste('2',2201:2216,sep='_'))
+    #nrow=4
+    #ncol=ceiling(length(lane12)/nrow)
   } else if  (layout == 'MiSeq')
   {
     print('In miseq')
-    lane12=tiles_uniq
-    print('lane12')
-    print(lane12)
+    lane1_tile=tiles_uniq[order(tiles_uniq,decreasing=F)]
+    lane1_rtile=sapply(1:length(lane1_tile),function(i) {strsplit(lane1_tile[i],'_')[[1]][2]})
     nrow=1
-    ncol=length(lane12)
+    ncol=length(lane1_rtile)
+    layout=data.frame('ROW'=nrow,'COL'=1:ncol,'LANE'=1,'OTILE'=lane1_rtile)
+
   } else 
   {
     #check if path exists
    layout=read.csv(layout,row.names=1)
    colnames(layout)[4]='OTILE'
-   layout$tile=paste(layout$LANE,layout$OTILE,sep='_')
-   lane12=unique(layout$tile)
-   lane12=lane12[order(lane12)]
+  
 
    print('Customized')
   }
 
- if(layout!='Hiseq'& layout!='MiSeq')
-  { print('cond1')
-    tiles=lane12
-  } else if (tiles=='All')
+ layout$tile=paste(layout$LANE,layout$OTILE,sep='_')
+ #lane12=unique(layout$tile)
+ #lane12=lane12[order(lane12)]
+
+  if (tiles=='All')
   {
     print('cond2')
     tiles=tiles_uniq
     tiles=tiles[order(tiles)]
-   
-    #tile_ind='All'
   } else
   { print('cond3')
     tiles = intersect(tiles,tiles_uniq)
@@ -284,6 +278,10 @@ getSimpleGrid = function(DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collaps
     print('tiles after merge')
     print(tiles)
     miseq_pos=miseq_pos[miseq_pos$tile_miseq %in% tiles,]
+    if (dim(miseq_pos)[1]==0)
+    {
+      stop("No tiles found")
+    }
   }
 
 
@@ -294,66 +292,78 @@ getSimpleGrid = function(DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collaps
   m_tile = m[,tile_df$HDMIind]
   tile_df$UMI = colSums(m_tile)
   tile_df$tileHDMIind= match(tile_df$HDMI,colnames(m_tile))
+  tile_df=tile_df[tile_df$tile_miseq %in% layout$tile,]
   write.csv(tile_df,'tile_df_raw.csv')
 
   print('Start collapsing')
   obj=sapply(tiles,collapseTiles, tile_df=tile_df,binx=binx,biny=biny,m_tile=m_tile)
   obj=mergeSeuratObj(obj)
-  #print(head(obj@meta.data))
+  print('OBJ')
+  print(obj)
 
   #super tile
   tile_df = obj@meta.data
   tile_df$name=colnames(obj)
-  tile_df$tile=as.factor(tile_df$tile)                                       #aggregate all tils by expanding coord
+  #tile_df$tile=as.factor(tile_df$tile)                                       #aggregate all tils by expanding coord
   
-  ordering=data.frame('tile'=lane12,'aggrInd'=order(as.factor(lane12))-1)
-  tile_df=merge(tile_df,ordering,by='tile')
+  #ordering=data.frame('tile'=lane12,'aggrInd'=order(as.factor(lane12))-1)
+ # tile_df=merge(tile_df,ordering,by='tile')
 
   addson_hori = max(tile_df$Y)
   addson_verti = max(tile_df$X)
+  nrow = max(layout$ROW)
+  ncol = max(layout$COL)
+  tile_df = merge(tile_df,layout,by='tile')
+  print(head(tile_df))
+  print(head(obj@meta.data))
+  addson_hori = max(tile_df$Y)
+  addson_verti = max(tile_df$X)
+  tile_df$y_miseq_expand = tile_df$Y +  addson_hori*(tile_df$COL-1)
+  #tile_df$x_miseq_expand = tile_df$X +  addson_verti*(tile_df$ROW-1)
+  tile_df$x_miseq_expand = tile_df$X +  addson_verti*(nrow-tile_df$ROW)
 
-  tile_df$aggrInd2 = tile_df$aggrInd
-  tile_df$y_miseq_expand = tile_df$Y +  addson_hori*(((tile_df$aggrInd2%%ncol)))
-  if(layout=='HiSeq')
-  {
-      tile_df$x_miseq_expand =   tile_df$X +  addson_verti*(floor((tile_df$aggrInd2/ncol)))
 
-  } else if (layout=='MiSeq')
-  {
-      tile_df$x_miseq_expand =   tile_df$X 
+  # if(layout=='HiSeq')
+  # {
+  #     tile_df$x_miseq_expand =   tile_df$X +  addson_verti*(floor((tile_df$aggrInd2/ncol)))
 
-  } else
-  {
-      #print('layout')
-      #layout = read.csv(layout,row.names=1)
-      nrow = max(layout$ROW)
-      ncol = max(layout$COL)
-     # layout$tile=  paste(layout[,3],layout[,4],sep="_")
-      #layout$tile=paste(layout$LANE,layout$TILE,sep="_")
-     #layout$ROW_COL=paste(layout$ROW,layout$COL,sep="_")
-      #layout$aggrInd =  as.numeric(factor(layout$ROW_COL))-1
-      print(head(layout))
+  # } else if (layout=='MiSeq')
+  # {
+  #     tile_df$x_miseq_expand =   tile_df$X 
 
-      print(head(tile_df))
-      #tile_df$aggrInd2 = layout$aggrInd
+  # } else
+  # {
+  #     #print('layout')
+  #     #layout = read.csv(layout,row.names=1)
+  #     nrow = max(layout$ROW)
+  #     ncol = max(layout$COL)
+  #    # layout$tile=  paste(layout[,3],layout[,4],sep="_")
+  #     #layout$tile=paste(layout$LANE,layout$TILE,sep="_")
+  #    #layout$ROW_COL=paste(layout$ROW,layout$COL,sep="_")
+  #     #layout$aggrInd =  as.numeric(factor(layout$ROW_COL))-1
+  #     print(head(layout))
 
-      tile_df = merge(tile_df,layout,by='tile')
-      addson_hori = max(tile_df$Y)
-      addson_verti = max(tile_df$X)
-      tile_df$y_miseq_expand = tile_df$Y +  addson_hori*(tile_df$COL-1)
-      tile_df$x_miseq_expand = tile_df$X +  addson_verti*(tile_df$ROW-1)
+  #     print(head(tile_df))
+  #     #tile_df$aggrInd2 = layout$aggrInd
 
-  }
+  #     tile_df = merge(tile_df,layout,by='tile')
+  #     addson_hori = max(tile_df$Y)
+  #     addson_verti = max(tile_df$X)
+  #     tile_df$y_miseq_expand = tile_df$Y +  addson_hori*(tile_df$COL-1)
+  #     tile_df$x_miseq_expand = tile_df$X +  addson_verti*(tile_df$ROW-1)
+
+  # }
   
 
-  #rownames(tile_df)=colnames(obj)
+  # #rownames(tile_df)=colnames(obj)
 
-  #print(head(tile_df))
-
+  # #print(head(tile_df))
+  tile_df=tile_df[,c('orig.ident','name','LANE','OTILE','tile','nCount_Spatial','nFeature_Spatial','X','Y','x_miseq_expand','y_miseq_expand','ROW','COL')]
+  colnames(tile_df)=c('orig.ident','collapseID','lane','tile','lane_tile','nCount_Spatial','nFeature_Spatial','X','Y','X_expand','Y_expand','row','col')
   obj@meta.data=tile_df
-  rownames(obj@meta.data)=tile_df$name
-  obj@meta.data$X_expand = obj@meta.data$x_miseq_expand
-  obj@meta.data$Y_expand = obj@meta.data$y_miseq_expand
+  rownames(obj@meta.data)=colnames(obj)
+  #obj@meta.data$X_expand = obj@meta.data$x_miseq_expand
+  #obj@meta.data$Y_expand = obj@meta.data$y_miseq_expand
   print(obj)
   print(head(obj@meta.data))
   obj@images$image = new(
@@ -380,11 +390,11 @@ getSimpleGrid = function(DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collaps
   junk = dir(path=outpath,  pattern="^tile.*\\Matrix.mtx")
   file.remove(junk)
                                         #   print('feature eplot')
-  png("nFeatureplot.png",width=7*2,height=6,res=300,units='in')
-  p1=VlnPlot(obj, features = "nFeature_Spatial", pt.size = 0) + NoLegend()
-  p2=VlnPlot(obj, features = "nFeature_Spatial", pt.size = 0,log=T) + NoLegend()
-  print(plot_grid(p1,p2,ncol=2))
-  dev.off()
+  #png("nFeatureplot.png",width=7*2,height=6,res=300,units='in')
+  #p1=VlnPlot(obj, features = "nFeature_Spatial", pt.size = 0) + NoLegend()
+  #p2=VlnPlot(obj, features = "nFeature_Spatial", pt.size = 0,log=T) + NoLegend()
+  #print(plot_grid(p1,p2,ncol=2))
+  #dev.off()
 
 #   if(nMax !='None')
 #   {
