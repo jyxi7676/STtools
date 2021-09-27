@@ -109,7 +109,7 @@ If datasource is 'SlideSeq', then Step 4 will implement either simple square gri
 * --spatial: Path to the txt file of spatial coordinates. **Required**
 * --lane-tiles: Lane and tiles that the users are interested,for exaample: 1_2106 are lane 1 and tile 2106. By default, all lanes and tiles will be used. Otherwise, the user should give a value for the parameter. Multiple lane and tiles should be separated by comma. For instance: --lane-tiles 1_2106, 2_2106, 1_2107. 
 * --seqscope1st: String indicating the layout template, either 'MiSeq' or 'HiSeq' or 'Custom'. If the seqscope1st is 'MiSeq' or 'HiSeq', the supertiles will be generated according to the template layout(link) among --lane-tiels. If seqscope1st is 'Custom' then the user should give the --layout with user specified layout if more than 1 tiles are used. 
-* --layout: User can have a customized arrangment of lanes and tiles, and --layout is the path to the file. Please click [layout](./fileformats.md) for the input format. 
+* --layout: User can have a customized arrangment of lanes and tiles, and --layout is the path to the file. Please click [layout](./doc/Layout_template.png) for the input format. 
 * --outdir: Path to output files. If not given, using current working directory.
 ### *code*
 ```sh
@@ -142,7 +142,7 @@ Step 5 bins the DGE into simple square gridded data using sliding window strateg
 * --nrow: number of rows when generating the super tile. If not give, we assume there is only one tile, and nrow=1.
 * --ncol: number of cols when generating the super tile. If not give, we assume there is only one tile, and ncol=1.
 * --outdir: Path to output files. If not given, using current working directory
-*  --layout: User can have a customized arrangment of lanes and tiles, and --layout is the path to the file. Please click [layout](./fileformats.md) for the input format.
+*  --layout: User can have a customized arrangment of lanes and tiles, and --layout is the path to the file. Please click [layout](./Layout_template.png) for the input format.
 * --order: How the lane and tiles are stacked when --layout is not given. If order is 'top' then the --lane-tiles will be ordered in increasing order and stacked in 2 rows. If order is 'bottom', they will be ordered in a decreasing order.  
 ### *code*
 ```sh
