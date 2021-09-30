@@ -5,9 +5,6 @@ for(i in 1:5) { #-- Create objects  'r.1', 'r.2', ... 'r.6' --
   assign(nam, args[i])
 }
 
-#r5=as.numeric(as.vector((strsplit(r5, ",")[[1]])))
-r5=(unlist(strsplit(r5,',')))
-print(r5)
 ####################################################################################################3
 #' This function generate grids in subfields of a tile
 #' @param groupid an integer indicates the id for the subfield
@@ -46,22 +43,8 @@ getSubGrids = function(groupid,tile_df,m_tile,slidestarts,window,binx,biny,tile)
 getGroupGrids=function(tiles,tile_df,m_tile,slidestarts,window,binx,biny)
 {
   tile=tiles[i]
-  #tile_df_exact=tile_df[tile_df$tile_miseq == tile,]
-  # nsub_x=nsub_y=5
-  # tile_df_exact$xcut = cut(tile_df_exact$x_miseq,nsub_x)
-  # tile_df_exact$ycut = cut(tile_df_exact$y_miseq,nsub_y)
-  # tile_df_exact=tile_df_exact%>%mutate(ID = group_indices(., xcut, ycut))
-  # tile_df_exact$tile=tile
-  
-  #tile_df_exact$tile_groupid=paste0(tile_df_exact$tile,'_',tile_df_exact$ID)
+
   submat=sapply(1:length(tiles),function(x) {tile_df_=tile_df[tile_df$tile_miseq==tiles[x],];ind=match(tile_df_$HDMI,colnames(m_tile));m_tile_=m_tile[,ind];writeMM(m_tile_,paste0('m_tile_',tiles[x]));file=paste0('group_tile_',tiles[x],'.csv');  tile_df_$tileHDMIind=1:dim(tile_df_)[1];write.csv(tile_df_,file,append=F)})
-
-#  submat=sapply(1:length(tiles),function(x) {tile_df_=tile_df[tile_df$tile_miseq==tiles[x],];ind=match(tile_df_$HDMI,colnames(m_tile));m_tile_=m_tile[,ind];writeMM(m_tile_,paste0('m_tile_',tiles[x]))})
-#  tile_df$tileHDMIind=1:dim(tile_df)[1]
-
- # file=paste0('group_tile_',tile,'.csv')
- # write.csv(tile_df,file,append=F)
-
   group = unique(tile_df$tile_miseq)
   group = group[order(unique(tile_df$tile_miseq))]
   write.table(group,paste0('groupgrids_tile','.txt'),row.names=FALSE,sep="\t",col.names=F,quote=F,append=T)
@@ -77,14 +60,13 @@ getGroupGrids=function(tiles,tile_df,m_tile,slidestarts,window,binx,biny)
 #' @param outpath
 #' @param tiles
 #' @export
-getSubfield = function(seqscope1st,DGEdir,spatial,outpath,tiles)
+getSubfield = function(layout,DGEdir,spatial,outpath,tiles)
 {
   options(warn=-1)
-  if(missing(seqscope1st))
+  if (missing(layout))
   {
-    seqscope1st="MiSeq"
+    layout='MiSeq'
   }
-
 
   if (!dir.exists(DGEdir)){
     stop("DGEdir does not exist")
@@ -95,7 +77,7 @@ getSubfield = function(seqscope1st,DGEdir,spatial,outpath,tiles)
 
   setwd(DGEdir)
   #libraries
-  packages = c("Matrix", "tictoc","rlist",'dplyr','purrr', "ggplot2", "ggsci","mapplots","dplyr")
+  packages = c("R.utils","data.table","tidyverse","Matrix", "tictoc","rlist",'dplyr','purrr', "ggplot2", "ggsci","mapplots","dplyr")
   ## add more packages to load if needed
   ## Now load or install&load all
   package.check <- lapply(
@@ -128,24 +110,86 @@ getSubfield = function(seqscope1st,DGEdir,spatial,outpath,tiles)
   miseq_pos = read.table(spatial)
   colnames(miseq_pos) = c('HDMI','lane_miseq','tile_miseq','x_miseq','y_miseq')
   miseq_pos$tile_miseq=paste(miseq_pos$lane_miseq,miseq_pos$tile_miseq,sep="_")
+  tiles=(unlist(strsplit(tiles,',')))
+  tiles_uniq=unique(miseq_pos$tile_miseq)
+  print(tiles_uniq)
+  if (layout=='HiSeq')
+  { 
+    lane1_tile=c(paste('1',1201:1216,sep='_'),paste('1',2201:2216,sep='_'),paste('1',1101:1116,sep='_'),paste('1',2101:2116,sep='_'))
+    lane1_rtile=sapply(1:length(lane1_tile),function(i) {strsplit(lane1_tile[i],'_')[[1]][2]})
+    lane1_layout=data.frame('ROW'=c(rep(1,32),rep(2,32)),'COL'=c(seq(1,32,1),seq(1,32,1)),'LANE'=1,'OTILE'=lane1_rtile)
 
-#  print(table(miseq_pos$tile_miseq))
-  if (all(tiles%in%miseq_pos$tile_miseq))
+    lane2_tile=c(paste('2',1201:1216,sep='_'),paste('2',2201:2216,sep='_'),paste('2',1101:1116,sep='_'),paste('2',2101:2116,sep='_'))
+    lane2_rtile=sapply(1:length(lane2_tile),function(i) {strsplit(lane2_tile[i],'_')[[1]][2]})
+    lane2_layout=data.frame('ROW'=c(rep(3,32),rep(4,32)),'COL'=c(seq(1,32,1),seq(1,32,1)),'LANE'=2,'OTILE'=lane2_rtile)
+
+    layout=rbind(lane1_layout,lane2_layout)
+    #lane12=c(paste('1',1101:1116,sep='_'),paste('1',1201:1216,sep='_'),paste('1',2101:2116,sep='_'),paste('1',2201:2216,sep='_'),paste('2',1101:1116,sep='_'),paste('2',1201:1216,sep='_'),paste('2',2101:2116,sep='_'),paste('2',2201:2216,sep='_'))
+    #nrow=4
+    #ncol=ceiling(length(lane12)/nrow)
+  } else if  (layout == 'MiSeq')
   {
-    print('yes')
+    print('In miseq')
+    lane1_tile=tiles_uniq[order(tiles_uniq,decreasing=F)]
+    lane1_rtile=sapply(1:length(lane1_tile),function(i) {strsplit(lane1_tile[i],'_')[[1]][2]})
+    nrow=1
+    ncol=length(lane1_rtile)
+    layout=data.frame('ROW'=nrow,'COL'=1:ncol,'LANE'=1,'OTILE'=lane1_rtile)
+
+  } else 
+  {
+    #check if path exists
+   layout=read.csv(layout,row.names=1)
+   colnames(layout)[4]='OTILE'
+  
+
+   print('Customized')
+  }
+
+ layout$tile=paste(layout$LANE,layout$OTILE,sep='_')
+ #lane12=unique(layout$tile)
+ #lane12=lane12[order(lane12)]
+
+  if (tiles=='All')
+  {
+    print('cond2')
+    tiles=tiles_uniq
+    tiles=tiles[order(tiles)]
+    print(tiles)
+  } else
+  { print('cond3')
+    tiles = intersect(tiles,tiles_uniq)
+    tiles=tiles[order(tiles)]
+    print('tiles after merge')
+    print(tiles)
     miseq_pos=miseq_pos[miseq_pos$tile_miseq %in% tiles,]
-    print(head(miseq_pos))
+    if (dim(miseq_pos)[1]==0)
+    {
+      stop("No tiles found")
+    }
   }
-  else
-  {
-    stop('Not all tiles found')
-  }
-  df = data.frame("HDMI" =colnames(m),"HDMIind" = 1:(dim(m)[2]))
+
+
   setwd(outpath)
-  tile_df = merge(miseq_pos,df,by = "HDMI")  #this takes some time, just save this
+  print('merge')
+  df = data.frame("HDMI" =colnames(m),"HDMIind" = 1:(dim(m)[2]))
+  tile_df = merge(miseq_pos,df,by = "HDMI")
   m_tile = m[,tile_df$HDMIind]
-  print(dim( m_tile))
-  tile_df$UMI=colSums(m_tile)
+  tile_df$UMI = colSums(m_tile)
+  tile_df$tileHDMIind= match(tile_df$HDMI,colnames(m_tile))
+  tile_df=tile_df[tile_df$tile_miseq %in% layout$tile,]
+  print(head(tile_df))
+  print(tiles)
+  print(dim(m_tile))
+
+
+
+  # df = data.frame("HDMI" =colnames(m),"HDMIind" = 1:(dim(m)[2]))
+  # setwd(outpath)
+  # tile_df = merge(miseq_pos,df,by = "HDMI")  #this takes some time, just save this
+  # m_tile = m[,tile_df$HDMIind]
+  # print(dim( m_tile))
+  # tile_df$UMI=colSums(m_tile)
   if (file.exists('groupgrids_tile.txt'))
   {
       file.remove('groupgrids_tile.txt')
@@ -155,7 +199,7 @@ getSubfield = function(seqscope1st,DGEdir,spatial,outpath,tiles)
 
   #out=sapply(1:length(tiles),getGroupGrids,tiles=tiles,tile_df=tile_df,m_tile=m_tile,slidestarts=slidestarts,window=window,binx=binx,biny=biny)
 
-print('Finish generating subfields!')
+ print('Finish generating subfields!')
 }
 
 

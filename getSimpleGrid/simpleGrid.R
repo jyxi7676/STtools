@@ -47,8 +47,30 @@ collapseTiles=function(tile_df,i,binx,biny,m_tile)
   maxx = max(tile_df_i$x_miseq)
   xlim= c(min(tile_df_i$x_miseq),max(tile_df_i$x_miseq))
   ylim = c(min(tile_df_i$y_miseq),max(tile_df_i$y_miseq))
-  grd = make.grid(tile_df_i$x_miseq,tile_df_i$y_miseq,tile_df_i$UMI, binx,biny, xlim, ylim)
-  grd=t(grd)
+  xlim = c(min(tile_df_sub_wind$x_miseq),max(tile_df_sub_wind$x_miseq))
+  ylim = c(min(tile_df_sub_wind$y_miseq),max(tile_df_sub_wind$y_miseq))
+  print('xlim')
+  print(xlim)
+  print(ylim)
+  print(binx)
+                                        #print(xlim[0])                                                                                                                                                     
+  gapx=xlim[2]-xlim[1]
+  gapy=ylim[2]-ylim[1]
+  if (gapx<300)
+   {
+       xlim[1]=xlim[1]-gapx/2
+       xlim[2]=xlim[2]+gapx/2
+
+   }
+   if (gapy<300)
+   {
+       ylim[1]=ylim[1]-gapy/2
+       ylim[2]=ylim[2]+gapy/2
+
+   }
+
+ grd = make.grid(tile_df_i$x_miseq,tile_df_i$y_miseq,tile_df_i$UMI, binx,biny, xlim, ylim)
+ grd=t(grd)
 
 
  fn1=paste0('Temp_CollapsedHDMIsIndLength','.csv')

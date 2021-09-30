@@ -41,7 +41,7 @@ mergeSeuratObj=function(seurat_object_list)
 
 mergeTileSubFieldRds=function(outpath,ncol,nrow,layout,order,tiles)
 {
-  packages = c("Seurat","tidyverse")
+  packages = c("Matrix","Seurat","tidyverse")
   ## add more packages to load if needed
   ## Now load or install&load all
   package.check <- lapply(
@@ -91,102 +91,101 @@ mergeTileSubFieldRds=function(outpath,ncol,nrow,layout,order,tiles)
   
  
   tile_df = obj@meta.data
-  if (layout=='FALSE')
-  {
-    if(order=='top')
-    {
-      
-      addson_hori = max(tile_df$Y)
-      addson_verti = max(tile_df$X)
-      tile_df$aggrInd =  as.numeric(factor(tile_df$tile))-1
-      tile_df$aggrInd2 = tile_df$aggrInd
-      tile_df$y_miseq_expand = tile_df$Y +  addson_hori*(((tile_df$aggrInd2%%ncol)))
-      tile_df$x_miseq_expand =   tile_df$X +  addson_verti*(floor((tile_df$aggrInd2/ncol)))
-    }
-    if(order=='bottom')
-    {
-      
-      addson_hori = max(tile_df$Y)
-      addson_verti = max(tile_df$X)
-      tile_df$aggrInd =  as.numeric(factor(tile_df$tile))-1
-      
-      tile_df$aggrInd2 = 0
-      tile_df[tile_df$aggrInd<ncol,"aggrInd2"] = tile_df[tile_df$aggrInd<ncol,]$aggrInd+ncol
-      tile_df[tile_df$aggrInd>=ncol,"aggrInd2"] = tile_df[tile_df$aggrInd>=ncol,]$aggrInd-ncol
-      tile_df$y_miseq_expand = tile_df$Y +  addson_hori*(((tile_df$aggrInd2%%ncol)))
-      tile_df$x_miseq_expand =   tile_df$X +  addson_verti*(floor((tile_df$aggrInd2/ncol)))
-    }
-    #for super tile
-  
-  }
-  else
-  {
-    print('layout')
-    layout = read.csv(layout,row.names=1)
-    nrow = max(layout$ROW)
-    ncol = max(layout$COL)
-   # layout$tile=  paste(layout[,3],layout[,4],sep="_")
-    layout$tile=paste(layout$LANE,layout$TILE,sep="_")
-   #layout$ROW_COL=paste(layout$ROW,layout$COL,sep="_")
-    #layout$aggrInd =  as.numeric(factor(layout$ROW_COL))-1
-    print(head(layout)) 
-    
-    print(head(tile_df))
-    #tile_df$aggrInd2 = layout$aggrInd
-    tile_df = merge(tile_df,layout,by='tile')
-    addson_hori = max(tile_df$Y)
-    addson_verti = max(tile_df$X)
-    tile_df$y_miseq_expand = tile_df$Y +  addson_hori*(tile_df$COL-1)
-    tile_df$x_miseq_expand = tile_df$X +  addson_verti*(tile_df$ROW-1)
-    
 
+  tile_df$name=colnames(obj)
+
+  tiles_uniq = unique(tile_df$tile)
+  print(tiles_uniq)
+ if (layout=='HiSeq')
+  { 
+    lane1_tile=c(paste('1',1201:1216,sep='_'),paste('1',2201:2216,sep='_'),paste('1',1101:1116,sep='_'),paste('1',2101:2116,sep='_'))
+    lane1_rtile=sapply(1:length(lane1_tile),function(i) {strsplit(lane1_tile[i],'_')[[1]][2]})
+    lane1_layout=data.frame('ROW'=c(rep(1,32),rep(2,32)),'COL'=c(seq(1,32,1),seq(1,32,1)),'LANE'=1,'OTILE'=lane1_rtile)
+
+    lane2_tile=c(paste('2',1201:1216,sep='_'),paste('2',2201:2216,sep='_'),paste('2',1101:1116,sep='_'),paste('2',2101:2116,sep='_'))
+    lane2_rtile=sapply(1:length(lane2_tile),function(i) {strsplit(lane2_tile[i],'_')[[1]][2]})
+    lane2_layout=data.frame('ROW'=c(rep(3,32),rep(4,32)),'COL'=c(seq(1,32,1),seq(1,32,1)),'LANE'=2,'OTILE'=lane2_rtile)
+
+    layout=rbind(lane1_layout,lane2_layout)
+    #lane12=c(paste('1',1101:1116,sep='_'),paste('1',1201:1216,sep='_'),paste('1',2101:2116,sep='_'),paste('1',2201:2216,sep='_'),paste('2',1101:1116,sep='_'),paste('2',1201:1216,sep='_'),paste('2',2101:2116,sep='_'),paste('2',2201:2216,sep='_'))
+    #nrow=4
+    #ncol=ceiling(length(lane12)/nrow)
+  } else if  (layout == 'MiSeq')
+  {
+    print('In miseq')
+    lane1_tile=tiles_uniq[order(tiles_uniq,decreasing=F)]
+    lane1_rtile=sapply(1:length(lane1_tile),function(i) {strsplit(lane1_tile[i],'_')[[1]][2]})
+    nrow=1
+    ncol=length(lane1_rtile)
+    layout=data.frame('ROW'=nrow,'COL'=1:ncol,'LANE'=1,'OTILE'=lane1_rtile)
+
+  } else 
+  {
+    #check if path exists
+   layout=read.csv(layout,row.names=1)
+   colnames(layout)[4]='OTILE'
+  
+
+   print('Customized')
   }
+
+ layout$tile=paste(layout$LANE,layout$OTILE,sep='_')
+
+  #tile_df$tile=as.factor(tile_df$tile)                                       #aggregate all tils by expanding coord
   
-  #tile_df$orig.ident = rownames(tile_df)
-  obj@meta.data$X_expand = tile_df$x_miseq_expand
-  obj@meta.data$Y_expand = tile_df$y_miseq_expand
+  #ordering=data.frame('tile'=lane12,'aggrInd'=order(as.factor(lane12))-1)
+ # tile_df=merge(tile_df,ordering,by='tile')
+
+  addson_hori = max(tile_df$Y)
+  addson_verti = max(tile_df$X)
+  nrow = max(layout$ROW)
+  ncol = max(layout$COL)
+  tile_df = merge(tile_df,layout,by='tile')
+  #print(head(obj@meta.data))
+  addson_hori = max(tile_df$Y)
+  addson_verti = max(tile_df$X)
+  #tile_df$y_miseq_expand = tile_df$Y +  addson_hori*(tile_df$COL-1)
+  #tile_df$x_miseq_expand = tile_df$X +  addson_verti*(tile_df$ROW-1)
+  tile_df$y_miseq_expand = tile_df$Y +  addson_hori*(tile_df$COL-1)
+  tile_df$x_miseq_expand = tile_df$X +  addson_verti*(nrow-tile_df$ROW)
+                                        # print(head(tile_df))
+  print('tiledf')
+  write.csv(tile_df,'tile_df.csv')
+  tile_df=tile_df[,c('orig.ident','name','LANE','OTILE','tile','nCount_Spatial','nFeature_Spatial','X','Y','x_miseq_expand','y_miseq_expand','ROW','COL','interationi','interationj')]
+  colnames(tile_df)=c('orig.ident','collapseID','lane','tile','lane_tile','nCount_Spatial','nFeature_Spatial','X','Y','X_expand','Y_expand','row','col','iter_i','iter_j')
+  print(head(tile_df))
+
+#  tile_df=tile_df[,c('orig.ident','name','LANE','OTILE','tile','nCount_Spatial','nFeature_Spatial','X','Y','x_miseq_expand','y_miseq','ROW','COL')]
+#  print(head(tile_df))
+#  colnames(tile_df)=c('orig.ident','collapseID','lane','tile','lane_tile','nCount_Spatial','nFeature_Spatial','X','Y','X_expand','Y_expand','row','col')
+
+
+  print('h1')
+  obj@meta.data=tile_df
+  print('h2')
   
+  rownames(tile_df) = colnames(obj)
+  print(obj)
+
+  #obj@meta.data$X_expand = obj@meta.data$x_miseq_expand
+  #obj@meta.data$Y_expand = obj@meta.data$y_miseq_expand
+  #print(obj)
+  print(head(obj@meta.data))
+  print('h3')
   obj@images$image = new(
     Class = 'SlideSeq',
     assay = "Spatial",
     key = "image_",
     coordinates = obj@meta.data[,c('Y_expand','X_expand')]
-  ) 
-
-
-  #tile_df = obj@meta.data
-  #addson_hori = max(tile_df$Y)
-#  addson_verti = max(tile_df$X)
- # if(length(unique(tile_df$tile))==1)
-  #{
-   # obj@meta.data$X_expand=obj@meta.data$X
-    #obj@meta.data$Y_expand=obj@meta.data$Y
-  #}
-  #else
-  #{
-   # tile_df$aggrInd =  as.numeric(factor(tile_df$tile))-1
-
-    #tile_df$aggrInd2 = 0
-   # tile_df[tile_df$aggrInd<ncol,"aggrInd2"] = tile_df[tile_df$aggrInd<ncol,]$aggrInd+ncol
-    #tile_df[tile_df$aggrInd>=ncol,"aggrInd2"] = tile_df[tile_df$aggrInd>=ncol,]$aggrInd-ncol
-
-    #tile_df$y_miseq_expand = tile_df$Y +  addson_hori*(((tile_df$aggrInd2%%ncol)))
-    #tile_df$x_miseq_expand =   tile_df$X +  addson_verti*(floor((tile_df$aggrInd2/ncol)))
-    #tile_df$orig.ident = rownames(tile_df)
-    #obj@meta.data$X_expand = tile_df$x_miseq_expand
-    #obj@meta.data$Y_expand = tile_df$y_miseq_expand
-  #}
-
-
-  #obj@images$image = new(
-   # Class = 'SlideSeq',
-    #assay = "Spatial",
-    #key = "image_",
-    #coordinates = obj@meta.data[,c('Y_expand','X_expand')]
- # )
-  
+  )
 
   saveRDS(obj,objfile)
+  m=(obj@assays$Spatial@counts)
+  gene=rownames(obj)
+  bc=colnames(obj)
+  writeMM(m, file="collapsedMatrix.mtx")
+  write.csv(gene,'collapsedGenes.csv')
+  write.csv(bc,'collapsedBarcodes.csv')
   print('Done!')
 }
 

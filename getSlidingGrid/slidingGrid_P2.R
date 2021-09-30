@@ -19,21 +19,29 @@ r11=as.numeric(as.vector((strsplit(r11, ",")[[1]])))
 #' @param tile integer of the tile number
 getSubGrids = function(tile_df,m_tile,slidestarts,window,binx,biny,tile,collapsePath)
 {
-
+                                        #  tic()
+  df_miny = min(tile_df$y_miseq)
+  df_maxy = max(tile_df$y_miseq)
+  df_minx = min(tile_df$x_miseq)
+  df_maxx = max(tile_df$x_miseq)
   obj=suppressWarnings(CreateSeuratObject(m_tile[,1:2]))#initialize note if none
-  tile_df_sub= tile_df
+  #tile_df_sub= tile_df
   #Use nested loop instead
-  #obj=slidingWindow(slidestarts,tile_df_sub,window,binx,biny,simpleGrid,obj,m_tile,colnames(m_tile),rownames(m_tile),tile,groupid)
+  #obj=slidingWindow(slidestarts,tile_df_sub,window,binx,biny,simpleGridobj,m_tile,colnames(m_tile),rownames(m_tile),tile,groupid)
   for(j in slidestarts)
   {
     print(j)
     for(t in slidestarts)
     {
      print(t)
-
-      obj=simpleGrid(tile_df_sub,binx,biny,window,j,t,obj,m_tile,colnames(m_tile),rownames(m_tile),tile,collapsePath);
+     print('start simple grids')
+                                        #tic()
+     #print(dim(tile_df))
+     obj=simpleGrid(tile_df,binx,biny,window,j,t,obj,m_tile,colnames(m_tile),rownames(m_tile),tile,collapsePath,df_miny,df_maxy,df_minx,df_maxx);
+     #toc()
     }
   }
+ # toc()
   return(obj)
 
 }
@@ -43,6 +51,8 @@ getSubGrids = function(tile_df,m_tile,slidestarts,window,binx,biny,tile,collapse
 #' @param seurat_object_list a list of Seurat object
 mergeSeuratObj=function(seurat_object_list)
 {
+
+  seurat_object_list = unlist(seurat_object_list)
 
   for (i in names(seurat_object_list))
   {
@@ -68,29 +78,68 @@ mergeSeuratObj=function(seurat_object_list)
 #' @param m_bc barcodes of m_tile
 #' @param m_gene barcodes of m_gene
 #' @param tile integer of one tile
-simpleGrid = function(tile_df_sub,binx,biny,window,j,t,obj,m_tile,m_bc,m_gene,tile,collapsePath)
+simpleGrid = function(tile_df_sub,binx,biny,window,j,t,obj,m_tile,m_bc,m_gene,tile,collapsePath,df_miny,df_maxy,df_minx,df_maxx)
 {
-  miny = min(tile_df_sub$y_miseq)
-  maxy = max(tile_df_sub$y_miseq)
-  minx = min(tile_df_sub$x_miseq)
-  maxx = max(tile_df_sub$x_miseq)
+   miny = min(tile_df_sub$y_miseq)
+   maxy = max(tile_df_sub$y_miseq)
+   minx = min(tile_df_sub$x_miseq)
+   maxx = max(tile_df_sub$x_miseq)
+  #print('subsetting')
+
+  #tic()
   tile_df_sub_down = tile_df_sub[tile_df_sub$x_miseq>=(minx+window*j)&tile_df_sub$x_miseq<=(maxx-window*j),]
+  #print('dim')
+  #print(dim(tile_df_sub))
+  #print(dim(tile_df_sub_down))
+  if(dim(tile_df_sub_down)[1]==0)
+  {
+    return(NULL)
+  }
   miny = min(tile_df_sub_down$y_miseq)
   maxy = max(tile_df_sub_down$y_miseq)
   minx = min(tile_df_sub_down$x_miseq)
   maxx = max(tile_df_sub_down$x_miseq)
   tile_df_sub_wind = tile_df_sub_down[tile_df_sub_down$y_miseq>=(miny+window*t) & tile_df_sub_down$y_miseq<=(maxy-window*t),]
-  xlim2 = c(min(tile_df_sub_wind$x_miseq),max(tile_df_sub_wind$x_miseq))
-  ylim2 = c(min(tile_df_sub_wind$y_miseq),max(tile_df_sub_wind$y_miseq))
+  #print(dim(tile_df_sub_wind))
+  if(dim(tile_df_sub_wind)[1]==0)
+  {
+    return(NULL)
+  }
+  
+  xlim = c(min(tile_df_sub_wind$x_miseq),max(tile_df_sub_wind$x_miseq))
+  ylim = c(min(tile_df_sub_wind$y_miseq),max(tile_df_sub_wind$y_miseq))
+  print('xlim')
+  print(xlim)
+  print(ylim)
+   print(binx)
+                                        #print(xlim[0])
+   gapx=xlim[2]-xlim[1]
+   gapy=ylim[2]-ylim[1]
+  if (gapx<300)
+   {
+       xlim[1]=xlim[1]-gapx/2
+       xlim[2]=xlim[2]+gapx/2
+       
+   }
+   if (gapy<300)
+   {
+       ylim[1]=ylim[1]-gapy/2
+       ylim[2]=ylim[2]+gapy/2
 
+   }
 
-  grd = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$UMI, binx,biny, xlim2, ylim2)
-
+ #toc()
+ # print('make grid')
+                                        # tic()
+   #print('write')
+  # write.csv(tile_df_sub_wind,'tile_df_sub_wind.csv')
+ print('xlim')
+  print(xlim)
+  print(ylim)
+   print(binx)
+  grd = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$UMI, binx,biny, xlim, ylim)
+ #print(dim(grd))
   grd=t(grd)
-
-
-#  fn1=paste0('Temp_CollapsedHDMIsIndLength','.csv')
-#  fn2=paste0('Temp_CollapsedHDMIsInd','.txt')
 
   fn1=paste0('Temp_CollapsedHDMIsIndLength',tile,'_',j,t,'.csv')
   fn2=paste0('Temp_CollapsedHDMIsInd',tile,'_',j,t,'.txt')
@@ -106,20 +155,13 @@ simpleGrid = function(tile_df_sub,binx,biny,window,j,t,obj,m_tile,m_bc,m_gene,ti
   }
   #grd_re = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$tileHDMIind, binx, biny, xlim2, ylim2,function(x) {write(length(x), file=fn1,append = T)})
   #grd_re = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$tileHDMIind, binx, biny, xlim2, ylim2,function(x) {cat(x,file=fn2,append=TRUE,sep='\n')})
-  test.env <- new.env()
+  test.env = new.env()
 
-  #assign('var', 100, envir=test.env)
-# or simply
   test.env$len =c()
   test.env$no = c()
-  grd_re = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$tileHDMIind, binx, biny, xlim2, ylim2,function(x) {test.env$len=c(test.env$len,length(x))})
-  grd_re = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$tileHDMIind, binx, biny, xlim2, ylim2,function(x) {test.env$no=c(test.env$no,x)})  
-  #grd_re = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$tileHDMIind, binx, biny, xlim2, ylim2,function(x) {write(length(x), file=fn1,append = T);cat(x,file=fn2,append=TRUE,sep='\n')})
+  grd_re = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$tileHDMIind, binx, biny, xlim, ylim,function(x) {test.env$len=c(test.env$len,length(x))})
+  grd_re = make.grid(tile_df_sub_wind$x_miseq,tile_df_sub_wind$y_miseq,tile_df_sub_wind$tileHDMIind, binx, biny, xlim, ylim,function(x) {test.env$no=c(test.env$no,x)})  
 
-
-  #draw the grids centers:
-  # write.csv(as.numeric(colnames(grd)),paste0('grd_col',j,t,'.csv'))
-  #  write.csv(as.numeric(rownames(grd)),paste0('grd_row',j,t,'.csv'))
   collapseLen = test.env$len
   collapseInd = test.env$no
 
@@ -127,27 +169,40 @@ simpleGrid = function(tile_df_sub,binx,biny,window,j,t,obj,m_tile,m_bc,m_gene,ti
   colnames(collapseLen) =c("len","end")
   collapseLen=as.data.frame(collapseLen)
   interv = c(0,collapseLen$end)
-
-
+ # toc()
+  #print(toc())
   #create dataframe of the assignment of collapsed grids for each HDMI
-
+  #print('matrix subsetting')
+  #tic()
   df=data.frame('HDMIind' = collapseInd,"HDMI" = m_bc[collapseInd])
+  #toc()
   assign=c()
+  #print('add name')
+  #tic()
   out=sapply(1:(dim(collapseLen)[1]),function(x) {nrep=collapseLen$len[x];return(c(assign,rep(paste0('Collapse2_',x),nrep)))})
   assign = unlist(out)
   df$assign = assign
-  #fn3=paste0('HDMI_collapsing_assignment','_',j,'_',t,'.csv')
-  #write.csv(df,fn3)
-  #print('collapse')
+  #toc()
+                                        #print(toc())
+
+                                        #toc()
+  tic()
   sourceCpp(collapsePath)
   print('source sucesful')
-  tic();collapseM = collapse(m_tile,collapseInd,interv);toc()
+  #tic();
+  collapseM = collapse(m_tile,collapseInd,interv)
+  #  toc()
   #print('finished collapse!')
+
+  
+  #print(tic())
+  #print('last')
+  
   rownames(collapseM) = m_gene
   colnames(collapseM) = paste0("Collase_tile_",tile,"_",j,"_",t,"_",1:(length(interv)-1))
   sparse.gbm = Matrix(collapseM , sparse = T )
 
-
+  toc()
   grd=t(grd)
   pos = which(!is.na(grd), TRUE)
   pos_coor = t(sapply(1:(dim(pos)[1]),function(x) {c(as.numeric(rownames(grd)[as.numeric(pos[x,1])]),as.numeric(colnames(grd)[as.numeric(pos[x,2])]) )})) #here the grd is transposed
@@ -176,6 +231,8 @@ simpleGrid = function(tile_df_sub,binx,biny,window,j,t,obj,m_tile,m_bc,m_gene,ti
     obj = merge(obj,obj1)
 
   }
+  #print(toc())
+  #toc()
   return(obj)
 }
 
@@ -242,7 +299,17 @@ slidingWindowSub=function(collapsePath,DGEdir,outpath,window,sidesize,xargs)
   print('Pring tiles')
 #  print(tile)
  # print(as.numeric(tile))
+  #df_miny = min(sub_xargs$y_miseq)
+  #df_maxy = max(sub_xargs$y_miseq)
+  #df_minx = min(sub_xargs$x_miseq)
+  #df_maxx = max(sub_xargs$x_miseq)
+  #print('p2 time')
+                                        #tic()
+  print('subxargs')
+  print(head(sub_xargs))
+  print(dim(sub_xargs))
   clp=getSubGrids(sub_xargs,m_tile_sub,slidestarts,window,binx,biny,tile,collapsePath)
+  #toc()
   saveRDS(clp,paste0('tile_',tile,'.RDS'))
   #out=sapply(group,getSubGrids,tile_df=tile_df_exact,m_tile=m_tile,slidestarts=slidestarts,window=window,binx=binx,biny=biny,tile=tile)  #function applies on subfied
   print('finish subfield collapsing')

@@ -294,7 +294,8 @@ def step5():
        args.datasource = 'SeqScope'
        args.nMax=100
     if(args.datasource =='VISIUM'):
-       print('Not a step for VISIUM data')   
+       print('Not a step for VISIUM data')
+       exit(1)
   #  if (args.datasource == 'SlideSeq' ):
    #     args.sliding=
     else:
@@ -325,11 +326,14 @@ def step5():
             args.window=150
         if(args.binsize is None):
             args.binsize=300
-        if(args.lane_tiles is None):
-            raise ValueError("Lane and tiles are required")
+       # if(args.lane_tiles is None):
+       #     raise ValueError("Lane and tiles are required")
+       # if(args.layout is None):
+        #    args.layout='HiSeq'
         if(args.layout is None):
-            args.layout='HiSeq'
- 
+            args.layout='MiSeq'
+        if(args.lane_tiles is None):
+            args.lane_tiles='All'
         args.sliding_P1=args.STtools+"/getSlidingGrid/slidingGrid_P1.R"
         args.sliding_P2=args.STtools+"/getSlidingGrid/slidingGrid_P2.R"
         args.sliding_P3=args.STtools+"/getSlidingGrid/slidingGrid_P3.R"
@@ -342,7 +346,7 @@ def step5():
         if(os.path.isfile(args.sliding_P3)==False):
             raise ValueError("File --sliding_P3 does not exist")
         
-        cmd5_1="Rscript {args.sliding_P1} {args.seqscope1st} {args.DGEdir} {args.spatial} {args.outdir} {args.lane_tiles}".format(args=args)
+        cmd5_1="Rscript {args.sliding_P1} {args.layout} {args.DGEdir} {args.spatial} {args.outdir} {args.lane_tiles}".format(args=args)
         ret = os.system(cmd5_1)
         if ( ret != 0 ):
             raise ValueError(f"ERROR in running {cmd5_1}, returning exit code {ret}")
