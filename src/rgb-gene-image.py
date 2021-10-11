@@ -19,6 +19,7 @@ parser.add_argument("-o", "--out", type=str, required=True, help="Output file pr
 args = parser.parse_args()
 
 def update_xyrange(xyr, x, y):
+    #print(f"{x} {y} {xyr}",file=sys.stderr)
     if xyr[0][0] > x:
         xyr[0][0] = x
     if xyr[0][1] < x:
@@ -126,6 +127,7 @@ for r in range(nrows):
                             bin2cnts[key][i] += (rgbWI[0][i] * cnts[rgbWI[1][i]])
 
 ## calculate the range of bins
+## print(xyrange, file=sys.stderr)
 (xbin_min, xbin_max, ybin_min, ybin_max) = (xyrange[0][0]//args.res, xyrange[0][1]//args.res, xyrange[1][0]//args.res, xyrange[1][1]//args.res)
 
 ## construct a sparse matrix
@@ -152,9 +154,9 @@ print(f"Constructing an image of {total_h} x {total_w}",file=sys.stderr)
 data = np.zeros( (total_h, total_w, 3), dtype=np.uint8 )
 for (key, value) in bin2cnts.items():
     (row, col, xbin, ybin) = [int(x) for x in key.split(':')]
-    x_ext = row * tile_h + (tile_h - xbin - 1)
+    x_ext = row * tile_h + (tile_h - xbin + xbin_min - 1)
     y_ext = col * tile_w + (ybin - ybin_min)
-    # print(f"{key} {x_ext} {y_ext}",file=sys.stderr)
+    #print(f"{key} {tile_h} {x_ext} {y_ext}",file=sys.stderr)
     red = value[0] * scale_factors[0]
     grn = value[1] * scale_factors[1]
     blu = value[2] * scale_factors[2]
