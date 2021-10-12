@@ -103,7 +103,8 @@ getSubfield = function(layout,DGEdir,spatial,outpath,tiles)
 
   rownames(m) = features
   colnames(m) = bc
-  m = m[,colSums(m)<=100&colSums(m)>0]  #remove outliers
+  m = m[,colSums(m)>0]
+  #m = m[,colSums(m)<=100&colSums(m)>0]  #remove outliers
   dim(m)
   #get spatial info
   print('Reading spatial info')
