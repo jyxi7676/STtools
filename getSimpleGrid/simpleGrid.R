@@ -54,7 +54,15 @@ collapseTiles=function(tile_df,i,binx,biny,m_tile)
                                         #print(xlim[0])                                                                                                                                                     
   gapx=xlim[2]-xlim[1]
   gapy=ylim[2]-ylim[1]
-  if (gapx<300)
+ if(gapx==0)
+  {
+  return(NULL)
+  }
+ if(gapy==0)
+ {
+ return(NULL) 
+ }
+ if (gapx<300)
    {
        xlim[1]=xlim[1]-gapx/2
        xlim[2]=xlim[2]+gapx/2
@@ -69,7 +77,9 @@ collapseTiles=function(tile_df,i,binx,biny,m_tile)
 
  grd = make.grid(tile_df_i$x_miseq,tile_df_i$y_miseq,tile_df_i$UMI, binx,biny, xlim, ylim)
  grd=t(grd)
-
+ print('grd')
+ print(dim(grd))
+ print(sum(!is.na(grd)))   
 
  fn1=paste0('Temp_CollapsedHDMIsIndLength','.csv')
  fn2=paste0('Temp_CollapsedHDMIsInd','.txt')
@@ -100,7 +110,8 @@ collapseTiles=function(tile_df,i,binx,biny,m_tile)
   colnames(collapseLen) =c("len","end")
   collapseLen=as.data.frame(collapseLen)
   interv = c(0,collapseLen$end)
-
+    write.csv(collapseLen,'temp_collapselen.csv')
+    write.csv(collapseInd,'temp_collapseInd.csv')
   #sourceCpp(collapsePath)
   print('Start Simple Square Gridding!')
   tic();collapseM = collapse(m_tile,collapseInd,interv);toc()
@@ -236,7 +247,9 @@ getSimpleGrid = function(DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collaps
 
   if (nMax!='None')
   {
-    m = m[,colSums(m)<=nMax&colSums(m)>0]  #remove outliers
+    m = m[,colSums(m)<=nMax&colSums(m)>0]
+    m = m[rowSums(m)>0,]
+    #m = m[,colSums(m)>0]                                    #remove outliers
   }
 
 
@@ -310,16 +323,19 @@ getSimpleGrid = function(DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collaps
   df = data.frame("HDMI" =colnames(m),"HDMIind" = 1:(dim(m)[2]))
   tile_df = merge(miseq_pos,df,by = "HDMI")
   m_tile = m[,tile_df$HDMIind]
+  print('m_tile')
+  print(dim(m_tile))
   tile_df$UMI = colSums(m_tile)
   tile_df$tileHDMIind= match(tile_df$HDMI,colnames(m_tile))
   tile_df=tile_df[tile_df$tile_miseq %in% layout$tile,]
   write.csv(tile_df,'tile_df_raw.csv')
-
+  
   print('Start collapsing')
   obj=sapply(tiles,collapseTiles, tile_df=tile_df,binx=binx,biny=biny,m_tile=m_tile)
   obj=mergeSeuratObj(obj)
   print('OBJ')
   print(obj)
+  print(summary(obj$nFeature_Spatial))
 
   #super tile
   tile_df = obj@meta.data
@@ -401,14 +417,14 @@ getSimpleGrid = function(DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collaps
   write.csv(gene,'collapsedGenes.csv')
   write.csv(bc,'collapsedBarcodes.csv')
   saveRDS(obj,'SimpleSquareGrids.RDS')
-  junk = dir(path=outpath,  pattern="Temp")
-  file.remove(junk)
-  junk = dir(path=outpath,  pattern="^tile.*\\Barcodes.csv")
-  file.remove(junk)
-  junk = dir(path=outpath,  pattern="^tile.*\\Genes.csv")
-  file.remove(junk)
-  junk = dir(path=outpath,  pattern="^tile.*\\Matrix.mtx")
-  file.remove(junk)
+  #junk = dir(path=outpath,  pattern="Temp")
+  #file.remove(junk)
+  #junk = dir(path=outpath,  pattern="^tile.*\\Barcodes.csv")
+  #file.remove(junk)
+  #junk = dir(path=outpath,  pattern="^tile.*\\Genes.csv")
+  #file.remove(junk)
+  #junk = dir(path=outpath,  pattern="^tile.*\\Matrix.mtx")
+  #file.remove(junk)
                                         #   print('feature eplot')
   #png("nFeatureplot.png",width=7*2,height=6,res=300,units='in')
   #p1=VlnPlot(obj, features = "nFeature_Spatial", pt.size = 0) + NoLegend()

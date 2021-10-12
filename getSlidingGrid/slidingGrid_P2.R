@@ -115,13 +115,21 @@ simpleGrid = function(tile_df_sub,binx,biny,window,j,t,obj,m_tile,m_bc,m_gene,ti
                                         #print(xlim[0])
    gapx=xlim[2]-xlim[1]
    gapy=ylim[2]-ylim[1]
-  if (gapx<300)
+  if(gapx==0)
+  {
+  return(NULL)
+  }
+  if(gapy==0)
+ {
+ return(NULL)
+ }
+ if (gapx<300)
    {
        xlim[1]=xlim[1]-gapx/2
        xlim[2]=xlim[2]+gapx/2
        
    }
-   if (gapy<300)
+  if (gapy<300)
    {
        ylim[1]=ylim[1]-gapy/2
        ylim[2]=ylim[2]+gapy/2
