@@ -10,6 +10,8 @@ parser.add_argument("-d", "--in-dir", type=str, required=True, help="Input (STTo
 parser.add_argument("-t", "--tile", type=str, help="A single tile to draw (in [lane_tile] format)")
 parser.add_argument("-l", "--layout", type=str, help="Layout file of tiles to draw [lane] [tile] [row] [col] format in each line")
 parser.add_argument("-s", "--scale", type=float, default=20.0, help="Scale each color to have the same mean intensity")
+parser.add_argument("-i", "--inv-weight", default=False, action='store_true', help="Weight each gene inverse")
+parser.add_argument("-m", "--min-tpm", default=1000, type=float, help="Minimum TPM value for inverse weighting (effective only with --inv-weight)")
 parser.add_argument("-r", "--red", type=str, required=True, help="Comma-separate list of genes (colon with weights) for red color")
 parser.add_argument("-g", "--green", type=str, required=True, help="Comma-separate list of genes (colon with weights) for green color")
 parser.add_argument("-b", "--blue", type=str, required=True, help="Comma-separate list of genes (colon with weights) for blue color")
@@ -49,6 +51,8 @@ def parse_gene_weights(s):
 ## parse --red, --blue, --green arguments
 rgbGWs = [parse_gene_weights(args.red), parse_gene_weights(args.green), parse_gene_weights(args.blue)]
 
+#print(rgbGWs, file=sys.stderr)
+
 if ( args.layout is not None ):
     if ( args.tile is not None ):
         raise ValueError("Cannot use -t/--tile and -l/--layout options together")
@@ -79,6 +83,35 @@ else:
 ## read each tile and construct bins of sums and npixs
 xyrange = [[sys.maxsize, 0], [sys.maxsize, 0]]
 bin2cnts = {}
+
+## calculate per gene weights
+geneTPMs = None
+if args.inv_weight:
+    geneTPMs = []
+    for r in range(nrows):
+        for c in range(ncols):
+            with gzip.open(f"{args.in_dir}/{lanes[r][c]}/{tiles[r][c]}/features.tsv.gz",'rt',encoding='utf-8') as fh:
+                idx = 0
+                for line in fh:
+                    toks = line.rstrip().split('\t')
+                    cnts = [int(x) for x in toks[-1].split(',')]
+                    if r == 0 and c == 0:
+                        geneTPMs.append(cnts)
+                    else:
+                        for i in range(len(cnts)):
+                            geneTPMs[idx][i] += cnts[i]
+                    idx += 1
+    geneSum = 0
+    for i in range(len(geneTPMs)):
+        for j in range(len(geneTPMs[i])):
+            geneSum += geneTPMs[i][j]
+    
+    for i in range(len(geneTPMs)):
+        for j in range(len(geneTPMs[i])):
+            geneTPMs[i][j] = geneTPMs[i][j] / geneSum * 1e6
+            if geneTPMs[j][j] < args.min_tpm:
+                geneTPMs[i][j] = args.min_tpm
+
 for r in range(nrows):
     for c in range(ncols):
         print(f"Processing ({r},{c}) : {lanes[r][c]}_{tiles[r][c]}",file=sys.stderr)
@@ -87,16 +120,20 @@ for r in range(nrows):
         with gzip.open(f"{args.in_dir}/{lanes[r][c]}/{tiles[r][c]}/features.tsv.gz",'rt',encoding='utf-8') as fh:
             for line in fh:
                 toks = line.rstrip().split('\t')
+                gidx = int(toks[3])-1
+                rgbw = [0, 0, 0]
+                rgbi = [0, 0, 0]
                 for i in range(3):
-                    rgbw = [0, 0, 0]
-                    rgbi = [0, 0, 0]
                     g = "_all" if ( "_all" in rgbGWs[i] ) else toks[1]
                     if ( g in rgbGWs[i] ):
                         (weight, idx) = rgbGWs[i][g]
-                        rgbw[i] = weight
+                        #print(f"{idx} {i}",file=sys.stderr)
+                        rgbw[i] = weight / (1 if ( geneTPMs is None ) else geneTPMs[gidx][idx])
                         rgbi[i] = idx
-                    if ( rgbw[0] + rgbw[1] + rgbw[2] > 0 ):
-                        colDict[toks[3]] = [rgbw, rgbi] ## make indices
+                if ( rgbw[0] + rgbw[1] + rgbw[2] > 0 ):
+                    colDict[toks[3]] = [rgbw, rgbi] ## make indices
+
+        #print(colDict)
                         
         with gzip.open(f"{args.in_dir}/{lanes[r][c]}/{tiles[r][c]}/barcodes.tsv.gz",'rt',encoding='utf-8') as bh:
             with gzip.open(f"{args.in_dir}/{lanes[r][c]}/{tiles[r][c]}/matrix.mtx.gz",'rt',encoding='utf-8') as mh:
@@ -115,7 +152,7 @@ for r in range(nrows):
                     if ( btoks[1] != mtoks[1] ):
                         raise ValueError(f"Cannot find matched barcode between barcodes and matrix. {btoks[1]}!={mtoks[1]}")
                     if ( mtoks[0] in colDict ): ## gene has to be counted
-                        rgbWI = colDict[mtoks[0]]
+                        (rgbW, rgbI) = colDict[mtoks[0]]
                         (lane, tile, x, y) = (btoks[4],btoks[5],int(btoks[6]),int(btoks[7]))
                         cnts = [int(z) for z in btoks[8].split(',')]
                         xbin = x // args.res
@@ -124,7 +161,9 @@ for r in range(nrows):
                         if key not in bin2cnts:
                             bin2cnts[key] = [0, 0, 0]
                         for i in range(3):
-                            bin2cnts[key][i] += (rgbWI[0][i] * cnts[rgbWI[1][i]])
+                            bin2cnts[key][i] += (rgbW[i] * cnts[rgbI[i]])
+                            #if ( cnts[1] > 0 ):
+                            #    print(f"{key} {i} {bin2cnts[key][i]} {rgbWI[0][i]} {rgbWI[1][i]} {cnts}",file=sys.stderr)
 
 ## calculate the range of bins
 ## print(xyrange, file=sys.stderr)
@@ -139,6 +178,7 @@ total_w = tile_w * ncols
 print(f"Calculate mean intensity of each color",file=sys.stderr)
 sums = [0,0,0]
 for (key, value) in bin2cnts.items():
+#   print(f"{key} {value}",file=sys.stderr)
     sums[0] += value[0]
     sums[1] += value[1]
     sums[2] += value[2]
