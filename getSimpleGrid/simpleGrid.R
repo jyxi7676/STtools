@@ -247,9 +247,10 @@ getSimpleGrid = function(DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collaps
 
   if (nMax!='None')
   {
-    m = m[,colSums(m)<=nMax&colSums(m)>0]
-    m = m[rowSums(m)>0,]
-    #m = m[,colSums(m)>0]                                    #remove outliers
+    #m = m[,colSums(m)<=nMax&colSums(m)>0]
+   # m = m[rowSums(m)>0,]
+    m = m[,colSums(m)>0]
+    m = m[rowSums(m)>0,]#remove outliers
   }
 
 
