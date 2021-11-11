@@ -43,7 +43,7 @@ parser.add_argument("--binsize",type=int,help='size of the side of  square grids
 parser.add_argument("--window",type=int,help='sliding size of sliding window',default=150)
 parser.add_argument("-c", "--cores",type=int,help='number of cores',default=5)
 parser.add_argument("-m", "--maxScale",type=float,help='max number for color bar of HDMI density plot')
-parser.add_argument("--DGEdir",type=str,help='Directory of digital expression matrix for griding')
+parser.add_argument("--DGEdir",type=str,help='Directory of digital expression matrix for griding, 10x formatted directory')
 parser.add_argument("--subDGEdir",type=str,help='Directory of digiral expression matrix containing spliced and unspliced reads for subcellular analysis')
 #parser.add_argument("--subDGE",type=str,help='Directory of digiral expression matrix containing spliced and unspliced reads for subcellular analysis')
 parser.add_argument("--hdmi2ndSeq",type=str,help='Path to .txt file with HDMIs from SeqScope 2nd-Seq')
@@ -74,8 +74,39 @@ parser.add_argument('--res',type=float,help='resolution for Seurat clustering')
 parser.add_argument('--clustering',type=str2bool,help='wheather clustering for simplesquaregrids, default is False')
 parser.add_argument('--seqscope1st',type=str,help='either MiSeq or HiSeq or Custom')
 parser.add_argument('--annotatedSimpleGrids',type=str2bool,help='indecate weather cluster is annoted by user or not. If yes, will not run clustering in Step6, otehrwise, run clustering with simple steps')
+
+
+
+# DGEdir: parser.add_argument("-d", "--dge-dir", type=str, required=True, help="10x formatted directory")
+#parser.add_argument("-m", "--mtx", type=str, default="matrix.mtx", help="matrix file for DGE inside --dge-dir. Must be sorted by barcode index (default by STARsolo)")
+#parser.add_argument("-b", "--bcd", type=str, default="barcodes.tsv", help="barcode.tsv file for DGE inside --dge-dir. Must be sorted alphabetically (default by STARsolo)")
+#parser.add_argument("-f", "--ftr", type=str, default="features.tsv", help="features.tsv file for DGE inside --dge-dir")
+#parser.add_argument("-c", "--coo", type=str, required=True, help="spatialcoordinates.txt file for barcodes")
+parser.add_argument("--skip-errors-after", type=int, default=100, help="Skip printing error messages after displaying a certain number of times")
+parser.add_argument("--sorted-coo", default=False, action='store_true', help="Indicates that coordinate file is already sorted")
+#outdir:parser.add_argument("-o", "--out", type=str, required=True, help="Output directory")
+parser.add_argument("--pigz", type=str, default="pigz", help="Path to pigz binary")
+parser.add_argument("--sort", type=str, default="sort", help="Path to sort binary (with options if needed)")
+parser.add_argument("--ncpus", type=int, default=4, help="Number of CPUs to use for parallelized jobs")
+parser.add_argument("--visualizelayout", type=str, help="Layout file of tiles to draw [lane] [tile] [row] [col] format in each line")
+parser.add_argument("--predir", type=str,  help="Input (STTools output) directory")
+parser.add_argument("--scale", type=float, default=20.0, help="Scale each color to have the same mean intensity")
+parser.add_argument("--inv-weight", default=False, action='store_true', help="Weight each gene inverse")
+parser.add_argument("--min-tpm", default=1000, type=float, help="Minimum TPM value for inverse weighting (effective only with --inv-weight)")
+parser.add_argument("--red", type=str, required=True, help="Comma-separate list of genes (colon with weights) for red color")
+parser.add_argument("--green", type=str, required=True, help="Comma-separate list of genes (colon with weights) for green color")
+parser.add_argument("--blue", type=str, required=True, help="Comma-separate list of genes (colon with weights) for blue color")
+parser.add_argument("--pixel", type=int, default=80, help="Resolution of pixel (how to bin each pixel) - default: 80 (um2 per pixel)")
+parser.add_argument("--outfilePrefix", type=str, help="Output file prefix")
+
+
+
+#{args.rgb} -o {args.outdir} -d {args.predir} -l {args.layout} -g {args.green} -b{args.blue} -r {args.red} --scale {args.scale} --inv-weight {args.inv_weight} --min-tpm {args.min_tpm}\
+ #--res {args.res} --layout {args.visualizalayout}
+
+
 #Functions
-def step1():
+def stepA1():
 
     #print('Start running Step 1: extract coordinates')
     #check files
@@ -109,7 +140,7 @@ def step1():
 
 
 
-def step2():
+def stepA2():
     #print("Tissue boundary estimation")
     if(args.outdir is None):
         args.outdir=os.getcwd()
@@ -142,7 +173,7 @@ def step2():
 
 
     
-def step3():
+def stepA3():
 
     #print('Start running Step 2: STARsolo alignment')
     if ( args.second_fq1 is None ):
@@ -190,9 +221,45 @@ def step3():
         raise ValueError(f"ERROR in running {cmd3}, returning exit code {ret}")
 
 
+def stepA4():
+    print('args.sort')
+    
+    if (args.spatial is None):
+        args.spatial=args.outdir+"/spatialcoordinates.txt"
+    if(args.outdir is None):
+        args.outdir=os.getcwd()
+    if(os.path.isdir(args.outdir)==False):
+        raise ValueError("Directory --outdir does not exist")
+    if(args.DGEdir is None):
+        args.DGEdir=args.outdir+'/'+args.outprefix+"Solo.out/GeneFull/raw/"
+    if(args.ncpus is None):
+        args.ncpus=5
+    #if(args.sorted_coo is None):
+     #   args.sorted_coo = False
+    #if(args.sort is None):
+        #args.sort=
+   # args.align=args.STtools+"/align/align.sh"
+    print('in Step a4')
+    print(args.STtools)
+    args.orgDGE=args.STtools+"/organizeDGE/merge-dge-hdmi.py"
+    print(args.orgDGE)
+ #   if(args.sort=='sort'):
+    cmd3_5="{args.py} {args.orgDGE} -c {args.spatial}  -d {args.DGEdir} -o {args.outdir} --ncpus {args.ncpus} --sort {args.sort}".format(args=args)
+    
+    
+    #    cmd3_5="{args.py} {args.orgDGE} -c {args.spatial} -d {args.DGEdir} -o {args.outdir} --ncpus {args.ncpus} --sort {args.sort}".format(args=args)
 
+    print(cmd3_5)
+    ret = os.system(cmd3_5)
+    if ( ret != 0 ):
+        raise ValueError(f"ERROR in running {cmd3_5}, returning exit code {ret}")
+    #python3 src/merge-dge-hdmi.py -c /scratch/leeju_root/leeju0/shared_data/STtools_example_data/step4_simpleGrids/spatialcoordinates.txt -d /scratch/leeju_root/leeju0/shared_data/STtools_example_data/step4_simpleGrids/DGE -o /path/to/output/directory/
 
-def step4():
+    #args.postalign=args.STtools+"organizeDGE/"
+    #cmd3_5="bash "
+    
+
+def stepC1():
     if(args.datasource is None):
        args.datasource = 'SeqScope'
        args.nMax=100
@@ -289,7 +356,7 @@ def step4():
         if ( ret != 0 ):
             raise ValueError(f"ERROR in running {cmd4}, returning exit code {ret}")
 
-def step5():
+def stepC2():
     if(args.datasource is None):
        args.datasource = 'SeqScope'
        args.nMax=100
@@ -364,7 +431,7 @@ def step5():
 
 
 
-def step6():
+def stepC3():
     print('Start clustering and mapping')
     if(args.outdir is None):
         args.outdir=os.getcwd()
@@ -408,39 +475,31 @@ def step6():
 
     
        
-def step7():
-    print('Start subcellular analysis!')
+def stepV1():
+    print('Start Visualization!')
     if(args.outdir is None):
         args.outdir=os.getcwd()
     if(os.path.isdir(args.outdir)==False):
         raise ValueError("Directory --outdir does not exist")
+    if(args.predir is None):
+        args.predir=args.outdir
+    if(args.outfilePrefix is None):
+        args.outfilePrefix=args.outdir+'/Sample_vis'
+    #parser.add_argument("--outfilePrefix", type=str, required=True, help="Output file prefix")
 
-    if(args.subDGEdir is None):
-        args.subDGEdir=args.outdir+"/"+args.outprefix+"Solo.out/Velocyto/raw/"
-    print(args.subDGEdir)
-    if(os.path.isdir(args.subDGEdir)==False):
-        raise ValueError("Directory --subDGEdir does not exist")
-    if(args.spatial is None):
-        args.spatial=args.outdir+"/spatialcoordinates.txt"
-    if(os.path.isfile(args.spatial)==False):
-        raise ValueError("File --spatial does not exist")
-    args.subana=args.STtools+"/subCellularAna/subCellularAna_v2.py"
-    #args.workingdir=os.getcwd()
-    if(('seqscope1st' in vars(args))==False):
-        args.seqscope1st='HiSeq'  
-    if(args.lane_tiles is None):
-        raise ValueError("Tiles are required")
-    if(args.alpha is None):
-        args.alpha=0.01
-   # args.tiles_vec =args.tiles.split(',')
-    #if(args.outdir is None):
-     #   args.outdir=os.getcwd()
-    #if(os.path.isdir(args.outdir)==False):
-     #   raise ValueError("Directory --outdir does not exist")
-
-
-    #print(args.py)
-    cmd7="{args.py} {args.subana} {args.subDGEdir} {args.outdir} {args.spatial} {args.seqscope1st} {args.lane_tiles} {args.alpha}".format(args=args)
+    #if(args.subDGEdir is None):
+    #args.subDGEdir=args.outdir+"/"+args.outprefix+"Solo.out/Velocyto/raw/"
+   # print(args.subDGEdir)
+    #if(os.path.isdir(args.subDGEdir)==False):
+     #   raise ValueError("Directory --subDGEdir does not exist")
+    #if(args.spatial is None):
+     #   args.spatial=args.outdir+"/spatialcoordinates.txt"
+    #if(os.path.isfile(args.spatial)==False):
+     #   raise ValueError("File --spatial does not exist")
+    
+    args.rgb=args.STtools+'visualization/rgb-gene-image.py'
+    print('in v1')
+    cmd7="{args.py} {args.rgb} -o {args.outfilePrefix} -d {args.predir}  -g {args.green} -b {args.blue} -r {args.red} --scale {args.scale} --inv-weight {args.inv_weight} --min-tpm {args.min_tpm} --res {args.pixel} --layout {args.visualizelayout}".format(args=args)
     ret = os.system(cmd7)
     if ( ret != 0 ):
         raise ValueError(f"ERROR in running {cmd7}, returning exit code {ret}")
@@ -449,19 +508,26 @@ def step7():
 
 args = parser.parse_args()
 steps = []
+allsets=['A1','A2','A3','A4','C1','C2','C3','V1']
 if ( args.run_steps is not None ):
-    steps = [int(x) for x in args.run_steps.split(',')]
+    steps = [x for x in args.run_steps.split(',')]
     n_steps=len(steps)
     #print(n_steps)
     s_steps=sorted(steps)
+    print('sorted steps')
+    print(s_steps)
+    ind_min=allsets.index(min(s_steps))
+    ind_max=allsets.index(max(s_steps))
+    matched_sets=[allsets[i] for i in range(ind_min,ind_max+1)]
   #if only one step
-    if (set(steps).issubset(set(range(1,8))) ==False):
-        print('Steps must be in the range from 1 to 7!')
+    if (set(steps).issubset(set(allsets)) ==False):
+        print('Steps must among A1,A2,A3,A4,C1.C2,C3,V1!')
     if (n_steps==1):
         print('Run step', steps[0])
         func=eval("step"+str(steps[0]))
         func()
-    elif (s_steps == list(range(min(steps), max(steps)+1))):
+        print(func)
+    elif (s_steps ==matched_sets):
         print('Run the following consecutive steps', s_steps)
         for i in s_steps:
             print(i)
@@ -501,7 +567,7 @@ if ( args.run_all ):
     if(os.path.isdir(args.STtools)==False):
         raise ValueError("Directory --STtools does not exist")
 
-    for i in range(1,8):
+    for i in allsets:
             print('Running step:' + str(i))
             func=eval("step"+str(i))
             func()
