@@ -75,7 +75,7 @@ parser.add_argument('--clustering',type=str2bool,help='wheather clustering for s
 parser.add_argument('--seqscope1st',type=str,help='either MiSeq or HiSeq or Custom')
 parser.add_argument('--annotatedSimpleGrids',type=str2bool,help='indecate weather cluster is annoted by user or not. If yes, will not run clustering in Step6, otehrwise, run clustering with simple steps')
 #Functions
-def step1():
+def stepA1():
 
     #print('Start running Step 1: extract coordinates')
     #check files
@@ -109,7 +109,7 @@ def step1():
 
 
 
-def step2():
+def stepA2():
     #print("Tissue boundary estimation")
     if(args.outdir is None):
         args.outdir=os.getcwd()
@@ -142,7 +142,7 @@ def step2():
 
 
     
-def step3():
+def stepA3():
 
     #print('Start running Step 2: STARsolo alignment')
     if ( args.second_fq1 is None ):
@@ -192,7 +192,7 @@ def step3():
 
 
 
-def step4():
+def stepC1():
     if(args.datasource is None):
        args.datasource = 'SeqScope'
        args.nMax=100
@@ -289,7 +289,7 @@ def step4():
         if ( ret != 0 ):
             raise ValueError(f"ERROR in running {cmd4}, returning exit code {ret}")
 
-def step5():
+def stepC2():
     if(args.datasource is None):
        args.datasource = 'SeqScope'
        args.nMax=100
@@ -364,7 +364,7 @@ def step5():
 
 
 
-def step6():
+def stepC3():
     print('Start clustering and mapping')
     if(args.outdir is None):
         args.outdir=os.getcwd()
@@ -408,7 +408,7 @@ def step6():
 
     
        
-def step7():
+def stepV1():
     print('Start subcellular analysis!')
     if(args.outdir is None):
         args.outdir=os.getcwd()
@@ -449,19 +449,26 @@ def step7():
 
 args = parser.parse_args()
 steps = []
+allsets=['A1','A2','A3','C1','C2','C3','V1']
 if ( args.run_steps is not None ):
-    steps = [int(x) for x in args.run_steps.split(',')]
+    steps = [x for x in args.run_steps.split(',')]
     n_steps=len(steps)
     #print(n_steps)
     s_steps=sorted(steps)
+    #print('sorted steps')
+    #print(s_steps)
+    ind_min=allsets.index(min(s_steps))
+    ind_max=allsets.index(max(s_steps))
+    matched_sets=[allsets[i] for i in range(ind_min,ind_max+1)]
   #if only one step
-    if (set(steps).issubset(set(range(1,8))) ==False):
-        print('Steps must be in the range from 1 to 7!')
+    if (set(steps).issubset(set(allsets)) ==False):
+        print('Steps must among A1,A2,A3,C1.C2,C3,V1!')
     if (n_steps==1):
         print('Run step', steps[0])
         func=eval("step"+str(steps[0]))
         func()
-    elif (s_steps == list(range(min(steps), max(steps)+1))):
+        #print(func)
+    elif (s_steps ==matched_sets):
         print('Run the following consecutive steps', s_steps)
         for i in s_steps:
             print(i)
@@ -501,7 +508,66 @@ if ( args.run_all ):
     if(os.path.isdir(args.STtools)==False):
         raise ValueError("Directory --STtools does not exist")
 
-    for i in range(1,8):
+    for i in allsets:
             print('Running step:' + str(i))
             func=eval("step"+str(i))
             func()
+
+
+
+# if ( args.run_steps is not None ):
+#     steps = [int(x) for x in args.run_steps.split(',')]
+#     n_steps=len(steps)
+#     #print(n_steps)
+#     s_steps=sorted(steps)
+#   #if only one step
+#     if (set(steps).issubset(set(range(1,8))) ==False):
+#         print('Steps must be in the range from 1 to 7!')
+#     if (n_steps==1):
+#         print('Run step', steps[0])
+#         func=eval("step"+str(steps[0]))
+#         func()
+#     elif (s_steps == list(range(min(steps), max(steps)+1))):
+#         print('Run the following consecutive steps', s_steps)
+#         for i in s_steps:
+#             print(i)
+#             func=eval("step"+str(i))
+#             func()
+#     else:
+#         print('Please provide consecutive steps!')
+
+# #     print("Running the following steps: ", steps)
+# if ( args.run_all ):
+#    # steps = [1,2,3,4,5]
+#     print("Running the following steps: ", steps)
+
+#     ## check whether parameter is given
+#     if ( args.first_fq is None ):
+#         raise ValueError("Cannot find --first-fq argument. Need to specify for running all")
+#     if ( args.second_fq1 is None ):
+#         raise ValueError("Cannot find --second-fq1 argument. Need to specify for running all")
+#     if ( args.second_fq2 is None ):
+#         raise ValueError("Cannot find --second-fq2 argument. Need to specify for running all")
+#     if ( args.genome is None ):
+#         raise ValueError("Cannot find --genome argument. Need to specify for running all")
+
+#     #check file/directory path exist:
+#     if(os.path.isfile(args.first_fq)==False):
+#         raise ValueError("File --first-fq does not exist")
+#     if(os.path.isfile(args.second_fq1)==False):
+#         raise ValueError("File --second-fq1 does not exist")
+#     if(os.path.isfile(args.second_fq2)==False):
+#         raise ValueError("File --second-fq2 does not exist")
+#     if(os.path.isdir(args.star_path)==False):
+#         raise ValueError("Directory --star-path does not exist")
+#     if(os.path.isdir(args.seqtk_path)==False):
+#         raise ValueError("Directory --seqtk-path does not exist")
+#     if(os.path.isdir(args.genome)==False):
+#         raise ValueError("Directory --genome does not exist")
+#     if(os.path.isdir(args.STtools)==False):
+#         raise ValueError("Directory --STtools does not exist")
+
+#     for i in range(1,8):
+#             print('Running step:' + str(i))
+#             func=eval("step"+str(i))
+#             func()

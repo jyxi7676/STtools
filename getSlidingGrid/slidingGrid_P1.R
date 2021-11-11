@@ -108,7 +108,7 @@ getSubfield = function(layout,DGEdir,spatial,outpath,tiles)
   dim(m)
   #get spatial info
   print('Reading spatial info')
-  miseq_pos = read.table(spatial)
+  miseq_pos = read.table(gzfile(spatial))
   colnames(miseq_pos) = c('HDMI','lane_miseq','tile_miseq','x_miseq','y_miseq')
   miseq_pos$tile_miseq=paste(miseq_pos$lane_miseq,miseq_pos$tile_miseq,sep="_")
   tiles=(unlist(strsplit(tiles,',')))

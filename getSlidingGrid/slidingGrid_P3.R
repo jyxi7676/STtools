@@ -59,11 +59,18 @@ mergeTileSubFieldRds=function(outpath,ncol,nrow,layout,order,tiles)
     stop("Output path does not exist")
   }
   setwd(outpath)
-  df = list.files(pattern = ".RDS") %>% map(readRDS)
-  df=df[df!='SimpleSquareGrids.RDS']
-  df=df[df!='SlidingSquareGrids.RDS']
-
+  print('list pattsern rds')
+  print(list.files(pattern=".RDS"))
+  rds_list=list.files(pattern = ".RDS")
+  rds_list=rds_list[rds_list!='SimpleSquareGrids.RDS']
+  rds_list=rds_list[rds_list!='SlidingSquareGrids.RDS']
+  df= rds_list %>% map(readRDS)
   print(df)
+  #df=df[df!='SimpleSquareGrids.RDS']
+  #df=df[df!='SlidingSquareGrids.RDS']
+
+  #print(df)
+  #print(length(df))
   print('merge rds')
   obj = mergeSeuratObj(df)
   print(obj)
@@ -163,7 +170,8 @@ mergeTileSubFieldRds=function(outpath,ncol,nrow,layout,order,tiles)
   print('h1')
   obj@meta.data=tile_df
   print('h2')
-  
+  print(head(tile_df))
+  print(colnames(obj))
   rownames(tile_df) = colnames(obj)
   print(obj)
 

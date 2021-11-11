@@ -156,3 +156,8 @@ rm ./pos-MiSeq-temp.txt
 rm ./HDMIs-MiSeq-temp.txt
 rm ./MiSeq-temp-revHDMIs-pos.txt
 rm ./HDMIs-MiSeq-temp-rev.txt
+
+#pigz -p 8 -f $whitelists
+pigz -p 8 -f $miseq_pos
+pigz -p 8 -f ./HDMI_SeqScope_2nd.txt
+

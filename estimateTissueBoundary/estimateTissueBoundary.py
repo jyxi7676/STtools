@@ -8,7 +8,7 @@ def import_or_install(package):
 
 #modules                                                                        
 import pip
-modules = ["numpy","pandas","os","mpl-scatter-density","matplotlib","pylab","sys"]
+modules = ["gzip","numpy","pandas","os","mpl-scatter-density","matplotlib","pylab","sys"]
 #map(import_or_install,modules)                                                 
 md=[import_or_install(i) for i in modules]
 
@@ -34,6 +34,7 @@ def readFiles(pos1stSeq,hdmi2ndSeq):
         raise NameError('Not valide hdmi2ndSeq file')
 
     miseq_pos =  pd.read_csv(pos1stSeq,delim_whitespace=True, header=None)
+    #miseq_pos=pd.read_csv(pos1stSeq,header=None)
     miseq_pos.columns = ['HDMI','lane','tile','x','y']
     hiseq = pd.read_csv(hdmi2ndSeq,delim_whitespace=True,header=None)
     hiseq.columns = ['HDMI']

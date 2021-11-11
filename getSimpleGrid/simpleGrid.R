@@ -255,7 +255,7 @@ getSimpleGrid = function(DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collaps
 
 
   #get spatial info
-  miseq_pos = read.table(spatial)
+  miseq_pos = read.table(gzfile(spatial))
  # print(head(miseq_pos))
   colnames(miseq_pos) = c('HDMI','lane_miseq','tile_miseq','x_miseq','y_miseq')
   miseq_pos$tile_miseq=paste(miseq_pos$lane_miseq,miseq_pos$tile_miseq,sep="_")
