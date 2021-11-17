@@ -277,7 +277,7 @@ slidingWindowSub=function(collapsePath,DGEdir,outpath,window,sidesize,xargs)
   biny = binx = sidesize
   slidestarts = seq(0,(binx/window-1),1)
   setwd(DGEdir)
-  features = read.table('features.tsv',header=F)$V2
+  features = read.table('features.tsv.gz',header=F)$V2
 
 
   setwd(outpath)

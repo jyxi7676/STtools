@@ -63,6 +63,7 @@ mergeTileSubFieldRds=function(outpath,ncol,nrow,layout,order,tiles)
   print(list.files(pattern=".RDS"))
   rds_list=list.files(pattern = ".RDS")
   rds_list=rds_list[rds_list!='SimpleSquareGrids.RDS']
+  rds_list=rds_list[rds_list!='SimpleSquareGridsWithClustering.RDS']
   rds_list=rds_list[rds_list!='SlidingSquareGrids.RDS']
   df= rds_list %>% map(readRDS)
   print(df)
@@ -167,11 +168,11 @@ mergeTileSubFieldRds=function(outpath,ncol,nrow,layout,order,tiles)
 #  colnames(tile_df)=c('orig.ident','collapseID','lane','tile','lane_tile','nCount_Spatial','nFeature_Spatial','X','Y','X_expand','Y_expand','row','col')
 
 
-  print('h1')
+#  print('h1')
   obj@meta.data=tile_df
-  print('h2')
-  print(head(tile_df))
-  print(colnames(obj))
+#  print('h2')
+#  print(head(tile_df))
+#  print(colnames(obj))
   rownames(tile_df) = colnames(obj)
   print(obj)
 
@@ -186,7 +187,9 @@ mergeTileSubFieldRds=function(outpath,ncol,nrow,layout,order,tiles)
     key = "image_",
     coordinates = obj@meta.data[,c('Y_expand','X_expand')]
   )
-
+  print(obj)
+  print(head(colnames(obj)))
+  rownames(obj@meta.data)=colnames(obj)
   saveRDS(obj,objfile)
   m=(obj@assays$Spatial@counts)
   gene=rownames(obj)

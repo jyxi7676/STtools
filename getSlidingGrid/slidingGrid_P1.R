@@ -93,9 +93,9 @@ getSubfield = function(layout,DGEdir,spatial,outpath,tiles)
 
   #read files
   print("Read files")
-  bc = read.table("barcodes.tsv",header=F)$V1
-  features = read.table('features.tsv',header=F)$V2
-  m = readMM('matrix.mtx')
+  bc = read.table("barcodes.tsv.gz",header=F)$V1
+  features = read.table('features.tsv.gz',header=F)$V2
+  m = readMM('matrix.mtx.gz')
   if(any(c(length(features),length(bc)) != dim(m)))
   {
     stop('Dimension of matrix.mtx does not match with features or barcodes')

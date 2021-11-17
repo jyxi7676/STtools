@@ -17,8 +17,11 @@ exit <- function() { invokeRestart("abort") }
 #' @param geneCount2 cutoff of nFeature in sliding square grids
 #' @nFeaturePlotOnly TRUE or FALSE. If TRUE, the program end after violin plot. Otherwise, run the whole program
 #' @export
-runClustering=function(workingdir,obj1_path,obj2_path,geneCount1=0,geneCount2=0,nFeaturePlotOnly="FALSE",outpath)
+runClustering=function(workingdir,obj1_path,obj2_path,geneCount1,geneCount2,nFeaturePlotOnly="FALSE",outpath)
 {
+  print('run clustering')
+  print(geneCount1)
+  print(geneCount2)   
   setwd(workingdir)
   #libraries
   packages = c("ggplot2", "ggsci","Seurat","rlist","cowplot","tictoc")
@@ -47,62 +50,136 @@ runClustering=function(workingdir,obj1_path,obj2_path,geneCount1=0,geneCount2=0,
     break
   }
 
+  
   #obj_simple=readRDS('C:/Users/jyxi/Downloads/SimpleSqureGrids.RDS')
   #obj_sliding=readRDS('C:/Users/jyxi/Downloads/SlidingSquareGrids_tile_2106.RDS')
   obj_simple=readRDS(obj1_path)
   obj_sliding=readRDS(obj2_path)
-
-  v1=VlnPlot(obj_simple, features = "nFeature_Spatial", pt.size = 0) + NoLegend()
-  v2=VlnPlot(obj_sliding, features = "nFeature_Spatial", pt.size = 0) + NoLegend()
-  png("nFeatureplot",width=7*2,height=6,res=300,units='in')
-  plot_grid(v1,v2,ncol=2)
-  dev.off()
-  if(nFeaturePlotOnly!="FALSE")
-    {
-      print("Done")
-      exit()
-  }
-  else
+  
+  if (is.null(obj_simple@assays$SCT))
   {
-    obj_simple = subset(obj_simple, subset = nFeature_Spatial>geneCount1)
-    obj_simple = SCTransform(obj_simple, assay = "Spatial")
-    obj_simple = RunPCA(obj_simple)
-    obj_simple = RunUMAP(obj_simple, dims = 1:30)
-    obj_simple = FindNeighbors(obj_simple, dims = 1:30)
-    obj_simple = FindClusters(obj_simple)
+  print('in if')
+  #v1=VlnPlot(obj_simple, features = "nFeature_Spatial", pt.size = 0) + NoLegend()
+  print('v1')
+  #v2=VlnPlot(obj_sliding, features = "nFeature_Spatial", pt.size = 0) + NoLegend()
+  print('v2')
+  #png("nFeatureplot",width=7*2,height=6,res=300,units='in')
+  #print('png')
+  #print(plot_grid(v1,v2,ncol=2))
+  #dev.off()
+  print('genecount1')
+  print(geneCount1)
+  #print(is.null(geneCount1))
+  if (geneCount1==-1)
+  {
+      geneCount1=median(obj_simple$nFeature_Spatial)
+      
+  }
+  #if (is.null(geneCount2))
+  #{
+   #   geneCount2=median(obj_sliding$nFeature_Spatial)
 
-    obj_sliding = subset(obj_sliding, subset = nFeature_Spatial>geneCount2)
-    obj_sliding = SCTransform(obj_sliding, assay = "Spatial")
-    obj_sliding = RunPCA(obj_sliding)
-    obj_sliding = RunUMAP(obj_sliding, dims = 1:30)
+  #}
+
+  obj_simple = subset(obj_simple, subset = nFeature_Spatial>geneCount1)
+  obj_simple = SCTransform(obj_simple, assay = "Spatial")
+  obj_simple = RunPCA(obj_simple)
+  obj_simple = RunUMAP(obj_simple, dims = 1:30)
+  obj_simple = FindNeighbors(obj_simple, dims = 1:30)
+  obj_simple = FindClusters(obj_simple)
+
+  }
+
+ 
+  if (geneCount2==-1)
+  {
+      geneCount2=median(obj_sliding$nFeature_Spatial)
+
+  }
+  print('simpoe')
+  print(obj_simple)
+  print('genecount2')
+  print(geneCount2)
+  print(summary(obj_sliding$nFeature_Spatial))
+  obj_sliding = subset(obj_sliding, subset = nFeature_Spatial>geneCount2)
+  print('cut')
+  print(obj_sliding)
+  obj_sliding = SCTransform(obj_sliding, assay = "Spatial")
+  obj_sliding = RunPCA(obj_sliding)
+  obj_sliding = RunUMAP(obj_sliding, dims = 1:30)
+  print('sliding')
+  print(obj_sliding)
+
+  print('find anchor')
+  anchors = FindTransferAnchors(reference = obj_simple, query = obj_sliding, normalization.method = "SCT")
+  predictions.assay = TransferData(anchorset = anchors, refdata = obj_simple@active.ident, prediction.assay = TRUE,weight.reduction = obj_sliding[["pca"]], dims = 1:30)
+  obj_sliding[["predictions"]] = predictions.assay
+  DefaultAssay(obj_sliding) = "predictions"
+
+  obj_sliding$predicted.id = GetTransferPredictions(obj_sliding, score.filter = 0)
+  Idents(obj_sliding) = "predicted.id"
+  print(obj_sliding)
+  print('plotting')
+  png("dimplot.png",width=7*2,height=6,res=300,units='in')
+  p1=DimPlot(obj_simple, label = TRUE)
+  p2=DimPlot(obj_sliding,label = TRUE)
+  plot_grid(p1,p2,ncol=2)
+  dev.off()
+                                                                                                                                                                                      
+  saveRDS(obj_simple,'simpleGridWithClustering.RDS')
+  saveRDS(obj_sliding,"slidingGridWithMapping.RDS")
+  #insert coding here after fixing slidingWindow function                                                                                                                                                 
+  #SpatialDimPlot(obj_sliding)                                                                                                                                                                            
+  print("Done")
+}
+
+  
+ # if(nFeaturePlotOnly!="FALSE")
+  #  {
+   #   print("Done")
+    #  exit()
+  #}
+  #else
+  #{
+   # obj_simple = subset(obj_simple, subset = nFeature_Spatial>geneCount1)
+   # obj_simple = SCTransform(obj_simple, assay = "Spatial")
+   # obj_simple = RunPCA(obj_simple)
+   # obj_simple = RunUMAP(obj_simple, dims = 1:30)
+   # obj_simple = FindNeighbors(obj_simple, dims = 1:30)
+   # obj_simple = FindClusters(obj_simple)
+
+   # obj_sliding = subset(obj_sliding, subset = nFeature_Spatial>geneCount2)
+   # obj_sliding = SCTransform(obj_sliding, assay = "Spatial")
+   # obj_sliding = RunPCA(obj_sliding)
+   # obj_sliding = RunUMAP(obj_sliding, dims = 1:30)
 
     #DimPlot(obj_sliding, label = TRUE)
-    print('find anchor')
-    anchors = FindTransferAnchors(reference = obj_simple, query = obj_sliding, normalization.method = "SCT")
-    predictions.assay = TransferData(anchorset = anchors, refdata = obj_simple@active.ident, prediction.assay = TRUE,
-                                     weight.reduction = obj_sliding[["pca"]], dims = 1:30)
-    obj_sliding[["predictions"]] = predictions.assay
-    DefaultAssay(obj_sliding) = "predictions"
+    #print('find anchor')
+   # anchors = FindTransferAnchors(reference = obj_simple, query = obj_sliding, normalization.method = "SCT")
+   # predictions.assay = TransferData(anchorset = anchors, refdata = obj_simple@active.ident, prediction.assay = TRUE,
+                                     #weight.reduction = obj_sliding[["pca"]], dims = 1:30)
+  #  obj_sliding[["predictions"]] = predictions.assay
+   # DefaultAssay(obj_sliding) = "predictions"
 
-    obj_sliding$predicted.id = GetTransferPredictions(obj_sliding, score.filter = 0)
-    Idents(obj_sliding) = "predicted.id"
+    #obj_sliding$predicted.id = GetTransferPredictions(obj_sliding, score.filter = 0)
+   # Idents(obj_sliding) = "predicted.id"
 
-    print('plotting')
-    png("dimplot.png",width=7*2,height=6,res=300,units='in')
-    p1=DimPlot(obj_simple, label = TRUE)
-    p2=DimPlot(obj_sliding,label = TRUE)
-    plot_grid(p1,p2,ncol=2)
-    dev.off()
+    #print('plotting')
+    #png("dimplot.png",width=7*2,height=6,res=300,units='in')
+    #p1=DimPlot(obj_simple, label = TRUE)
+    #p2=DimPlot(obj_sliding,label = TRUE)
+    #plot_grid(p1,p2,ncol=2)
+    #dev.off()
 #    print('almost')
-    saveRDS(obj_simple,'simpleGrid_clus.RDS')
-    saveRDS(obj_sliding,"slidingGrid_mapping.RDS")
+    #saveRDS(obj_simple,'simpleGrid_clus.RDS')
+    #saveRDS(obj_sliding,"slidingGrid_mapping.RDS")
     #insert coding here after fixing slidingWindow function
     #SpatialDimPlot(obj_sliding)
 
 
-    print("Done")
-  }
-}
+  #  print("Done")
+ # }
+
 
 
 runClustering(r1,r2,r3,as.numeric(r4),as.numeric(r5),r6)

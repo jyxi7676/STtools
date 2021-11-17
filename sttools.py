@@ -51,8 +51,8 @@ parser.add_argument("-a","--alpha",type=float,help='transparency when ploting su
 parser.add_argument("--spatial",type=str,help='Path to .txt file of spatial coordinates. Please see readme for file format')
 parser.add_argument("--whitelist",type=str,help='Path to .txt file of whitelist for alignment. Please see xxx for file format')
 parser.add_argument("--nFeaturePlotOnly",type=str,help='Plot feature plot only during clustering and mapping',default='FALSE')
-parser.add_argument("--geneCount1",type=float,help='cutoff of nFeature_Spatial of Seurat spatial object of simple square grids for clustering',default=0)
-parser.add_argument("--geneCount2",type=float,help='cutoff of nFeature_Spatial of Seurat spatial object of sliding square grids for clustering',default=0)
+parser.add_argument("--geneCount1",type=float,help='cutoff of nFeature_Spatial of Seurat spatial object of simple square grids for clustering')
+parser.add_argument("--geneCount2",type=float,help='cutoff of nFeature_Spatial of Seurat spatial object of sliding square grids for clustering')
 parser.add_argument("--simpleGridsPath",type=str,help='path to rds file of simple squrae grids')
 parser.add_argument("--slidingGridsPath",type=str,help='path to rds file of sliding squrae grids')
 parser.add_argument("--outdir",type=str,help='path to the output directory, if not specified, output in the current working directory')
@@ -117,9 +117,9 @@ def stepA2():
         raise ValueError("Directory --outdir does not exist")
 
     if(args.hdmi2ndSeq is None):
-        args.hdmi2ndSeq=args.outdir+"/HDMI_SeqScope_2nd.txt"
+        args.hdmi2ndSeq=args.outdir+"/HDMI_SeqScope_2nd.txt.gz"
     if(args.spatial is None):
-        args.spatial=args.outdir+"/spatialcoordinates.txt"
+        args.spatial=args.outdir+"/spatialcoordinates.txt.gz"
     if(args.maxScale is None):
         args.maxScale='0'
     if(os.path.isfile(args.spatial)==False):
@@ -214,7 +214,7 @@ def stepC1():
             if(os.path.isdir(args.DGEdir)==False):
                 raise ValueError("Directory --DGEdir does not exist")
             if(args.spatial is None):
-                args.spatial=os.getcwd()+"/spatialcoordinates.txt"
+                args.spatial=os.getcwd()+"/spatialcoordinates.txt.gz"
             if(args.seed is None):
                 args.seed=1234
             if (args.nPCs is None):
@@ -242,7 +242,7 @@ def stepC1():
             if(os.path.isdir(args.DGEdir)==False):
                 raise ValueError("Directory --DGEdir does not exist")
             if(args.spatial is None):
-                args.spatial=os.getcwd()+"/spatialcoordinates.txt"
+                args.spatial=os.getcwd()+"/spatialcoordinates.txt.gz"
 
             if (args.nPCs is None):
                 args.nPCs = 10
@@ -276,7 +276,7 @@ def stepC1():
         if(os.path.isfile(args.collapsePath)==False):
             raise ValueError("File --collapsePath does not exist")
         if(args.spatial is None):
-            args.spatial=args.outdir+"/spatialcoordinates.txt"
+            args.spatial=args.outdir+"/spatialcoordinates.txt.gz"
         if(args.layout is None):
             args.layout='MiSeq'
         if(args.lane_tiles is None):
@@ -316,7 +316,7 @@ def stepC2():
         if(os.path.isfile(args.collapsePath)==False):
             raise ValueError("File --collapsePath does not exist")
         if(args.spatial is None):
-            args.spatial=args.outdir+"/spatialcoordinates.txt"
+            args.spatial=args.outdir+"/spatialcoordinates.txt.gz"
         if(os.path.isfile(args.spatial)==False):
             raise ValueError("File --spatial does not exist")
         if(args.cores is None):
@@ -399,8 +399,10 @@ def stepC3():
 
     #print(args.slidingGridsPath)
     args.clus=args.STtools+'/clusterAndMap/clusterAndMap.R'
-    
+    print('args.genecount1')
+    print(args.geneCount1)
     cmd6 = "Rscript {args.clus} {args.outdir} {args.simpleGridsPath} {args.slidingGridsPath} {args.geneCount1} {args.geneCount2} {args.annotatedSimpleGrids}".format(args=args)
+    print(cmd6)
     ret = os.system(cmd6)
     if(ret!=0):
         raise ValueError (f"ERROR in running {cmd6}, returning exit code {ret}")
@@ -421,7 +423,7 @@ def stepV1():
     if(os.path.isdir(args.subDGEdir)==False):
         raise ValueError("Directory --subDGEdir does not exist")
     if(args.spatial is None):
-        args.spatial=args.outdir+"/spatialcoordinates.txt"
+        args.spatial=args.outdir+"/spatialcoordinates.txt.gz"
     if(os.path.isfile(args.spatial)==False):
         raise ValueError("File --spatial does not exist")
     args.subana=args.STtools+"/subCellularAna/subCellularAna_v2.py"

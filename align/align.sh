@@ -193,3 +193,13 @@ $star_executable    --genomeDir  $geneIndex \
                     --soloCellFilter None \
                     --outBAMsortingBinsN 200
  #scp ${outprefix}'Solo.out/GeneFull/Summary.csv' 'summary_step3.txt'
+pigz -p 8 -f ${outprefix}'Solo.out/GeneFull/raw/matrix.mtx'
+pigz -p 8 -f ${outprefix}'Solo.out/GeneFull/raw/barcodes.tsv'
+pigz -p 8 -f ${outprefix}'Solo.out/GeneFull/raw/features.tsv'
+pigz -p 8 -f ${outprefix}'Solo.out/Gene/raw/matrix.mtx'
+pigz -p 8 -f ${outprefix}'Solo.out/Gene/raw/barcodes.tsv'
+pigz -p 8 -f ${outprefix}'Solo.out/Gene/raw/features.tsv'
+pigz -p 8 -f ${outprefix}'Solo.out/Velocyto/raw/matrix.mtx'
+pigz -p 8 -f ${outprefix}'Solo.out/Velocyto/raw/barcodes.tsv'
+pigz -p 8 -f ${outprefix}'Solo.out/Velocyto/raw/features.tsv'
+pigz -p 8 -f ${outprefix}'Aligned.sortedByCoord.out.bam'

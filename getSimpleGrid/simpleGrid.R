@@ -235,9 +235,9 @@ getSimpleGrid = function(DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collaps
   #read files
   print("Read files")
   #bc = read.table("barcodes.tsv",header=F)$V1
-  bc=fread('barcodes.tsv',header=F)$V1
-  features = read.table('features.tsv',header=F)$V2
-  m = readMM('matrix.mtx')
+  bc=fread('barcodes.tsv.gz',header=F)$V1
+  features = read.table('features.tsv.gz',header=F)$V2
+  m = readMM('matrix.mtx.gz')
   if(any(c(length(features),length(bc)) != dim(m)))
   {
     stop('Dimension of matrix.mtx does not match with features or barcodes')
@@ -468,7 +468,7 @@ getSimpleGrid = function(DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collaps
     dev.off()
 
     png('UMAP.png',width=ncol*7,height=6,res=300,units='in')
-    print(DimPlot(obj, reduction = "umap", label = TRUE))
+    print(DimPlot(obj_simple, reduction = "umap", label = TRUE))
     dev.off()
   }
 
