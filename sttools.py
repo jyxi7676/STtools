@@ -74,6 +74,27 @@ parser.add_argument('--res',type=float,help='resolution for Seurat clustering')
 parser.add_argument('--clustering',type=str2bool,help='wheather clustering for simplesquaregrids, default is False')
 parser.add_argument('--seqscope1st',type=str,help='either MiSeq or HiSeq or Custom')
 parser.add_argument('--annotatedSimpleGrids',type=str2bool,help='indecate weather cluster is annoted by user or not. If yes, will not run clustering in Step6, otehrwise, run clustering with simple steps')
+
+
+
+
+
+parser.add_argument("--skip-errors-after", type=int, default=100, help="Skip printing error messages after displaying a certain number of times")
+parser.add_argument("--sorted-coo", default=False, action='store_true', help="Indicates that coordinate file is already sorted")
+#outdir:parser.add_argument("-o", "--out", type=str, required=True, help="Output directory")
+parser.add_argument("--pigz", type=str, default="pigz", help="Path to pigz binary")
+parser.add_argument("--sort", type=str, default="sort", help="Path to sort binary (with options if needed)")
+parser.add_argument("--ncpus", type=int, default=4, help="Number of CPUs to use for parallelized jobs")
+parser.add_argument("--visualizelayout", type=str, help="Layout file of tiles to draw [lane] [tile] [row] [col] format in each line")
+parser.add_argument("--predir", type=str,  help="Input (STTools output) directory")
+parser.add_argument("--scale", type=float, default=20.0, help="Scale each color to have the same mean intensity")
+parser.add_argument("--inv-weight", default=False, action='store_true', help="Weight each gene inverse")
+parser.add_argument("--min-tpm", default=1000, type=float, help="Minimum TPM value for inverse weighting (effective only with --inv-weight)")
+parser.add_argument("--red", type=str, help="Comma-separate list of genes (colon with weights) for red color")
+parser.add_argument("--green", type=str, help="Comma-separate list of genes (colon with weights) for green color")
+parser.add_argument("--blue", type=str, help="Comma-separate list of genes (colon with weights) for blue color")
+parser.add_argument("--pixel", type=int, default=80, help="Resolution of pixel (how to bin each pixel) - default: 80 (um2 per pixel)")
+parser.add_argument("--outfilePrefix", type=str, help="Output file prefix")
 #Functions
 def stepA1():
 
@@ -188,9 +209,29 @@ def stepA3():
     ret = os.system(cmd3)
     if ( ret != 0 ):
         raise ValueError(f"ERROR in running {cmd3}, returning exit code {ret}")
+    args.orgDGE=args.STtools+"/align/merge-dge-hdmi.py"
+    if(args.ncpus is None):
+        args.ncpus=5
+    if(args.DGEdir is None):
+        args.DGEdir=args.outdir+'/'+args.outprefix+"Solo.out/GeneFull/raw/"
+    args.predir=args.outdir+'/'+args.outprefix+"Solo.out/GeneFull/ordered"
+    if not args.outdir:
+        os.makedirs(args.outdir)
+    cmd3_5="{args.py} {args.orgDGE} -c {args.spatial}  -d {args.DGEdir} -o {args.predir} --ncpus {args.ncpus} --sort {args.sort}".format(args=args)
+    print(cmd3_5)
+    ret = os.system(cmd3_5)
+    if ( ret != 0 ):
+        raise ValueError(f"ERROR in running {cmd3_5}, returning exit code {ret}")
 
-
-
+    #args.outdir=args.outdir+'/'+args.outprefix+"Solo.out/Velocyto/ordered"
+    #if not args.outdir:
+    #    os.makedirs(args.outdir)
+    #cmd3_5="{args.py} {args.orgDGE} -c {args.spatial}  -d {args.DGEdir} -o {arg\
+#s.outdir} --ncpus {args.ncpus} --sort {args.sort}".format(args=args)
+ #   print(cmd3_5)
+  #  ret = os.system(cmd3_5)
+   # if ( ret != 0 ):
+    #    raise ValueError(f"ERROR in running {cmd3_5}, returning exit code {ret}")
 
 def stepC1():
     if(args.datasource is None):
@@ -284,6 +325,7 @@ def stepC1():
 
         args.simple=args.STtools+"/getSimpleGrid/simpleGrid.R"
         print(args.lane_tiles)
+        print(args.outdir)
         cmd4="Rscript {args.simple}  {args.DGEdir} {args.spatial} {args.lane_tiles} {args.nrow} {args.ncol} {args.binsize} {args.outdir} {args.collapsePath} {args.layout} {args.nMax} {args.clustering}".format(args=args)
         ret = os.system(cmd4)
         if ( ret != 0 ):
@@ -411,38 +453,41 @@ def stepC3():
     
        
 def stepV1():
-    print('Start subcellular analysis!')
+    print('Start Visualization!')
     if(args.outdir is None):
         args.outdir=os.getcwd()
+    print('a')
     if(os.path.isdir(args.outdir)==False):
         raise ValueError("Directory --outdir does not exist")
-
-    if(args.subDGEdir is None):
-        args.subDGEdir=args.outdir+"/"+args.outprefix+"Solo.out/Velocyto/raw/"
-    print(args.subDGEdir)
-    if(os.path.isdir(args.subDGEdir)==False):
-        raise ValueError("Directory --subDGEdir does not exist")
+    print('b')
+    if(args.outfilePrefix is None):
+        args.outfilePrefix=args.outdir+'/Sample_vis'
+    if(args.DGEdir is None):
+        args.DGEdir=args.outdir+'/'+args.outprefix+"Solo.out/GeneFull/raw/"
+    
+    if(args.predir is None):
+        args.predir=args.outdir+'/'+args.outprefix+"Solo.out/GeneFull/ordered"
+    if(args.ncpus is None):
+        args.ncpus=5
     if(args.spatial is None):
-        args.spatial=args.outdir+"/spatialcoordinates.txt.gz"
-    if(os.path.isfile(args.spatial)==False):
-        raise ValueError("File --spatial does not exist")
-    args.subana=args.STtools+"/subCellularAna/subCellularAna_v2.py"
-    #args.workingdir=os.getcwd()
-    if(('seqscope1st' in vars(args))==False):
-        args.seqscope1st='HiSeq'  
-    if(args.lane_tiles is None):
-        raise ValueError("Tiles are required")
-    if(args.alpha is None):
-        args.alpha=0.01
-   # args.tiles_vec =args.tiles.split(',')
-    #if(args.outdir is None):
-     #   args.outdir=os.getcwd()
-    #if(os.path.isdir(args.outdir)==False):
-     #   raise ValueError("Directory --outdir does not exist")
-
-
-    #print(args.py)
-    cmd7="{args.py} {args.subana} {args.subDGEdir} {args.outdir} {args.spatial} {args.seqscope1st} {args.lane_tiles} {args.alpha}".format(args=args)
+        args.spatial=args.outdir+'/spatialcoordinates.txt.gz'
+        print('here')
+    if not os.path.exists(args.predir):
+        print('inside')
+        os.makedirs(args.predir)
+        args.orgDGE=args.STtools+"/align/merge-dge-hdmi.py"
+        #args.spatial=
+        cmd3_5="{args.py} {args.orgDGE} -c {args.spatial}  -d {args.DGEdir} -o {args.predir} --ncpus {args.ncpus} --sort {args.sort}".format(args=args)
+        print(cmd3_5)
+        ret = os.system(cmd3_5)
+        if ( ret != 0 ):
+             raise ValueError(f"ERROR in running {cmd3_5}, returning exit code {ret}")
+        
+    args.rgb=args.STtools+'visualization/rgb-gene-image.py'
+    args.visualizelayout=args.STtools+'/visualization/layout.tsv'
+    print(args.predir)
+    print(args.outfilePrefix)
+    cmd7="{args.py} {args.rgb} -o {args.outfilePrefix} -d {args.predir}  -g {args.green} -b {args.blue} -r {args.red} --scale {args.scale}  --min-tpm {args.min_tpm} --res {args.pixel} --layout {args.visualizelayout}".format(args=args)
     ret = os.system(cmd7)
     if ( ret != 0 ):
         raise ValueError(f"ERROR in running {cmd7}, returning exit code {ret}")
