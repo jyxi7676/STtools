@@ -12,7 +12,9 @@ parser.add_argument("--skip-errors-after", type=int, default=100, help="Skip pri
 parser.add_argument("--sorted-coo", default=False, action='store_true', help="Indicates that coordinate file is already sorted")
 parser.add_argument("-o", "--out", type=str, required=True, help="Output directory")
 parser.add_argument("--pigz", type=str, default="pigz", help="Path to pigz binary")
-parser.add_argument("--sort", type=str, default="sort", help="Path to sort binary (with options if needed)")
+parser.add_argument("--sort", type=str, default="sort", help="Path to sort binary")
+parser.add_argument("--tmpdir", type=str, help="temporary directory (-T) for sort")
+parser.add_argument("--buffer-size", type=str, help="buffer size (-S) for sort")
 parser.add_argument("--ncpus", type=int, default=4, help="Number of CPUs to use for parallelized jobs")
 
 args = parser.parse_args()
@@ -24,8 +26,9 @@ if not os.path.exists(args.out):
 if not args.sorted_coo:
     ## need to sort coo files
     coofile = f"{args.out}/spatialcoordinates.sorted.txt.gz"
-    cmd = f"zcat -f {args.coo} | {args.sort} --parallel {args.ncpus} | {args.pigz} -p {args.ncpus} > {coofile}"
-    print(f"Running the following command:\n{cmd}\nNOTE: This make take a tens or minutes or even hours...\nIf this job fails or runs very slow, try using [--sort 'sort -E /new/tmp_dir'] or [--sort 'sort -S 10G'] options instead")
+    sortcmd = args.sort + (f" -T{args.tmpdir}" if ( args.tmpdir is not None ) else "") + (f" -S{args.buffer_size}" if ( args.buffer_size is not None) else "")
+    cmd = f"zcat -f {args.coo} | {sortcmd} --parallel {args.ncpus} | {args.pigz} -p {args.ncpus} > {coofile}"
+    print(f"Running the following command:\n{cmd}\nNOTE: This make take a tens or minutes or even hours...\nIf this job fails or runs very slow, try using [--tmpdir /new/tmp_dir] and/or [--buffer-size 10G'] options instead")
     exitcode = os.system(cmd)
     if ( exitcode != 0 ):
         raise ValueError(f"The command failed with exit code {exitcode}")
