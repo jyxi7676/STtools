@@ -1,2 +1,0 @@
-MiSeq reads:wc: ./HDMIs-MiSeq-temp.txt: No such file or directory 
-Unique MiSeq:wc: ./whitelist.txt: No such file or directory 
