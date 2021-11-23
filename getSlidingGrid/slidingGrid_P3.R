@@ -41,7 +41,7 @@ mergeSeuratObj=function(seurat_object_list)
 
 mergeTileSubFieldRds=function(outpath,ncol,nrow,layout,order,tiles)
 {
-  packages = c("Matrix","Seurat","tidyverse")
+  packages = c("Seurat","tidyverse")
   ## add more packages to load if needed
   ## Now load or install&load all
   package.check <- lapply(
@@ -59,19 +59,11 @@ mergeTileSubFieldRds=function(outpath,ncol,nrow,layout,order,tiles)
     stop("Output path does not exist")
   }
   setwd(outpath)
-  print('list pattsern rds')
-  print(list.files(pattern=".RDS"))
-  rds_list=list.files(pattern = ".RDS")
-  rds_list=rds_list[rds_list!='SimpleSquareGrids.RDS']
-  rds_list=rds_list[rds_list!='SimpleSquareGridsWithClustering.RDS']
-  rds_list=rds_list[rds_list!='SlidingSquareGrids.RDS']
-  df= rds_list %>% map(readRDS)
-  print(df)
-  #df=df[df!='SimpleSquareGrids.RDS']
-  #df=df[df!='SlidingSquareGrids.RDS']
+  df = list.files(pattern = ".RDS") %>% map(readRDS)
+  df=df[df!='SimpleSquareGrids.RDS']
+  df=df[df!='SlidingSquareGrids.RDS']
 
-  #print(df)
-  #print(length(df))
+  print(df)
   print('merge rds')
   obj = mergeSeuratObj(df)
   print(obj)
@@ -149,31 +141,51 @@ mergeTileSubFieldRds=function(outpath,ncol,nrow,layout,order,tiles)
   nrow = max(layout$ROW)
   ncol = max(layout$COL)
   tile_df = merge(tile_df,layout,by='tile')
-  #print(head(obj@meta.data))
+  print(head(obj@meta.data))
   addson_hori = max(tile_df$Y)
   addson_verti = max(tile_df$X)
   #tile_df$y_miseq_expand = tile_df$Y +  addson_hori*(tile_df$COL-1)
   #tile_df$x_miseq_expand = tile_df$X +  addson_verti*(tile_df$ROW-1)
   tile_df$y_miseq_expand = tile_df$Y +  addson_hori*(tile_df$COL-1)
   tile_df$x_miseq_expand = tile_df$X +  addson_verti*(nrow-tile_df$ROW)
-                                        # print(head(tile_df))
-  print('tiledf')
-  write.csv(tile_df,'tile_df.csv')
-  tile_df=tile_df[,c('orig.ident','name','LANE','OTILE','tile','nCount_Spatial','nFeature_Spatial','X','Y','x_miseq_expand','y_miseq_expand','ROW','COL','interationi','interationj')]
-  colnames(tile_df)=c('orig.ident','collapseID','lane','tile','lane_tile','nCount_Spatial','nFeature_Spatial','X','Y','X_expand','Y_expand','row','col','iter_i','iter_j')
   print(head(tile_df))
+  tile_df=tile_df[,c('orig.ident','name','LANE','OTILE','tile','nCount_Spatial','nFeature_Spatial','X','Y','x_miseq_expand','y_miseq_expand','ROW','COL','interationi','interationj')]
+  print(head(tile_df))
+  colnames(tile_df)=c('orig.ident','collapseID','lane','tile','lane_tile','nCount_Spatial','nFeature_Spatial','X','Y','X_expand','Y_expand','row','col','iter_i','iter_j')
 
-#  tile_df=tile_df[,c('orig.ident','name','LANE','OTILE','tile','nCount_Spatial','nFeature_Spatial','X','Y','x_miseq_expand','y_miseq','ROW','COL')]
-#  print(head(tile_df))
-#  colnames(tile_df)=c('orig.ident','collapseID','lane','tile','lane_tile','nCount_Spatial','nFeature_Spatial','X','Y','X_expand','Y_expand','row','col')
 
 
-#  print('h1')
   obj@meta.data=tile_df
-#  print('h2')
-#  print(head(tile_df))
-#  print(colnames(obj))
-  rownames(tile_df) = colnames(obj)
+  rownames(obj) = colnames(obj)
+
+  #obj@meta.data$X_expand = obj@meta.data$x_miseq_expand
+  #obj@meta.data$Y_expand = obj@meta.data$y_miseq_expand
+  print(obj)
+  print(head(obj@meta.data))
+  obj@images$image = new(
+    Class = 'SlideSeq',
+    assay = "Spatial",
+    key = "image_",
+    coordinates = obj@meta.data[,c('Y_expand','X_expand')]
+  )
+
+  saveRDS(obj,objfile)
+  m=(obj@assays$Spatial@counts)
+  gene=rownames(obj)
+  bc=colnames(obj)
+  writeMM(obj = m, file="collapsedMatrix.mtx")
+  write.csv(gene,'collapsedGenes.csv')
+  write.csv(bc,'collapsedBarcodes.csv')
+  print('Done!')
+}
+
+
+mergeTileSubFieldRds(r1,as.numeric(r2),as.numeric(r3),r4,r5)
+
+#function(seqscope1st,DGEdir,spatial,nrow,ncol,sidesize,outpath,window,collapsePath,slidingPath,tile)
+#getSlidingGrid(r1,r2,r3,as.numeric(r4),as.numeric(r5),as.numeric(r6),r7,as.numeric(r8),r9,r10,as.numeric(r11))
+
+_df) = colnames(obj)
   print(obj)
 
   #obj@meta.data$X_expand = obj@meta.data$x_miseq_expand
