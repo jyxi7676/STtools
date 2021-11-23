@@ -45,11 +45,11 @@ export GENOMEINDEX=/path/to/STAR/index ## path that contains STAR index
 ##     --sjdbGTFfile $STHOME/STtools_example_data/geneIndex/mm10.gtf --sjdbOverhang 99
 ## export GENOMEINDEX=$STDATA/geneIndex/STARIndex/
 ## 
-## Run STTools - step 1 to 7
+## Run STTools - step A1 to V1
 python3 $STHOME/sttools.py --run-all --STtools $STHOME \
-  --first-fq $STDATA/step1_extractCoordinates/liver-MiSeq-tile2106-sub-R1.fastq.gz \
-  --second-fq1 $STDATA/step3_align/liver_tile2106_sub_R1.fastq.gz \
-  --second-fq2 $STDATA/step3_align/liver_tile2106_sub_R2.fastq.gz \
+  --first-fq $STDATA/stepA_extractCoordinates/liver-MiSeq-tile2106-sub-R1.fastq.gz \
+  --second-fq1 $STDATA/stepA_align/liver_tile2106_sub_R1.fastq.gz \
+  --second-fq2 $STDATA/stepA_align/liver_tile2106_sub_R2.fastq.gz \
   --outdir $STOUT --genome $GENOMEINDEX --star-path $STARPATH --seqtk-path $SEQTKPATH \
   --seqscope1st 'HiSeq' --clustering False --lane-tiles 1_2106 \
   --binsize 300 --window 150 -l 20 -o 'Sample' -c 2
@@ -58,7 +58,7 @@ python3 $STHOME/sttools.py --run-all --STtools $STHOME \
 STtools package have flexible options for the user to run **all
 steps**, **specificn steps**, or **consecutive steps**. 
 Several examples from various scenarios are given below for illustratrion. 
-* [Running all steps (1-7)](./doc/readme1.md)
+* [Running all steps (A1-V1)](./doc/readme1.md)
 * [Running consecutive steps](./doc/readme2.md)
 * [Running specific step](./doc/readme3.md)
 
@@ -74,15 +74,15 @@ There are 7 steps in total.
 Each step takes input from either the raw data or outputs of the
 previous steps. Please see a brief explanation on each step:
 
-* **Step 1** takes `fastq.gz` files as input and output spatial coordinates `.txt` files and whitelist used for `STARsolo` alignemnt in the current working directory.
-* **Step 2** takes barcode info, and spatial coordinates file to generate a barcode/HDMI density plot which can be compared with HE images for an estimation of tissue boundary
-* **Step 3** takes valid barcodes `whitelist.txt`, 2nd-seq `fastq.gz`
+* **Step A1** takes `fastq.gz` files as input and output spatial coordinates `.txt` files and whitelist used for `STARsolo` alignemnt in the current working directory.
+* **Step A2** takes barcode info, and spatial coordinates file to generate a barcode/HDMI density plot which can be compared with HE images for an estimation of tissue boundary
+* **Step A3** takes valid barcodes `whitelist.txt`, 2nd-seq `fastq.gz`
   files, and the STAR indices of reference genome as input to run
   `STARsolo` alignment; this step outputs digital expression matrix (DGE).
-* **Step 4** takes DGE from **Step 3** and output `Seurat` object with collapsed DGE of simple square grids.
-* **Step 5** takes DGE from **Step 3** and output Seurat object with collapsed DGE of square grids from sliding window strategy
-* **Step 6** takes in RDS file from **Step 4** and **Step 5** as input and performs dimension reduction, clustering and conducts refernece mapping with simple square grids as query
-* **Step 7** takes DGE (Velocyto-format) from **Step 3** and generate subcellular plots showing pattern of spliced/unspliced reads
+* **Step C1** takes DGE from **Step A3** and output `Seurat` object with collapsed DGE of simple square grids.
+* **Step C2** takes DGE from **Step A3** and output Seurat object with collapsed DGE of square grids from sliding window strategy
+* **Step C3** takes in RDS file from **Step C1** and **Step C2** as input and performs dimension reduction, clustering and conducts refernece mapping with simple square grids as query
+* **Step V1** takes DGE (Velocyto-format) from **Step A3** and generate subcellular plots showing pattern of spliced/unspliced reads
 
 ## Installation
 Linux operatin system is necessary to run STtools package. You also need to install the following software tools and librares/modules before using this package.
