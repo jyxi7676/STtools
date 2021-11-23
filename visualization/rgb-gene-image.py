@@ -69,6 +69,7 @@ rgbGWs = [parse_gene_weights(args.red), parse_gene_weights(args.green), parse_ge
 if ( args.layout is not None ):
     if ( args.tile is not None ):
         raise ValueError("Cannot use -t/--tile and -l/--layout options together")
+    print(args.layout)
     df = pd.read_csv(args.layout,sep="\t")
     nrows = max(df['row'])
     ncols = max(df['col'])
