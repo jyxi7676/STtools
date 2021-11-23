@@ -1,14 +1,14 @@
 
 # User Manual
 ## Running specific step in STtools
-The user needs to use the option --run-steps if interested in running steps separately. (We will give a detailed illustration about how to run STtools per step with several examples,link). Please modify your input files format according to  [the link](./doc/fileformats.md) 
+The user needs to use the option --run-steps if interested in running steps separately. (We will give a detailed illustration about how to run STtools per step with several examples,link). Please modify your input files format according to  [the link](./fileformats.md) 
 
 ## Step 1
-Step 1 aims to extracts spatial coordinates, whitelist and HDMIs from the sequenced raw FASTQ.gz file. It assumes the user has the SeqScope data format (see [Seq-Scope](https://www.cell.com/cell/fulltext/S0092-8674(21)00627-9?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS0092867421006279%3Fshowall%3Dtrue) paper), where spatial information such as HDMI/Barcode, lane, tile, X and Y coordinates can be retrieved from 1st-Seq and transcriptomic information can be retrieved from 2nd-Seq. If the data are from VISIUM or SlideSeq, we need to add this to our tool?
+Step 1 aims to extracts spatial coordinates, whitelist and HDMIs from the sequenced raw FASTQ.gz file. It assumes the user has the SeqScope data format (see [Seq-Scope](https://www.cell.com/cell/fulltext/S0092-8674(21)00627-9?_returnURL=https%3A%2F%2Flinkinghub.elsevier.com%2Fretrieve%2Fpii%2FS0092867421006279%3Fshowall%3Dtrue) paper), where spatial information such as HDMI/Barcode, lane, tile, X and Y coordinates can be retrieved from 1st-Seq and transcriptomic information can be retrieved from 2nd-Seq. 
 
 ### *Input*
   The user needs to provide some of the following files to run Step 1. 
-  *   --first--fq: Path to 1st-Seq FASTQ.gz file. STtools takes in fastq.gz files with SeqScope sequence design structure. If the barcode/UMI/randomer location is different, please see this link xxxxx (we need to add this ???) for an example to make the inputs compatible to STtools package. **Required**. 
+  *   --first-fq: Path to 1st-Seq FASTQ.gz file. STtools takes in fastq.gz files with SeqScope sequence design structure. If the barcode/UMI/randomer location is different, please see this link xxxxx (we need to add this ???) for an example to make the inputs compatible to STtools package. **Required**. 
   *   --second-fq1 : Path to 2nd-Seq Read 1 FASTQ.gz file. If the barcode/UMI/randomer location is different, please see this link for an example to make it compatible to STtools package.**Required**. 
   *   --hdmilength or -l: An integer of the length of HDMI/Barcode.If the length of HDMIs will be set to 30 if it is bigger than 30. By default hdmilength=20.
   *   --STtools: Path to the STtools package. If not given, using current working directory. **Required**
