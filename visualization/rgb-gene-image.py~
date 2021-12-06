@@ -69,7 +69,6 @@ rgbGWs = [parse_gene_weights(args.red), parse_gene_weights(args.green), parse_ge
 if ( args.layout is not None ):
     if ( args.tile is not None ):
         raise ValueError("Cannot use -t/--tile and -l/--layout options together")
-    print(args.layout)
     df = pd.read_csv(args.layout,sep="\t")
     nrows = max(df['row'])
     ncols = max(df['col'])
@@ -104,10 +103,12 @@ if args.inv_weight:
     geneTPMs = []
     for r in range(nrows):
         for c in range(ncols):
-            if os.path.isdir(f"{args.in_dir}/{lanes[r][c]}/{tiles[r][c]}")==False:
-                print('not exist3')
-                continue
-            print('here3')
+             print(f"Processing ({r},{c}) : {lanes[r][c]}_{tiles[r][c]}",file=sys.stderr)
+             print('here3')
+             print(f"{args.in_dir}/{lanes[r][c]}/{tiles[r][c]}/features.tsv.gz")
+             if os.path.isdir(f"{args.in_dir}/{lanes[r][c]}/{tiles[r][c]}")==False:
+                 print('not exist3')
+                 continue
             with gzip.open(f"{args.in_dir}/{lanes[r][c]}/{tiles[r][c]}/features.tsv.gz",'rt',encoding='utf-8') as fh:
                 idx = 0
                 for line in fh:

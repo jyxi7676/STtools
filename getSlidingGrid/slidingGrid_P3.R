@@ -60,11 +60,12 @@ mergeTileSubFieldRds=function(outpath,ncol,nrow,layout,order,tiles)
   }
   setwd(outpath)
   print('list pattsern rds')
-  print(list.files(pattern=".RDS"))
-  rds_list=list.files(pattern = ".RDS")
-  rds_list=rds_list[rds_list!='SimpleSquareGrids.RDS']
-  rds_list=rds_list[rds_list!='SimpleSquareGridsWithClustering.RDS']
-  rds_list=rds_list[rds_list!='SlidingSquareGrids.RDS']
+  rds_list=list.files(pattern="^tile.*\\.RDS$")
+  #print(list.files(pattern=".RDS"))
+  #rds_list=list.files(pattern = ".RDS")
+  #rds_list=rds_list[rds_list!='SimpleSquareGrids.RDS']
+  #rds_list=rds_list[rds_list!='SimpleSquareGridsWithClustering.RDS']
+  #rds_list=rds_list[rds_list!='SlidingSquareGrids.RDS']
   df= rds_list %>% map(readRDS)
   print(df)
   #df=df[df!='SimpleSquareGrids.RDS']

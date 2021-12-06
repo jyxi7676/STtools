@@ -95,6 +95,9 @@ parser.add_argument("--green", type=str, help="Comma-separate list of genes (col
 parser.add_argument("--blue", type=str, help="Comma-separate list of genes (colon with weights) for blue color")
 parser.add_argument("--pixel", type=int, default=80, help="Resolution of pixel (how to bin each pixel) - default: 80 (um2 per pixel)")
 parser.add_argument("--outfilePrefix", type=str, help="Output file prefix")
+parser.add_argument("--tmpdir", type=str, help="temporary directory")
+parser.add_argument("--buffer-size", type=str, help="Buffer size for sorting DGE")
+
 #Functions
 def stepA1():
 
@@ -217,7 +220,12 @@ def stepA3():
     args.predir=args.outdir+'/'+args.outprefix+"Solo.out/GeneFull/ordered"
     if not args.outdir:
         os.makedirs(args.outdir)
-    cmd3_5="{args.py} {args.orgDGE} -c {args.spatial}  -d {args.DGEdir} -o {args.predir} --ncpus {args.ncpus} --sort {args.sort}".format(args=args)
+
+    print('temp')
+    print(args.tmpdir)
+    print(args.buffer_size)
+    cmd3_5="{args.py} {args.orgDGE} -c {args.spatial}  -d {args.DGEdir} -o {args.predir} --ncpus {args.ncpus} --sort {args.sort} --tmpdir {args.tmpdir} --buffer-size {args.buffer_size}".format(args=args)
+    #cmd3_5="{args.py} {args.orgDGE} -c {args.spatial}  -d {args.DGEdir} -o {args.predir} --ncpus {args.ncpus} --sort {args.sort}".format(args=args)
     print(cmd3_5)
     ret = os.system(cmd3_5)
     if ( ret != 0 ):
@@ -453,6 +461,20 @@ def stepC3():
     
        
 def stepV1():
+    if (args.red is None):
+        raise ValueError("Please speficy  --red for visualization")
+    if (args.green is None):
+      	raise ValueError("Please speficy  --green for visualization")
+    if (args.blue is None):
+       	raise ValueError("Please speficy  --blue for visualization")
+
+
+    if(args.layout=='MiSeq'):
+        args.visualizelayout=args.STtools+'visualization/miseq_layout.tsv'
+    if(args.layout=='HiSeq'):
+        args.visualizelayout=args.STtools+'visualization/hiseq_layout.tsv'
+    if(args.lane_tiles is None):
+          args.lane_tiles='All'
     print('Start Visualization!')
     if(args.outdir is None):
         args.outdir=os.getcwd()
@@ -477,14 +499,17 @@ def stepV1():
         os.makedirs(args.predir)
         args.orgDGE=args.STtools+"/align/merge-dge-hdmi.py"
         #args.spatial=
-        cmd3_5="{args.py} {args.orgDGE} -c {args.spatial}  -d {args.DGEdir} -o {args.predir} --ncpus {args.ncpus} --sort {args.sort}".format(args=args)
+        print('temp')
+        print(args.tmpdir)
+        print(args.buffer_size)
+        cmd3_5="{args.py} {args.orgDGE} -c {args.spatial}  -d {args.DGEdir} -o {args.predir} --ncpus {args.ncpus} --sort {args.sort} --tmpdir {args.tmpdir} --buffer-size {args.buffer_size}".format(args=args)
         print(cmd3_5)
         ret = os.system(cmd3_5)
         if ( ret != 0 ):
              raise ValueError(f"ERROR in running {cmd3_5}, returning exit code {ret}")
         
     args.rgb=args.STtools+'visualization/rgb-gene-image.py'
-    args.visualizelayout=args.STtools+'/visualization/layout.tsv'
+    #args.visualizelayout=args.STtools+'/visualization/layout.tsv'
     print(args.predir)
     print(args.outfilePrefix)
     cmd7="{args.py} {args.rgb} -o {args.outfilePrefix} -d {args.predir}  -g {args.green} -b {args.blue} -r {args.red} --scale {args.scale}  --min-tpm {args.min_tpm} --res {args.pixel} --layout {args.visualizelayout}".format(args=args)
