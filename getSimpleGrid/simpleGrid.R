@@ -34,8 +34,8 @@ print(tiles)
 collapseTiles=function(tile_df,i,binx,biny,m_tile)
 {
 
-  #print('start collaping tile')
-  #print(i)
+  print('start collaping tile')
+  print(i)
   tile_df_i=tile_df[tile_df$tile_miseq==i,]
   if(dim(tile_df_i)[1]==0)
   {
@@ -62,18 +62,33 @@ collapseTiles=function(tile_df,i,binx,biny,m_tile)
  {
  return(NULL) 
  }
- if (gapx<300)
+ if (gapx<binx)
    {
        xlim[1]=xlim[1]-gapx/2
        xlim[2]=xlim[2]+gapx/2
 
    }
-   if (gapy<300)
+   if (gapy<binx)
    {
        ylim[1]=ylim[1]-gapy/2
        ylim[2]=ylim[2]+gapy/2
 
    }
+ print('grid check')
+ print(xlim)
+ print(ylim)
+ print(min(tile_df_i$x_miseq))
+ print(max(tile_df_i$x_miseq))
+ print(min(tile_df_i$y_miseq))
+ print(max(tile_df_i$y_miseq))
+ if(min(tile_df_i$x_miseq)>xlim[1] | max(tile_df_i$x_miseq)<xlim[2] | min(tile_df_i$y_miseq)>ylim[1] | max(tile_df_i$y_miseq)<ylim[2] )
+ {
+ print('small region')
+ write.csv(tile_df_i,'tile_df_i.csv')
+ return(NULL)
+ }
+
+ write.csv(tile_df_i,'tile_df_i_2104.csv')
 
  grd = make.grid(tile_df_i$x_miseq,tile_df_i$y_miseq,tile_df_i$UMI, binx,biny, xlim, ylim)
  grd=t(grd)

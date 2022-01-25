@@ -189,7 +189,7 @@ $star_executable    --genomeDir  $geneIndex \
                     --clip3pAdapterSeq AAAAAAAAAA \
                     --clip3pAdapterMMp 0.1 \
                     --soloFeatures Gene GeneFull SJ Velocyto \
-                    --limitOutSJcollapsed 1000000 \
+                    --limitOutSJcollapsed 9000000 \
                     --soloCellFilter None \
                     --outBAMsortingBinsN 200
  #scp ${outprefix}'Solo.out/GeneFull/Summary.csv' 'summary_step3.txt'
