@@ -235,7 +235,7 @@ if args.tif:
 else:
     img = Image.fromarray(data)
 
-print(f"Saving the image {args.out}.png",file=sys.stderr)
+print(f"Saving the image",file=sys.stderr)
 if args.tif:
     img.save(f"{args.out}.tif")
 else:

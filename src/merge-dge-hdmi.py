@@ -157,6 +157,7 @@ with gzip.open(coofile,'rt',encoding='utf-8') if ( coofile.endswith(".gz") ) els
                     d[iftr][i] += cnts[i]
             str_sums = ",".join([str(x) for x in cur_sums])                    
             cur_info[3].write(f"{cur_sbcd}\t{cur_info[0]}\t{cur_ibcd}\t{sum(cur_sums)}\t{lane}\t{tile}\t{x}\t{y}\t{str_sums}\n")
+            ## KNOWN BUG : g_ibcd and cur_info[0] is 1 smaller than expected sometimes at the last line
             g_bcd_fh.write(f"{cur_sbcd}\t{g_ibcd}\t{cur_ibcd}\t{sum(cur_sums)}\t{lane}\t{tile}\t{x}\t{y}\t{str_sums}\n")
 
 print(f"Writing features.. to {args.dge_dir}/{args.ftr}\n", file=sys.stderr)
@@ -185,13 +186,19 @@ for lane in lane2tile2info:
         mtx_fh.close()
         bcd_fh.close()
         ftr_fh.close()
-        with sp.Popen(f"cat - {args.out}/{lane}/{tile}/.tmp.matrix.mtx | {args.pigz} -p {args.ncpus} > {args.out}/{lane}/{tile}/matrix.mtx.gz; rm {args.out}/{lane}/{tile}/.tmp.matrix.mtx", shell=True, encoding='utf-8', stdin=sp.PIPE).stdin as wh:
+        proc = sp.Popen(f"cat - {args.out}/{lane}/{tile}/.tmp.matrix.mtx | {args.pigz} -p {args.ncpus} > {args.out}/{lane}/{tile}/matrix.mtx.gz", shell=True, encoding='utf-8', stdin=sp.PIPE)
+        with proc.stdin as wh:
             wh.write(f"%%MatrixMarket matrix coordinate integer general\n%\n{iftr} {nbcds} {nlines}\n")
-
+        proc.terminate()
+        os.unlink(f"{args.out}/{lane}/{tile}/.tmp.matrix.mtx")
 g_mtx_fh.close()
 g_bcd_fh.close()
 g_ftr_fh.close()
 
 print(f"Writing global matrix files for all lanes and tiles",file=sys.stderr)
-with sp.Popen(f"cat - {args.out}/.tmp.matrix.mtx | {args.pigz} -p {args.ncpus} > {args.out}/matrix.mtx.gz; rm {args.out}/.tmp.matrix.mtx", shell=True, encoding='utf-8', stdin=sp.PIPE).stdin as wh:
+#with sp.Popen(f"cat - {args.out}/.tmp.matrix.mtx | {args.pigz} -p {args.ncpus} > {args.out}/matrix.mtx.gz; rm {args.out}/.tmp.matrix.mtx", shell=True, encoding='utf-8', stdin=sp.PIPE).stdin as wh:
+proc = sp.Popen(f"cat - {args.out}/.tmp.matrix.mtx | {args.pigz} -p {args.ncpus} > {args.out}/matrix.mtx.gz", shell=True, encoding='utf-8', stdin=sp.PIPE)
+with proc.stdin as wh:
     wh.write(f"%%MatrixMarket matrix coordinate integer general\n%\n{iftr} {g_ibcd} {g_iline}\n")
+proc.terminate()
+os.unlink(f"{args.out}/{lane}/{tile}/.tmp.matrix.mtx")
