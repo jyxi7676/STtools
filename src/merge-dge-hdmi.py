@@ -201,4 +201,4 @@ proc = sp.Popen(f"cat - {args.out}/.tmp.matrix.mtx | {args.pigz} -p {args.ncpus}
 with proc.stdin as wh:
     wh.write(f"%%MatrixMarket matrix coordinate integer general\n%\n{iftr} {g_ibcd} {g_iline}\n")
 proc.terminate()
-os.unlink(f"{args.out}/{lane}/{tile}/.tmp.matrix.mtx")
+os.unlink(f"{args.out}/.tmp.matrix.mtx")
