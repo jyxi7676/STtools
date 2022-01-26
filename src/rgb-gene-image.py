@@ -6,17 +6,23 @@ import subprocess as sp
 from PIL import Image
 
 parser = argparse.ArgumentParser(description="Visualize tiles for SeqScope data")
+## required parameters
 parser.add_argument("-d", "--in-dir", type=str, required=True, help="Input (STTools output) directory")
+parser.add_argument("-o", "--out", type=str, required=True, help="Output file prefix")
+## layour required - one or the other
 parser.add_argument("-t", "--tile", type=str, help="A single tile to draw (in [lane_tile] format)")
 parser.add_argument("-l", "--layout", type=str, help="Layout file of tiles to draw [lane] [tile] [row] [col] format in each line")
-parser.add_argument("-s", "--scale", type=float, default=20.0, help="Scale each color to have the same mean intensity")
-parser.add_argument("-i", "--inv-weight", default=False, action='store_true', help="Weight each gene inverse")
-parser.add_argument("-m", "--min-tpm", default=1000, type=float, help="Minimum TPM value for inverse weighting (effective only with --inv-weight)")
-parser.add_argument("-r", "--red", type=str, required=True, help="Comma-separate list of genes (colon with weights) for red color")
-parser.add_argument("-g", "--green", type=str, required=True, help="Comma-separate list of genes (colon with weights) for green color")
-parser.add_argument("-b", "--blue", type=str, required=True, help="Comma-separate list of genes (colon with weights) for blue color")
+## color required - --mono or --red, --green, --blue
+parser.add_argument("-r", "--red", type=str, required=False, help="Comma-separate list of genes (colon with weights) for red color")
+parser.add_argument("-g", "--green", type=str, required=False, help="Comma-separate list of genes (colon with weights) for green color")
+parser.add_argument("-b", "--blue", type=str, required=False, help="Comma-separate list of genes (colon with weights) for blue color")
+parser.add_argument("-m", "--mono", type=str, required=False, help="Comma-separate list of genes (colon with weights) for black-and-white color")
+## scaling parameters
+parser.add_argument("-s", "--scale", type=float, default=20.0, help="Scale each color to have the same mean intensity (0 indicates no scaling)")
+#parser.add_argument("--inv-weight", default=False, action='store_true', help="Weight each gene inversely")
+#parser.add_argument("--min-tpm", default=1000, type=float, help="Minimum TPM value for inverse weighting (effective only with --inv-weight)")
 parser.add_argument("--res", type=int, default=80, help="Resolution of pixel (how to bin each pixel) - default: 80 (um2 per pixel)")
-parser.add_argument("-o", "--out", type=str, required=True, help="Output file prefix")
+parser.add_argument("--tif", default=False, action='store_true', help="Store as 16-bit tif instead of png")
 
 args = parser.parse_args()
 
@@ -48,10 +54,15 @@ def parse_gene_weights(s):
             raise ValueError(f"Cannot parse {tok} in {s}")
     return d
 
-## parse --red, --blue, --green arguments
-rgbGWs = [parse_gene_weights(args.red), parse_gene_weights(args.green), parse_gene_weights(args.blue)]
-
-#print(rgbGWs, file=sys.stderr)
+## parse --red, --blue, --green, --raw arguments
+if args.mono is not None:
+    rgbGWs = [parse_gene_weights(args.mono), parse_gene_weights(args.mono), parse_gene_weights(args.mono)]    
+    if ( args.red is not None ) or ( args.blue is not None ) or ( args.green is not None ):
+        raise ValueError("Cannot use --mono with --red, --blue, or --green together")
+elif ( args.red is not None ) and ( args.blue is not None ) and ( args.green is not None ):
+    rgbGWs = [parse_gene_weights(args.red), parse_gene_weights(args.green), parse_gene_weights(args.blue)]
+else:
+    raise ValueError("Required to specify --red, --blue, and --green together or --mono only")    
 
 if ( args.layout is not None ):
     if ( args.tile is not None ):
@@ -86,38 +97,42 @@ bin2cnts = {}
 
 ## calculate per gene weights
 geneTPMs = None
-if args.inv_weight:
-    geneTPMs = []
-    for r in range(nrows):
-        for c in range(ncols):
-            with gzip.open(f"{args.in_dir}/{lanes[r][c]}/{tiles[r][c]}/features.tsv.gz",'rt',encoding='utf-8') as fh:
-                idx = 0
-                for line in fh:
-                    toks = line.rstrip().split('\t')
-                    cnts = [int(x) for x in toks[-1].split(',')]
-                    if r == 0 and c == 0:
-                        geneTPMs.append(cnts)
-                    else:
-                        for i in range(len(cnts)):
-                            geneTPMs[idx][i] += cnts[i]
-                    idx += 1
-    geneSum = 0
-    for i in range(len(geneTPMs)):
-        for j in range(len(geneTPMs[i])):
-            geneSum += geneTPMs[i][j]
+# if args.inv_weight:
+#     geneTPMs = []
+#     for r in range(nrows):
+#         for c in range(ncols):
+#             with gzip.open(f"{args.in_dir}/{lanes[r][c]}/{tiles[r][c]}/features.tsv.gz",'rt',encoding='utf-8') as fh:
+#                 idx = 0
+#                 for line in fh:
+#                     toks = line.rstrip().split('\t')
+#                     cnts = [int(x) for x in toks[-1].split(',')]
+#                     if r == 0 and c == 0:
+#                         geneTPMs.append(cnts)
+#                     else:
+#                         for i in range(len(cnts)):
+#                             geneTPMs[idx][i] += cnts[i]
+#                     idx += 1
+#     geneSum = 0
+#     for i in range(len(geneTPMs)):
+#         for j in range(len(geneTPMs[i])):
+#             geneSum += geneTPMs[i][j]
     
-    for i in range(len(geneTPMs)):
-        for j in range(len(geneTPMs[i])):
-            geneTPMs[i][j] = geneTPMs[i][j] / geneSum * 1e6
-            if geneTPMs[j][j] < args.min_tpm:
-                geneTPMs[i][j] = args.min_tpm
+#     for i in range(len(geneTPMs)):
+#         for j in range(len(geneTPMs[i])):
+#             geneTPMs[i][j] = geneTPMs[i][j] / geneSum * 1e6
+#             if geneTPMs[j][j] < args.min_tpm:
+#                 geneTPMs[i][j] = args.min_tpm
 
 for r in range(nrows):
     for c in range(ncols):
         print(f"Processing ({r},{c}) : {lanes[r][c]}_{tiles[r][c]}",file=sys.stderr)
         ## read features.tsv
         colDict = {} ## iftr -> RGB weights
-        with gzip.open(f"{args.in_dir}/{lanes[r][c]}/{tiles[r][c]}/features.tsv.gz",'rt',encoding='utf-8') as fh:
+        ftrf = f"{args.in_dir}/{lanes[r][c]}/{tiles[r][c]}/features.tsv.gz"
+        if not os.path.exists(ftrf):
+            print(f"WARNING: Cannot find {ftrf}. Skipping the entire tile..", file=sys.stderr)
+            continue
+        with gzip.open(ftrf,'rt',encoding='utf-8') as fh:
             for line in fh:
                 toks = line.rstrip().split('\t')
                 gidx = int(toks[3])-1
@@ -185,13 +200,18 @@ for (key, value) in bin2cnts.items():
 sums[0] = sums[0] / total_h / total_w + 1e-10
 sums[1] = sums[1] / total_h / total_w + 1e-10
 sums[2] = sums[2] / total_h / total_w + 1e-10
-scale_factors = (args.scale / sums[0], args.scale / sums[1], args.scale / sums[2])
+if args.scale > 0:
+    scale_factors = (args.scale / sums[0], args.scale / sums[1], args.scale / sums[2])
+else:
+    scale_factors = (1.0, 1.0, 1.0)
 
 print(f"Scale_factors = {scale_factors}",file=sys.stderr)
 
-print(f"Constructing an image of {total_h} x {total_w}",file=sys.stderr)             
+print(f"Constructing an image of {total_h} x {total_w}",file=sys.stderr)
 
-data = np.zeros( (total_h, total_w, 3), dtype=np.uint8 )
+max_c = 65535 if args.tif else 255
+
+data = np.zeros( (total_h, total_w, 3), dtype=np.uint16 if args.tif else np.uint8 )
 for (key, value) in bin2cnts.items():
     (row, col, xbin, ybin) = [int(x) for x in key.split(':')]
     x_ext = row * tile_h + (tile_h - xbin + xbin_min - 1)
@@ -200,17 +220,23 @@ for (key, value) in bin2cnts.items():
     red = value[0] * scale_factors[0]
     grn = value[1] * scale_factors[1]
     blu = value[2] * scale_factors[2]
-    data[x_ext,y_ext,0] = int(red) if ( red < 256 ) else 255
-    data[x_ext,y_ext,1] = int(grn) if ( grn < 256 ) else 255
-    data[x_ext,y_ext,2] = int(blu) if ( blu < 256 ) else 255
+    data[x_ext,y_ext,0] = int(red) if ( red <= max_c ) else max_c
+    data[x_ext,y_ext,1] = int(grn) if ( grn <= max_c ) else max_c
+    data[x_ext,y_ext,2] = int(blu) if ( blu <= max_c ) else max_c
     #print(f"{x_ext}\t{y_ext}\t{red}\t{grn}",file=sys.stderr)
 for r in range(1,nrows):
-    data[tile_h * r, :, :] = 255
+    data[tile_h * r, :, :] = max_c
 for c in range(1,ncols):
-    data[:, tile_w * c, :] = 255
+    data[:, tile_w * c, :] = max_c
 
-print(f"Converting the matrix to an image",file=sys.stderr)    
-img = Image.fromarray(data)
+print(f"Converting the matrix to an image",file=sys.stderr)
+if args.tif:
+    img = Image.fromarray(data, mode="I;16")    
+else:
+    img = Image.fromarray(data)
 
-print(f"Saving the image {args.out}.png",file=sys.stderr)    
-img.save(f"{args.out}.png")
+print(f"Saving the image",file=sys.stderr)
+if args.tif:
+    img.save(f"{args.out}.tif")
+else:
+    img.save(f"{args.out}.png")
