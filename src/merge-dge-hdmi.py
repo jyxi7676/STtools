@@ -189,7 +189,7 @@ for lane in lane2tile2info:
         proc = sp.Popen(f"cat - {args.out}/{lane}/{tile}/.tmp.matrix.mtx | {args.pigz} -p {args.ncpus} > {args.out}/{lane}/{tile}/matrix.mtx.gz", shell=True, encoding='utf-8', stdin=sp.PIPE)
         with proc.stdin as wh:
             wh.write(f"%%MatrixMarket matrix coordinate integer general\n%\n{iftr} {nbcds} {nlines}\n")
-        proc.terminate()
+        proc.wait()
         os.unlink(f"{args.out}/{lane}/{tile}/.tmp.matrix.mtx")
 g_mtx_fh.close()
 g_bcd_fh.close()
@@ -200,5 +200,5 @@ print(f"Writing global matrix files for all lanes and tiles",file=sys.stderr)
 proc = sp.Popen(f"cat - {args.out}/.tmp.matrix.mtx | {args.pigz} -p {args.ncpus} > {args.out}/matrix.mtx.gz", shell=True, encoding='utf-8', stdin=sp.PIPE)
 with proc.stdin as wh:
     wh.write(f"%%MatrixMarket matrix coordinate integer general\n%\n{iftr} {g_ibcd} {g_iline}\n")
-proc.terminate()
+proc.wait()
 os.unlink(f"{args.out}/.tmp.matrix.mtx")
