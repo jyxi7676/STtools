@@ -25,9 +25,9 @@ parser.add_argument("-l", "--layout", type=str, help="Layout file of tiles to dr
 parser.add_argument("-s", "--scale", type=float, default=20.0, help="Scale each color to have the same mean intensity")
 parser.add_argument("-i", "--inv-weight", default=False, action='store_true', help="Weight each gene inverse")
 parser.add_argument("-m", "--min-tpm", default=1000, type=float, help="Minimum TPM value for inverse weighting (effective only with --inv-weight)")
-parser.add_argument("-r", "--red", type=str, required=True, help="Comma-separate list of genes (colon with weights) for red color")
-parser.add_argument("-g", "--green", type=str, required=True, help="Comma-separate list of genes (colon with weights) for green color")
-parser.add_argument("-b", "--blue", type=str, required=True, help="Comma-separate list of genes (colon with weights) for blue color")
+parser.add_argument("-r", "--red", type=str, help="Comma-separate list of genes (colon with weights) for red color")
+parser.add_argument("-g", "--green", type=str, help="Comma-separate list of genes (colon with weights) for green color")
+parser.add_argument("-b", "--blue", type=str, help="Comma-separate list of genes (colon with weights) for blue color")
 parser.add_argument("--res", type=int, default=80, help="Resolution of pixel (how to bin each pixel) - default: 80 (um2 per pixel)")
 parser.add_argument("-o", "--out", type=str, required=True, help="Output file prefix")
 
@@ -65,7 +65,12 @@ def parse_gene_weights(s):
 rgbGWs = [parse_gene_weights(args.red), parse_gene_weights(args.green), parse_gene_weights(args.blue)]
 
 #print(rgbGWs, file=sys.stderr)
-
+#if (args.red is None):
+#    args.red='_all'
+#if(args.blue is None):
+#    args.blue='_all'
+#if(args.green is None):
+#    args.green='_all'
 if ( args.layout is not None ):
     if ( args.tile is not None ):
         raise ValueError("Cannot use -t/--tile and -l/--layout options together")

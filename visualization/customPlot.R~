@@ -1,0 +1,91 @@
+#!/usr/bin/env Rscript
+args=commandArgs(trailingOnly=TRUE)
+objpath=args[1]
+nFeature_cutoff=as.numeric(args[2])
+workingdir=args[3]
+#layout=args[4]
+
+
+
+
+visualize2=function(objpath,nFeature_cutoff,workingdir)
+{
+    print('run custom visualization')
+    packages = c("ggplot2", "ggsci","Seurat","rlist","cowplot","tictoc")
+  ## add more packages to load if needed
+  ## Now load or install&load all
+  	package.check = lapply(
+	    packages,
+	    FUN = function(x) {
+	      if (!require(x, character.only = TRUE)) {
+	        install.packages(x, repos="https://cran.rstudio.com", dependencies = TRUE)
+	        library(x, character.only = TRUE)
+	      }
+	    }
+	  )
+  	if (file.exists(objpath)==F)
+  	{
+  		print('Path of RDS file does not exist')
+  		break
+  	}
+
+    obj=readRDS(objpath)
+
+    #print(obj[["umap"]]@cell.embeddings)
+    #print(is.null(obj[["umap"]]@cell.embeddings))
+  
+    if(nFeature_cutoff==-1)
+    {
+    	nFeature_cutoff=0
+
+    }
+
+    if (is.null(obj[["umap"]]@cell.embeddings))
+    {
+    	print('No UMAP values found')
+  		break
+    }
+    setwd(workingdir)
+
+  	p1=DimPlot(obj, label = TRUE,reduction = "umap")
+  	png('UMAP.png',width=7,height=6,res=300,units='in')
+  	print(p1)
+  	dev.off()
+
+	p2=ggplot(obj@meta.data,aes(X,Y))+geom_tile(aes(fill=obj$seurat_clusters))+theme_bw()+theme(legend.position = 'bottom')+theme(axis.text.x = element_text(size=14),axis.text.y = element_text(size=14),axis.title.y = element_text(size=14),axis.title.x = element_text(size=14))+guides(color = guide_legend(override.aes = list(size=5)))
+  	yrange=max(obj$Y)-min(obj$Y)
+  	xrange=max(obj$X)-min(obj$X)
+  	ratio=ceiling(yrange/xrange)
+  	height=6
+  	width=6*ratio
+  	png('spatialCluster.png',width=width,height=height,units='in',res=300)
+  	print(p2)
+  	dev.off()
+
+  #	if (nFeature_cutoff==0)
+                                        #	{
+       obj_cut = subset(obj, subset = nFeature_Spatial>nFeature_cutoff)  
+       p3_1=VlnPlot(obj, features = "nCount_Spatial", pt.size = 0,log=T) + NoLegend() 
+       p3_2=VlnPlot(obj, features = "nFeature_Spatial", pt.size = 0,log=T) + NoLegend()
+       png('violin_nFeature_nCount.png',width=8,height=6,res=300,units='in')
+       print(plot_grid(p3_1,p3_2,ncol=2))
+       dev.off()
+#
+ # 	}
+  #	else
+  #	{
+  #		p3_1=VlnPlot(obj, features = "nCount_Spatial", pt.size = 0,log=T) + NoLegend()
+   #             obj_cut = subset(obj, subset = nFeature_Spatial>nFeature_cutoff)
+#		p3_2=VlnPlot(obj_cut, features = "nFeature_Spatial", pt.size = 0,log=T) + NoLegend()
+#		png('violin_nFeature_nCount.png',width=10,height=6,res=300,units='in')
+#		print(plot_grid(p3_1,p3_2,ncol=2))
+#		dev.off()
+
+ # 	}
+
+
+
+
+}
+
+visualize2(objpath,nFeature_cutoff,workingdir)

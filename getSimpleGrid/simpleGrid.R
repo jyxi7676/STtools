@@ -442,11 +442,12 @@ getSimpleGrid = function(DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collaps
   #junk = dir(path=outpath,  pattern="^tile.*\\Matrix.mtx")
   #file.remove(junk)
                                         #   print('feature eplot')
-  #png("nFeatureplot.png",width=7*2,height=6,res=300,units='in')
-  #p1=VlnPlot(obj, features = "nFeature_Spatial", pt.size = 0) + NoLegend()
-  #p2=VlnPlot(obj, features = "nFeature_Spatial", pt.size = 0,log=T) + NoLegend()
-  #print(plot_grid(p1,p2,ncol=2))
-  #dev.off()
+  png("violinPlot.png",width=8,height=6,res=300,units='in')
+  p1=VlnPlot(obj, features = "nCount_Spatial", pt.size = 0,log=T) + NoLegend()
+  p2=VlnPlot(obj, features = "nFeature_Spatial", pt.size = 0,log=T) + NoLegend()
+  print(plot_grid(p1,p2,ncol=2))
+  #print(p1)
+  dev.off()
 
 #   if(nMax !='None')
 #   {
@@ -478,12 +479,13 @@ getSimpleGrid = function(DGEdir,spatial,tiles,nrow,ncol,sidesize,outpath,collaps
     meta=cbind(meta,obj_simple@reductions$umap@cell.embeddings)
     print(nrow)
     print(ncol)
-    png('SpatialDimPlot.png',width=ncol*7,height=nrow*6,res=300,units='in')
-    print(ggplot(meta,aes(X_expand,Y_expand,color=seurat_clusters))+geom_point(size=1,alpha=1))
-    dev.off()
+    #png('SpatialDimPlot.png',width=ncol*7,height=nrow*6,res=300,units='in')
+    #print(ggplot(meta,aes(X_expand,Y_expand,color=seurat_clusters))+geom_point(size=1,alpha=1))
+    #dev.off()
 
-    png('UMAP.png',width=ncol*7,height=6,res=300,units='in')
-    print(DimPlot(obj_simple, reduction = "umap", label = TRUE))
+    png('UMAP.png',width=7,height=6,res=300,units='in')
+    p4=DimPlot(obj_simple, reduction = "umap", label = TRUE)
+    print(p4)  
     dev.off()
   }
 
