@@ -55,9 +55,9 @@ else:
     mtxcmd = "paste "
     for m in mtxs:
         if m.endswith("gz"):
-            mtxcmd += f" (<zcat {args.dge_dir}/{m})"
+            mtxcmd += f" <(zcat {args.dge_dir}/{m})"
         else:
-            mtxcmd += f" (<zcat {args.dge_dir}/{m})"            
+            mtxcmd += f" <(cat {args.dge_dir}/{m})"            
 
 with gzip.open(coofile,'rt',encoding='utf-8') if ( coofile.endswith(".gz") ) else open(coofile,'rt') as fch:
     with gzip.open(f"{args.dge_dir}/{args.bcd}",'rt',encoding='utf-8') if ( args.bcd.endswith(".gz") ) else open(f"{args.dge_dir}/{args.bcd}",'rt') as fbh:
