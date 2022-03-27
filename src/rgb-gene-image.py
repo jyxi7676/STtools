@@ -19,6 +19,7 @@ parser.add_argument("-b", "--blue", type=str, required=False, help="Comma-separa
 parser.add_argument("-m", "--mono", type=str, required=False, help="Comma-separate list of genes (colon with weights) for black-and-white color")
 ## scaling parameters
 parser.add_argument("-s", "--scale", type=float, default=20.0, help="Scale each color to have the same mean intensity (0 indicates no scaling)")
+parser.add_argument("--max-scale", type=float, help="Maximum scaling factor to be multiplied (0 indicates no thresholding)")
 #parser.add_argument("--inv-weight", default=False, action='store_true', help="Weight each gene inversely")
 #parser.add_argument("--min-tpm", default=1000, type=float, help="Minimum TPM value for inverse weighting (effective only with --inv-weight)")
 parser.add_argument("--res", type=int, default=80, help="Resolution of pixel (how to bin each pixel) - default: 80 (um2 per pixel)")
@@ -201,9 +202,14 @@ sums[0] = sums[0] / total_h / total_w + 1e-10
 sums[1] = sums[1] / total_h / total_w + 1e-10
 sums[2] = sums[2] / total_h / total_w + 1e-10
 if args.scale > 0:
-    scale_factors = (args.scale / sums[0], args.scale / sums[1], args.scale / sums[2])
+    scale_factors = [args.scale / sums[0], args.scale / sums[1], args.scale / sums[2]]
 else:
-    scale_factors = (1.0, 1.0, 1.0)
+    scale_factors = [1.0, 1.0, 1.0]
+
+if args.max_scale is not None:
+    for i in range(3):
+        if scale_factors[i] > args.max_scale:
+            scale_factors[i] = args.max_scale
 
 print(f"Scale_factors = {scale_factors}",file=sys.stderr)
 

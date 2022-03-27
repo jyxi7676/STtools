@@ -45,15 +45,40 @@ g_bcd_fh = gzip.open(f"{args.out}/barcodes.tsv.gz",'wt',encoding='utf-8')
 g_ftr_fh = gzip.open(f"{args.out}/features.tsv.gz",'wt',encoding='utf-8')
 len_cnts = 0
 
+mtxs = args.mtx.split(',')
+if ( len(mtxs) == 1 ):
+    if mtxs[0].endswith("gz"):
+        mtxcmd = f"zcat {args.dge_dir}/{mtxs[0]}"
+    else:
+        mtxcmd = f"cat {args.dge_dir}/{mtxs[0]}"
+else:
+    mtxcmd = "paste "
+    for m in mtxs:
+        if m.endswith("gz"):
+            mtxcmd += f" <(zcat {args.dge_dir}/{m})"
+        else:
+            mtxcmd += f" {args.dge_dir}/{m}"
+    if "<(" in mtxcmd :
+        mtxcmd = "bash -c '" + mtxcmd + "'"
+
 with gzip.open(coofile,'rt',encoding='utf-8') if ( coofile.endswith(".gz") ) else open(coofile,'rt') as fch:
     with gzip.open(f"{args.dge_dir}/{args.bcd}",'rt',encoding='utf-8') if ( args.bcd.endswith(".gz") ) else open(f"{args.dge_dir}/{args.bcd}",'rt') as fbh:
-        with gzip.open(f"{args.dge_dir}/{args.mtx}",'rt',encoding='utf-8') if ( args.mtx.endswith(".gz") ) else open(f"{args.dge_dir}/{args.mtx}",'rt') as fmh:
+        #with gzip.open(f"{args.dge_dir}/{args.mtx}",'rt',encoding='utf-8') if ( args.mtx.endswith(".gz") ) else open(f"{args.dge_dir}/{args.mtx}",'rt') as fmh:
+        proc = sp.Popen(mtxcmd, shell=True, encoding='utf-8', stdout=sp.PIPE)
+        with proc.stdout as fmh:
             ## read the header for mtx file
             for line in fmh:
                 if ( line[0] == '%' ):
                     pass
                 else:
-                    (nftr, nbcd, nlines) = [int(x) for x in line.rstrip().split()]
+                    #(nftr, nbcd, nlines) = [int(x) for x in line.rstrip().split()]
+                    nums = [int(x) for x in line.rstrip().split()]
+                    (nftr, nbcd, nlines) = nums[0:3]
+                    for i in range(0,len(nums),3): ## make sure that numbers are all consistent between mtx files
+                        assert nftr == nums[i]
+                        assert nbcd == nums[i+1]
+                        assert nlines == nums[i+2]
+                        
                     break
             ## read actual contents
             cur_imtx = 0      ## index of barcode in matrix.tsv
@@ -65,8 +90,14 @@ with gzip.open(coofile,'rt',encoding='utf-8') if ( coofile.endswith(".gz") ) els
             n_miss_bcd = 0
             for i in range(nlines):
                 mtoks = [int(x) for x in fmh.readline().rstrip().split()]
-                (iftr, ibcd, cnts) = (mtoks[0], mtoks[1], mtoks[2:])
-                
+                if len(mtxs) == 1:
+                    (iftr, ibcd, cnts) = (mtoks[0], mtoks[1], mtoks[2:])
+                else:
+                    (iftr, ibcd, cnts) = (mtoks[0], mtoks[1], mtoks[2:3])
+                    for j in range(1,len(mtxs)):
+                        assert iftr == mtoks[3*j+0]
+                        assert ibcd == mtoks[3*j+1]
+                        cnts.append(mtoks[3*j+2])
                 if i == 0:
                     len_cnts = len(cnts)
                     cur_sums = [0] * len_cnts
@@ -159,6 +190,7 @@ with gzip.open(coofile,'rt',encoding='utf-8') if ( coofile.endswith(".gz") ) els
             cur_info[3].write(f"{cur_sbcd}\t{cur_info[0]}\t{cur_ibcd}\t{sum(cur_sums)}\t{lane}\t{tile}\t{x}\t{y}\t{str_sums}\n")
             ## KNOWN BUG : g_ibcd and cur_info[0] is 1 smaller than expected sometimes at the last line
             g_bcd_fh.write(f"{cur_sbcd}\t{g_ibcd}\t{cur_ibcd}\t{sum(cur_sums)}\t{lane}\t{tile}\t{x}\t{y}\t{str_sums}\n")
+        proc.wait()
 
 print(f"Writing features.. to {args.dge_dir}/{args.ftr}\n", file=sys.stderr)
 ## write feature.tsv file
